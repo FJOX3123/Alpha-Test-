@@ -5381,5 +5381,641 @@ window.shareCurrentChallengeLink = function() {
     window.addEventListener('DOMContentLoaded', () => setTimeout(runAllCompleteUpgrades, 150));
     setTimeout(runAllCompleteUpgrades, 750);
 </script>
+<!-- ================= الترقية الشاملة V3: Station Navigator + Zen Mode + Mastery Heatmap + Ambient Glow + Cohort Toast + Audio FX ================= -->
+<style>
+    /* 1. نبض الإطارات التفاعلي (Ambient Screen Glow) */
+    #ambient-screen-glow {
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        z-index: 9990;
+        opacity: 0;
+        transition: opacity 0.18s ease-out;
+    }
+    #ambient-screen-glow.glow-correct {
+        opacity: 1;
+        box-shadow: inset 0 0 65px 18px rgba(16, 185, 129, 0.55), inset 0 0 130px 35px rgba(16, 185, 129, 0.25);
+        animation: ambientPulseFade 0.75s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+    #ambient-screen-glow.glow-wrong {
+        opacity: 1;
+        box-shadow: inset 0 0 65px 18px rgba(239, 68, 68, 0.58), inset 0 0 130px 35px rgba(239, 68, 68, 0.25);
+        animation: ambientPulseFade 0.75s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+    @keyframes ambientPulseFade {
+        0% { opacity: 0.95; transform: scale(0.995); }
+        40% { opacity: 1; transform: scale(1); }
+        100% { opacity: 0; transform: scale(1); }
+    }
+
+    /* 2. شريط خريطة المحطات (Station Navigator) */
+    #station-navigator-bar {
+        scrollbar-width: thin;
+        scrollbar-color: var(--gold-primary) transparent;
+    }
+    #station-navigator-bar::-webkit-scrollbar {
+        height: 5px;
+    }
+    #station-navigator-bar::-webkit-scrollbar-thumb {
+        background: var(--gold-primary);
+        border-radius: 999px;
+    }
+    .st-nav-box {
+        min-width: 34px;
+        height: 34px;
+        border-radius: 10px;
+        font-size: 12px;
+        font-weight: 900;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+        cursor: pointer;
+        user-select: none;
+        border: 1.5px solid var(--border-color);
+        background: var(--bg-secondary);
+        color: var(--text-muted);
+    }
+    .st-nav-box:hover {
+        transform: translateY(-2px);
+        border-color: var(--gold-bright);
+        color: var(--text-main);
+    }
+    .st-nav-box.nav-current {
+        border-color: var(--gold-bright) !important;
+        box-shadow: 0 0 0 2px rgba(235, 210, 164, 0.45), 0 4px 12px rgba(0, 0, 0, 0.4);
+        transform: scale(1.1);
+        color: var(--gold-bright);
+        z-index: 2;
+    }
+    .st-nav-box.nav-correct {
+        background: linear-gradient(135deg, #059669 0%, #10b981 100%) !important;
+        border-color: #6ee7b7 !important;
+        color: #ffffff !important;
+        box-shadow: 0 0 12px rgba(16, 185, 129, 0.35);
+    }
+    .st-nav-box.nav-wrong {
+        background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%) !important;
+        border-color: #fca5a5 !important;
+        color: #ffffff !important;
+        box-shadow: 0 0 12px rgba(239, 68, 68, 0.35);
+    }
+
+    /* 3. وضع التركيز السينمائي (Zen Mode) */
+    body.med26-zen-mode {
+        background-color: #070605 !important;
+    }
+    body.med26-zen-mode #main-header,
+    body.med26-zen-mode footer,
+    body.med26-zen-mode #mobile-bottom-bar,
+    body.med26-zen-mode #cinematic-fog-stage,
+    body.med26-zen-mode #stardust-canvas,
+    body.med26-zen-mode #bg-Stage,
+    body.med26-zen-mode #ai-floating-btn,
+    body.med26-zen-mode #med26-pomo-widget,
+    body.med26-zen-mode #dhikr-banner-trainer,
+    body.med26-zen-mode #live-cohort-toast {
+        display: none !important;
+    }
+    body.med26-zen-mode main {
+        max-width: 1180px !important;
+        padding-top: 1.25rem !important;
+        padding-bottom: 2rem !important;
+    }
+    body.med26-zen-mode #station-card {
+        border-color: rgba(235, 210, 164, 0.55) !important;
+        box-shadow: 0 25px 70px rgba(0, 0, 0, 0.9), 0 0 40px rgba(207, 169, 107, 0.12) !important;
+    }
+
+    /* 4. الخريطة الحرارية لإتقان اللابات (Mastery Heatmap) */
+    .heatmap-tile {
+        position: relative;
+        overflow: hidden;
+        transition: all 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+        cursor: pointer;
+    }
+    .heatmap-tile:hover {
+        transform: translateY(-4px) scale(1.02);
+    }
+    .heat-lvl-0 {
+        background: rgba(30, 27, 23, 0.78);
+        border: 1.5px solid rgba(207, 169, 107, 0.22);
+    }
+    .heat-lvl-1 {
+        background: linear-gradient(145deg, rgba(6, 78, 59, 0.32) 0%, rgba(20, 18, 16, 0.9) 100%);
+        border: 1.5px solid rgba(16, 185, 129, 0.38);
+        box-shadow: inset 0 0 12px rgba(16, 185, 129, 0.1);
+    }
+    .heat-lvl-2 {
+        background: linear-gradient(145deg, rgba(5, 150, 105, 0.38) 0%, rgba(6, 78, 59, 0.52) 100%);
+        border: 1.5px solid rgba(52, 211, 153, 0.6);
+        box-shadow: 0 0 16px rgba(16, 185, 129, 0.2), inset 0 0 14px rgba(16, 185, 129, 0.18);
+    }
+    .heat-lvl-3 {
+        background: linear-gradient(145deg, rgba(16, 185, 129, 0.52) 0%, rgba(5, 150, 105, 0.68) 100%);
+        border: 1.5px solid #6ee7b7;
+        box-shadow: 0 0 24px rgba(16, 185, 129, 0.42), inset 0 0 18px rgba(110, 231, 183, 0.28);
+    }
+    body.light-mode .heat-lvl-0 {
+        background: rgba(255, 255, 255, 0.85);
+        border-color: rgba(166, 124, 56, 0.3);
+    }
+
+    /* 5. إشعار "نبض الدفعة" الحي (Live Cohort Toast) */
+    #live-cohort-toast {
+        position: fixed;
+        top: 78px;
+        left: 16px;
+        z-index: 95;
+        max-width: 340px;
+        transform: translateX(-130%);
+        opacity: 0;
+        transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.35s ease;
+    }
+    #live-cohort-toast.toast-visible {
+        transform: translateX(0);
+        opacity: 1;
+    }
+</style>
+
+<!-- طبقة نبض الإطارات التفاعلي (Ambient Screen Glow) -->
+<div id="ambient-screen-glow"></div>
+
+<!-- إشعار نبض الدفعة الحي (Live Cohort Toast) -->
+<div id="live-cohort-toast" dir="rtl" class="bg-[var(--bg-card)]/95 backdrop-blur-md border-2 border-[var(--gold-primary)] rounded-2xl p-3.5 shadow-2xl flex items-center gap-3">
+    <div id="cohort-toast-icon" class="w-10 h-10 rounded-xl gold-btn flex items-center justify-center text-lg shrink-0 shadow">🔥</div>
+    <div class="flex-1 min-w-0">
+        <div class="flex items-center justify-between gap-2">
+            <span class="text-[10px] font-black text-emerald-400 uppercase tracking-wider flex items-center gap-1">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
+                نبض الدفعة الحي
+            </span>
+            <button onclick="hideCohortToast()" class="text-[10px] text-[var(--text-muted)] hover:text-white font-black">✕</button>
+        </div>
+        <p id="cohort-toast-text" class="text-xs font-extrabold text-[var(--text-main)] truncate mt-0.5"></p>
+    </div>
+</div>
+
+<script>
+    // ================= 1. المؤثرات الصوتية التفاعلية (بدء الاختبار، انتهاء الاختبار، بدء البومودورو) =================
+    function playExamStartSound() {
+        try {
+            const AudioCtx = window.AudioContext || window.webkitAudioContext;
+            const ctx = new AudioCtx();
+            // نغمة انطلاق تصاعدية حماسية (C5 -> E5 -> G5 -> C6)
+            [523.25, 659.25, 783.99, 1046.50].forEach((freq, idx) => {
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(freq, ctx.currentTime + idx * 0.08);
+                gain.gain.setValueAtTime(0.14, ctx.currentTime + idx * 0.08);
+                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + idx * 0.08 + 0.22);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start(ctx.currentTime + idx * 0.08);
+                osc.stop(ctx.currentTime + idx * 0.08 + 0.24);
+            });
+        } catch (e) {}
+    }
+
+    function playExamFinishSound() {
+        try {
+            const AudioCtx = window.AudioContext || window.webkitAudioContext;
+            const ctx = new AudioCtx();
+            // نغمة إنجاز احتفالية عند ظهور التقرير النهائي
+            [523.25, 659.25, 783.99, 1046.50, 1318.51].forEach((freq, idx) => {
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'sine';
+                const startT = ctx.currentTime + idx * 0.10;
+                const dur = idx === 4 ? 0.55 : 0.25;
+                osc.frequency.setValueAtTime(freq, startT);
+                gain.gain.setValueAtTime(0.16, startT);
+                gain.gain.exponentialRampToValueAtTime(0.001, startT + dur);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start(startT);
+                osc.stop(startT + dur + 0.02);
+            });
+        } catch (e) {}
+    }
+
+    function playPomoStartSound() {
+        try {
+            const AudioCtx = window.AudioContext || window.webkitAudioContext;
+            const ctx = new AudioCtx();
+            // نغمة تركيز ناعمة عند بدء مؤقت البومودورو
+            [440, 659.25, 880].forEach((freq, idx) => {
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(freq, ctx.currentTime + idx * 0.09);
+                gain.gain.setValueAtTime(0.13, ctx.currentTime + idx * 0.09);
+                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + idx * 0.09 + 0.22);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start(ctx.currentTime + idx * 0.09);
+                osc.stop(ctx.currentTime + idx * 0.09 + 0.24);
+            });
+        } catch (e) {}
+    }
+
+    // ================= 2. نبض الإطارات التفاعلي (Ambient Screen Glow) =================
+    let glowTimeoutId = null;
+    function triggerAmbientGlow(isCorrect) {
+        const glowEl = document.getElementById('ambient-screen-glow');
+        if (!glowEl) return;
+        clearTimeout(glowTimeoutId);
+        glowEl.className = '';
+        void glowEl.offsetWidth; // إعادة تفعيل الأنميشن فوراً
+        glowEl.classList.add(isCorrect ? 'glow-correct' : 'glow-wrong');
+        glowTimeoutId = setTimeout(() => {
+            glowEl.className = '';
+        }, 800);
+    }
+
+    // ================= 3. شريط خريطة المحطات (Station Navigator) + وضع التركيز (Zen Mode) =================
+    function setupTrainerNavigatorAndZenUI() {
+        const trainerSec = document.getElementById('view-trainer');
+        const stationCard = document.getElementById('station-card');
+        if (!trainerSec || !stationCard) return;
+
+        // أ) إنشاء حاوية شريط خريطة المحطات فوق بطاقة السؤال مباشرة
+        if (!document.getElementById('station-navigator-wrap')) {
+            const navWrap = document.createElement('div');
+            navWrap.id = 'station-navigator-wrap';
+            navWrap.className = 'app-card rounded-2xl px-3.5 py-2.5 flex items-center justify-between gap-3';
+            navWrap.innerHTML = `
+                <div class="flex items-center gap-2 shrink-0">
+                    <span class="text-xs font-black text-[var(--gold-bright)]">🗺️ خريطة المحطات:</span>
+                </div>
+                <div id="station-navigator-bar" class="flex items-center gap-1.5 overflow-x-auto py-1 flex-1" dir="ltr"></div>
+                <div class="hidden sm:flex items-center gap-2 text-[10px] font-bold text-[var(--text-muted)] shrink-0">
+                    <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-sm bg-emerald-500 inline-block"></span>صحيحة</span>
+                    <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-sm bg-rose-500 inline-block"></span>خاطئة</span>
+                </div>
+            `;
+            stationCard.parentNode.insertBefore(navWrap, stationCard);
+        }
+
+        // ب) إضافة زر وضع التركيز السينمائي (Zen Mode) في شريط التحكم العلوي للاختبار
+        const qCounter = document.getElementById('question-counter');
+        if (qCounter && qCounter.parentElement && !document.getElementById('zen-mode-toggle-btn')) {
+            const zenBtn = document.createElement('button');
+            zenBtn.id = 'zen-mode-toggle-btn';
+            zenBtn.type = 'button';
+            zenBtn.onclick = toggleZenFocusMode;
+            zenBtn.className = 'pill-btn px-2.5 py-1.5 rounded-xl text-[11px] sm:text-xs font-extrabold text-amber-200 flex items-center gap-1';
+            zenBtn.title = 'وضع التركيز السينمائي الكامل (Zen Mode)';
+            zenBtn.innerHTML = '<span>🧘</span><span id="zen-btn-label" class="hidden sm:inline">وضع التركيز</span>';
+            qCounter.parentElement.insertBefore(zenBtn, qCounter);
+        }
+    }
+
+    function renderStationNavigator() {
+        setupTrainerNavigatorAndZenUI();
+        const bar = document.getElementById('station-navigator-bar');
+        if (!bar || !Array.isArray(currentList)) return;
+
+        bar.innerHTML = currentList.map((q, idx) => {
+            const res = sessionResults[q.id];
+            let statusCls = '';
+            if (res) {
+                statusCls = res.correct ? 'nav-correct' : 'nav-wrong';
+            }
+            const currCls = idx === currentIndex ? 'nav-current' : '';
+            return `<button type="button" onclick="jumpToStation(${idx})" class="st-nav-box ${statusCls} ${currCls}" title="الانتقال إلى المحطة ${idx + 1}">${idx + 1}</button>`;
+        }).join('');
+
+        // تمرير الشريط تلقائياً لتكون المحطة الحالية في المنتصف
+        const activeBtn = bar.querySelector('.nav-current');
+        if (activeBtn) {
+            activeBtn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+        }
+    }
+
+    function jumpToStation(idx) {
+        if (!Array.isArray(currentList) || idx < 0 || idx >= currentList.length) return;
+        currentIndex = idx;
+        renderQuestion();
+        if (activeTimerSeconds > 0 && !isBlitzMode) resetStationTimer();
+    }
+
+    function toggleZenFocusMode(forceState) {
+        const shouldEnable = typeof forceState === 'boolean'
+            ? forceState
+            : !document.body.classList.contains('med26-zen-mode');
+
+        document.body.classList.toggle('med26-zen-mode', shouldEnable);
+        const btn = document.getElementById('zen-mode-toggle-btn');
+        const lbl = document.getElementById('zen-btn-label');
+        if (btn) btn.classList.toggle('active', shouldEnable);
+        if (lbl) lbl.innerText = shouldEnable ? 'إنهاء التركيز (Esc)' : 'وضع التركيز';
+    }
+
+    // الخروج من وضع التركيز عند الضغط على زر Escape
+    window.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && document.body.classList.contains('med26-zen-mode')) {
+            toggleZenFocusMode(false);
+        }
+    });
+
+    // ================= 4. الخريطة الحرارية لإتقان اللابات الـ 12 (Mastery Heatmap) =================
+    const HEATMAP_LABS_MAP = [
+        { num: 1, subject: 'MICROBIOLOGY', dbLab: 'Gram-positive Bacteria', shortTitle: 'Gram + Bacteria', badge: 'sub-micro' },
+        { num: 2, subject: 'MICROBIOLOGY', dbLab: 'Gram-negative Bacteria', shortTitle: 'Gram - Bacteria', badge: 'sub-micro' },
+        { num: 3, subject: 'MICROBIOLOGY', dbLab: 'Antibiotic Susceptibility', shortTitle: 'Antibiotic Susceptibility', badge: 'sub-micro' },
+        { num: 4, subject: 'MICROBIOLOGY', dbLab: 'Molecular Techniques', shortTitle: 'Molecular & Viruses', badge: 'sub-micro' },
+        { num: 5, subject: 'MICROBIOLOGY', dbLab: 'Parasitic Diseases', shortTitle: 'Parasitic Diseases', badge: 'sub-micro' },
+        { num: 6, subject: 'PATHOLOGY', dbLab: 'Cell injury & Adaptation', shortTitle: 'Cell Injury & Adaptation', badge: 'sub-patho' },
+        { num: 7, subject: 'PATHOLOGY', dbLab: 'Inflammation', shortTitle: 'Inflammation', badge: 'sub-patho' },
+        { num: 8, subject: 'PATHOLOGY', dbLab: 'Hemodynamic Disorders', shortTitle: 'Hemodynamic Disorders', badge: 'sub-patho' },
+        { num: 9, subject: 'PATHOLOGY', dbLab: 'Neoplasia', shortTitle: 'Neoplasia', badge: 'sub-patho' },
+        { num: 10, subject: 'HISTOLOGY', dbLab: 'Loose Connective Tissues', shortTitle: 'Loose Connective Tissue', badge: 'sub-histo' },
+        { num: 11, subject: 'HISTOLOGY', dbLab: 'Small Blood Vessels', shortTitle: 'Small Blood Vessels', badge: 'sub-histo' },
+        { num: 12, subject: 'SURGERY', dbLab: 'Breast Cancer', shortTitle: 'Breast Examination', badge: 'sub-surg' }
+    ];
+
+    function renderMasteryHeatmap() {
+        const homeSec = document.getElementById('view-home');
+        if (!homeSec) return;
+
+        let container = document.getElementById('mastery-heatmap-section');
+        if (!container) {
+            container = document.createElement('div');
+            container.id = 'mastery-heatmap-section';
+            container.className = 'app-card rounded-3xl p-5 sm:p-6 space-y-4';
+            // إدراج الخريطة الحرارية قبل شبكة المواد الأربع الكبيرة
+            const subjectsGrid = Array.from(homeSec.children).find(el => el.classList.contains('grid') && el.innerText.includes('MICROBIOLOGY'));
+            if (subjectsGrid) {
+                homeSec.insertBefore(container, subjectsGrid);
+            } else {
+                homeSec.appendChild(container);
+            }
+        }
+
+        let totalMasteredLabs = 0;
+        const tilesHtml = HEATMAP_LABS_MAP.map(lab => {
+            const labQs = questionsDB.filter(q => q.subject === lab.subject && q.lab === lab.dbLab);
+            const doneCount = labQs.filter(q => masteredIds.includes(q.id)).length;
+            const totalCount = labQs.length || 1;
+            const pct = Math.round((doneCount / totalCount) * 100);
+            if (pct >= 80) totalMasteredLabs++;
+
+            let heatClass = 'heat-lvl-0';
+            let statusIcon = '🌑';
+            if (pct >= 80) { heatClass = 'heat-lvl-3'; statusIcon = '🔥'; }
+            else if (pct >= 40) { heatClass = 'heat-lvl-2'; statusIcon = '⚡'; }
+            else if (pct > 0) { heatClass = 'heat-lvl-1'; statusIcon = '🌱'; }
+
+            return `
+                <div onclick="startTraining({subject:'${lab.subject}', lab:'${lab.dbLab}'})" 
+                     class="heatmap-tile ${heatClass} rounded-2xl p-3 flex flex-col justify-between gap-2 text-right"
+                     title="اضغط للتدرب فوراً على محطات ${lab.shortTitle}">
+                    <div class="flex justify-between items-center gap-1">
+                        <span class="px-2 py-0.5 rounded-md text-[9px] font-black uppercase ${lab.badge}">Lab ${lab.num}</span>
+                        <span class="text-xs font-black ${pct > 0 ? 'text-emerald-300' : 'text-[var(--text-muted)]'}">${statusIcon} ${pct}%</span>
+                    </div>
+                    <div class="text-xs font-extrabold text-white dir-ltr text-left truncate" dir="ltr">${lab.shortTitle}</div>
+                    <div class="space-y-1">
+                        <div class="w-full h-1.5 bg-black/45 rounded-full overflow-hidden">
+                            <div class="h-full bg-gradient-to-r from-emerald-500 to-teal-300 transition-all duration-500" style="width:${pct}%"></div>
+                        </div>
+                        <div class="flex justify-between items-center text-[10px] text-[var(--text-muted)] font-bold">
+                            <span>أتقنت ${doneCount}/${labQs.length}</span>
+                            <span class="text-[var(--gold-bright)]">تدرّب ⬅️</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        container.innerHTML = `
+            <div class="flex flex-wrap justify-between items-center gap-2 border-b border-[var(--border-color)] pb-3">
+                <div>
+                    <h3 class="text-base sm:text-xl font-black text-[var(--gold-bright)] flex items-center gap-2">
+                        <span>🟩 الخريطة الحرارية لإتقان اللابات الـ 12 (Mastery Heatmap)</span>
+                    </h3>
+                    <p class="text-xs text-[var(--text-muted)] font-bold">تزداد إضاءة كل لاب باللون الأخضر الزمردي كلما أتقنت محطاته • اضغط على أي لاب للتدرب عليه فوراً</p>
+                </div>
+                <div class="flex items-center gap-3 text-[11px] font-extrabold">
+                    <span class="px-3 py-1 rounded-xl bg-emerald-500/15 border border-emerald-500/40 text-emerald-300">لابات مكتملة (+80%): ${totalMasteredLabs} / 12</span>
+                </div>
+            </div>
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2.5">
+                ${tilesHtml}
+            </div>
+        `;
+    }
+
+    // ================= 5. إشعار "نبض الدفعة" الحي (Live Cohort Toast) =================
+    let prevCohortSnapshot = {};
+    let cohortToastTimer = null;
+    let initialPulseShown = false;
+
+    function showCohortToast(message, icon = '🔥') {
+        if (document.body.classList.contains('med26-zen-mode')) return;
+        const toast = document.getElementById('live-cohort-toast');
+        const txtEl = document.getElementById('cohort-toast-text');
+        const icnEl = document.getElementById('cohort-toast-icon');
+        if (!toast || !txtEl) return;
+
+        txtEl.innerText = message;
+        if (icnEl) icnEl.innerText = icon;
+        toast.classList.add('toast-visible');
+
+        clearTimeout(cohortToastTimer);
+        cohortToastTimer = setTimeout(hideCohortToast, 6500);
+    }
+
+    function hideCohortToast() {
+        const toast = document.getElementById('live-cohort-toast');
+        if (toast) toast.classList.remove('toast-visible');
+    }
+
+    async function pollLiveCohortActivity() {
+        if (typeof FIREBASE_BASE_URL === 'undefined') return;
+        try {
+            const res = await fetch(`${FIREBASE_BASE_URL}/scores.json?t=${Date.now()}`, { cache: 'no-store' });
+            if (!res.ok) return;
+            const data = (await res.json()) || {};
+            const myName = (localStorage.getItem('med26_username') || '').toLowerCase();
+
+            const hadPrev = Object.keys(prevCohortSnapshot).length > 0;
+            if (hadPrev) {
+                for (const [key, player] of Object.entries(data)) {
+                    if (!player || !player.name) continue;
+                    const old = prevCohortSnapshot[key];
+                    const isMe = player.name.toLowerCase() === myName;
+                    if (isMe) continue;
+
+                    if (old) {
+                        if ((player.solved || 0) > (old.solved || 0)) {
+                            showCohortToast(`البطل ${player.name} رفع رصيده إلى ${player.solved} محطة محلولة! 🚀`, '🏆');
+                            break;
+                        }
+                        if ((player.bestStreak || 0) > (old.bestStreak || 0) && player.bestStreak >= 5) {
+                            showCohortToast(`${player.name} حقق سلسلة إجابات جديدة (${player.bestStreak} صح متتالية)! 🔥`, '🔥');
+                            break;
+                        }
+                        if ((player.bestTime || 0) > 0 && (!old.bestTime || player.bestTime < old.bestTime)) {
+                            showCohortToast(`رقم سريع جديد! ${player.name} أنهى المحاكي في ${player.bestTime} ثانية ⚡`, '⚡');
+                            break;
+                        }
+                        if ((player.wins || 0) > (old.wins || 0)) {
+                            showCohortToast(`${player.name} فاز للتو في تحدي الأصدقاء (${player.wins} فوز)! ⚔️`, '⚔️');
+                            break;
+                        }
+                    } else if ((player.solved || 0) > 0) {
+                        showCohortToast(`انضم ${player.name} إلى لوحة المتصدرين بـ ${player.solved} محطة! 🌟`, '🌟');
+                        break;
+                    }
+                }
+            } else if (!initialPulseShown) {
+                // إظهار نبض ترحيبي يعرض متصدر الدفعة الحالي بعد 10 ثوانٍ من فتح الموقع
+                initialPulseShown = true;
+                const sorted = Object.values(data).filter(p => p && p.solved > 0).sort((a, b) => (b.solved || 0) - (a.solved || 0));
+                if (sorted.length > 0) {
+                    setTimeout(() => {
+                        showCohortToast(`يتصدر الدفعة حالياً ${sorted[0].name} بـ ${sorted[0].solved} محطة محلولة! نافسه الآن 💪`, '👑');
+                    }, 9000);
+                }
+            }
+            prevCohortSnapshot = data;
+        } catch (e) {}
+    }
+    setInterval(pollLiveCohortActivity, 22000);
+    setTimeout(pollLiveCohortActivity, 4000);
+
+    // ================= 6. ربط جميع الميزات بالدوال الأساسية للمنصة تلقائياً =================
+    (function hookAllV3Features() {
+        // أ) ربط صوت بدء الاختبار وتجهيز شريط خريطة المحطات
+        ['startTraining', 'launchCustomTraining', 'startExamSimulator', 'startBlitzMode', 'retrySessionMistakes'].forEach(fnName => {
+            const origFn = window[fnName];
+            if (typeof origFn === 'function' && !origFn._v3Hooked) {
+                window[fnName] = function(...args) {
+                    const prevView = document.getElementById('view-trainer')?.classList.contains('hidden');
+                    const res = origFn.apply(this, args);
+                    const nowTrainerVisible = !document.getElementById('view-trainer')?.classList.contains('hidden');
+                    if (nowTrainerVisible && prevView) {
+                        playExamStartSound();
+                    }
+                    renderStationNavigator();
+                    return res;
+                };
+                window[fnName]._v3Hooked = true;
+            }
+        });
+
+        // ب) ربط صوت انتهاء الاختبار وإيقاف وضع التركيز عند عرض التقرير
+        const origShowReport = window.showWeaknessReport;
+        if (typeof origShowReport === 'function' && !origShowReport._v3Hooked) {
+            window.showWeaknessReport = function(...args) {
+                toggleZenFocusMode(false);
+                playExamFinishSound();
+                return origShowReport.apply(this, args);
+            };
+            window.showWeaknessReport._v3Hooked = true;
+        }
+
+        // ج) ربط صوت بدء مؤقت البومودورو
+        const origTogglePomo = window.togglePomoTimer;
+        if (typeof origTogglePomo === 'function' && !origTogglePomo._v3Hooked) {
+            window.togglePomoTimer = function(...args) {
+                const wasRunning = pomoIsRunning;
+                const res = origTogglePomo.apply(this, args);
+                if (!wasRunning && pomoIsRunning) {
+                    playPomoStartSound();
+                }
+                return res;
+            };
+            window.togglePomoTimer._v3Hooked = true;
+        }
+
+        // د) ربط نبض الإطارات التفاعلي (Ambient Glow) وتحديث خريطة المحطات والخريطة الحرارية عند الإجابة
+        const origMarkQ = window.markQuestion;
+        if (typeof origMarkQ === 'function' && !origMarkQ._v3Hooked) {
+            window.markQuestion = function(isMastered, autoAdvance = true) {
+                triggerAmbientGlow(Boolean(isMastered));
+                const res = origMarkQ.apply(this, [isMastered, autoAdvance]);
+                renderStationNavigator();
+                renderMasteryHeatmap();
+                return res;
+            };
+            window.markQuestion._v3Hooked = true;
+        }
+
+        // دعم زر "متوسط" في التكرار المتباعد لتحديث لون المربع في خريطة المحطات
+        const origSRS = window.handleSpacedRepetition;
+        if (typeof origSRS === 'function' && !origSRS._v3Hooked) {
+            window.handleSpacedRepetition = function(level) {
+                if (level === 'medium') triggerAmbientGlow(false);
+                const res = origSRS.apply(this, [level]);
+                renderStationNavigator();
+                return res;
+            };
+            window.handleSpacedRepetition._v3Hooked = true;
+        }
+
+        // دعم المصحح الكتابي التلقائي لنبض الإطارات
+        const origCheckTyped = window.checkTypedAnswer;
+        if (typeof origCheckTyped === 'function' && !origCheckTyped._v3Hooked) {
+            window.checkTypedAnswer = function(...args) {
+                const res = origCheckTyped.apply(this, args);
+                const fbEl = document.getElementById('typing-feedback');
+                if (fbEl && !fbEl.classList.contains('hidden')) {
+                    triggerAmbientGlow(fbEl.innerText.includes('✅'));
+                }
+                return res;
+            };
+            window.checkTypedAnswer._v3Hooked = true;
+        }
+
+        // هـ) تحديث شريط خريطة المحطات عند كل انتقال بين الأسئلة
+        const origRenderQ = window.renderQuestion;
+        if (typeof origRenderQ === 'function' && !origRenderQ._v3Hooked) {
+            window.renderQuestion = function(...args) {
+                const res = origRenderQ.apply(this, args);
+                renderStationNavigator();
+                return res;
+            };
+            window.renderQuestion._v3Hooked = true;
+        }
+
+        // و) تحديث الخريطة الحرارية تلقائياً مع تحديث الإحصائيات والخروج من Zen Mode عند تغيير الصفحة
+        const origUpdateStats = window.updateStatsUI;
+        if (typeof origUpdateStats === 'function' && !origUpdateStats._v3Hooked) {
+            window.updateStatsUI = function(...args) {
+                const res = origUpdateStats.apply(this, args);
+                renderMasteryHeatmap();
+                return res;
+            };
+            window.updateStatsUI._v3Hooked = true;
+        }
+
+        const origSwitch = window.switchView;
+        if (typeof origSwitch === 'function' && !origSwitch._v3Hooked) {
+            window.switchView = function(view) {
+                if (view !== 'trainer') toggleZenFocusMode(false);
+                return origSwitch.apply(this, [view]);
+            };
+            window.switchView._v3Hooked = true;
+        }
+    })();
+
+    // تشغيل العناصر البصرية فور تحميل الصفحة
+    window.addEventListener('DOMContentLoaded', () => {
+        setTimeout(() => {
+            setupTrainerNavigatorAndZenUI();
+            renderMasteryHeatmap();
+            if (typeof triggerBidirectionalCascade === 'function') triggerBidirectionalCascade();
+        }, 250);
+    });
+    setTimeout(() => {
+        setupTrainerNavigatorAndZenUI();
+        renderMasteryHeatmap();
+        if (typeof triggerBidirectionalCascade === 'function') triggerBidirectionalCascade();
+    }, 850);
+</script>
 </body>
 </html>
