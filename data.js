@@ -573,3 +573,341 @@
             mnemonic: "• Hands on waist = Contract Pectoralis major.\n• Upper Outer Quadrant = الأكثر شيوعاً."
         }
     };
+	// ================= الترقية الشاملة V5: المزامنة السحابية الشاملة بالكود السري + تسريع الفتح 4x =================
+window.addEventListener('DOMContentLoaded', () => {
+    // 1. تسريع تحميل الشعار الفوري بدون فحص البكسلات الثقيل
+    window.loadTransparentLogo = function() {
+        const cached = localStorage.getItem('med26_fast_logo_src') || 'logo.png';
+        window.globalLogoDataUrl = cached;
+        document.querySelectorAll('img[data-logo]').forEach(el => {
+            el.decoding = 'async';
+            el.onerror = function() {
+                if (!this.src.includes('شعار الدفعة_2.png')) this.src = 'شعار الدفعة_2.png';
+            };
+            el.src = cached;
+        });
+    };
+    window.loadTransparentLogo();
+
+    // 2. التحميل الكسول (Lazy Loading) لجميع صور العينات والأطلس
+    function applyFastLazyImages() {
+        document.querySelectorAll('#atlas-grid img, #q-image, #spot-day-img').forEach(img => {
+            if (!img.getAttribute('loading')) img.setAttribute('loading', 'lazy');
+            if (!img.getAttribute('decoding')) img.setAttribute('decoding', 'async');
+        });
+    }
+    applyFastLazyImages();
+
+    const _origRenderAtlasV5 = window.renderAtlasGrid;
+    if (typeof _origRenderAtlasV5 === 'function') {
+        window.renderAtlasGrid = function(...args) {
+            const res = _origRenderAtlasV5.apply(this, args);
+            applyFastLazyImages();
+            return res;
+        };
+    }
+
+    // 3. المزامنة السحابية الشاملة (المفضلة + الملاحظات + الـ Checklist + الإتقان) عبر الكود السري (4 أرقام)
+    let cloudSyncDebounceTimer = null;
+
+    function scheduleCloudProfilePush(delayMs = 350) {
+        localStorage.setItem('med26_profile_updated_at', String(Date.now()));
+        clearTimeout(cloudSyncDebounceTimer);
+        cloudSyncDebounceTimer = setTimeout(() => {
+            if (typeof window.syncLiveScoreboard === 'function') window.syncLiveScoreboard(true);
+        }, delayMs);
+    }
+
+    function applyCloudProfileToLocal(cloudEntry, mergeWithLocal = false) {
+        if (!cloudEntry) return;
+
+        if (Array.isArray(cloudEntry.bookmarks)) {
+            bookmarkIds = mergeWithLocal ? Array.from(new Set([...bookmarkIds, ...cloudEntry.bookmarks])) : [...cloudEntry.bookmarks];
+            localStorage.setItem('med26_f2_bookmarks', JSON.stringify(bookmarkIds));
+        }
+        if (cloudEntry.notes && typeof cloudEntry.notes === 'object') {
+            personalNotes = mergeWithLocal ? { ...cloudEntry.notes, ...personalNotes } : { ...cloudEntry.notes };
+            localStorage.setItem('med26_f2_notes', JSON.stringify(personalNotes));
+        }
+        if (cloudEntry.checklist && typeof cloudEntry.checklist === 'object') {
+            const localCl = typeof getChecklistData === 'function' ? getChecklistData() : {};
+            const finalCl = mergeWithLocal ? { ...cloudEntry.checklist, ...localCl } : { ...cloudEntry.checklist };
+            localStorage.setItem('med26_f2_lab_checklist', JSON.stringify(finalCl));
+        }
+        if (Array.isArray(cloudEntry.mastered)) {
+            masteredIds = mergeWithLocal ? Array.from(new Set([...masteredIds, ...cloudEntry.mastered])) : [...cloudEntry.mastered];
+            localStorage.setItem('med26_f2_mastered', JSON.stringify(masteredIds));
+        }
+        if (Array.isArray(cloudEntry.mistakes)) {
+            mistakeIds = mergeWithLocal ? Array.from(new Set([...mistakeIds, ...cloudEntry.mistakes])).filter(id => !masteredIds.includes(id)) : [...cloudEntry.mistakes];
+            localStorage.setItem('med26_f2_mistakes', JSON.stringify(mistakeIds));
+        }
+        if (cloudEntry.lastSession && typeof cloudEntry.lastSession === 'object') {
+            const localLast = JSON.parse(localStorage.getItem('med26_last_session') || 'null');
+            if (!localLast || (cloudEntry.lastSession.savedAt || 0) > (localLast.savedAt || 0)) {
+                localStorage.setItem('med26_last_session', JSON.stringify(cloudEntry.lastSession));
+            }
+        }
+        if (cloudEntry.profileUpdatedAt) {
+            localStorage.setItem('med26_profile_updated_at', String(cloudEntry.profileUpdatedAt));
+        }
+
+        if (typeof updateStatsUI === 'function') updateStatsUI();
+        if (typeof updateChecklistProgressUI === 'function') updateChecklistProgressUI();
+        if (typeof updateSubjectCardsLabColors === 'function') updateSubjectCardsLabColors();
+        if (typeof updateContinueSessionBtnUI === 'function') updateContinueSessionBtnUI();
+
+        if (!document.getElementById('view-trainer')?.classList.contains('hidden') && currentList[currentIndex]) {
+            const currQ = currentList[currentIndex];
+            if (typeof updateBookmarkBtnUI === 'function') updateBookmarkBtnUI(currQ.id);
+            const noteArea = document.getElementById('station-personal-note');
+            if (noteArea && document.activeElement !== noteArea) noteArea.value = personalNotes[currQ.id] || '';
+        }
+        if (!document.getElementById('view-atlas')?.classList.contains('hidden') && typeof renderAtlasGrid === 'function') {
+            renderAtlasGrid();
+        }
+    }
+
+    function updateCloudBadgeStatus(isSynced) {
+        const topBadge = document.getElementById('top-user-badge');
+        if (!topBadge) return;
+        let syncDot = document.getElementById('cloud-sync-dot');
+        if (!syncDot) {
+            syncDot = document.createElement('span');
+            syncDot.id = 'cloud-sync-dot';
+            syncDot.className = 'text-[10px] text-emerald-400 font-black';
+            syncDot.title = 'حسابك متزامن سحابياً (المفضلة والملاحظات والـ Checklist)';
+            topBadge.appendChild(syncDot);
+        }
+        syncDot.innerText = isSynced ? '☁️✓' : '☁️';
+    }
+
+    window.syncLiveScoreboard = async function(isNewLocalAction = false) {
+        let username = (localStorage.getItem('med26_username') || '').trim();
+        const myToken = getMyDeviceToken();
+        const mySolved = getTotalSolvedCount();
+        const myBestTime = parseInt(localStorage.getItem('med26_best_sim_time') || '0', 10);
+        const myBestStreak = Math.max(parseInt(localStorage.getItem('med26_best_streak') || '0', 10), currentStreak);
+        const myWins = parseInt(localStorage.getItem('med26_challenge_wins') || '0', 10);
+        const localProfileStamp = parseInt(localStorage.getItem('med26_profile_updated_at') || '0', 10);
+
+        let dbData = {};
+        try {
+            const res = await fetch(`${FIREBASE_BASE_URL}/scores.json?t=${Date.now()}`, { cache: 'no-store' });
+            if (res.ok) dbData = (await res.json()) || {};
+        } catch (e) { return; }
+
+        if (username) {
+            const safeKey = username.toLowerCase().replace(/[.#$\[\]\/]/g, '_');
+            const existing = dbData[safeKey];
+
+            if (existing && existing.token && existing.token !== myToken) {
+                username = `${username}_${myToken.slice(0, 2)}`;
+                localStorage.setItem('med26_username', username);
+                const topTxt = document.getElementById('top-username-text');
+                if (topTxt) topTxt.innerText = username;
+                return window.syncLiveScoreboard(isNewLocalAction);
+            }
+
+            const hasLocalPersonalData =
+                bookmarkIds.length > 0 ||
+                Object.keys(personalNotes).length > 0 ||
+                Object.keys(typeof getChecklistData === 'function' ? getChecklistData() : {}).length > 0 ||
+                masteredIds.length > 0;
+
+            if (existing && !isNewLocalAction) {
+                if (existing.name && existing.name !== username) {
+                    localStorage.setItem('med26_username', existing.name);
+                    const topTxt = document.getElementById('top-username-text');
+                    if (topTxt) topTxt.innerText = existing.name;
+                }
+                if (typeof existing.solved === 'number') localStorage.setItem('med26_total_solved_count', String(existing.solved));
+                if (typeof existing.bestStreak === 'number') localStorage.setItem('med26_best_streak', String(existing.bestStreak));
+                if (typeof existing.bestTime === 'number') localStorage.setItem('med26_best_sim_time', String(existing.bestTime));
+                if (typeof existing.wins === 'number') localStorage.setItem('med26_challenge_wins', String(existing.wins));
+
+                const cloudStamp = existing.profileUpdatedAt || 0;
+                if (cloudStamp > localProfileStamp) {
+                    applyCloudProfileToLocal(existing, localProfileStamp === 0);
+                } else if (cloudStamp === 0 && hasLocalPersonalData) {
+                    return window.syncLiveScoreboard(true);
+                }
+                globalLivePlayers = Object.values(dbData);
+                updateCloudBadgeStatus(true);
+                return;
+            }
+
+            if (isNewLocalAction || (!existing && hasLocalPersonalData)) {
+                const prev = existing || {};
+                const currentChecklist = typeof getChecklistData === 'function' ? getChecklistData() : {};
+                const lastSess = JSON.parse(localStorage.getItem('med26_last_session') || 'null');
+
+                const updatedEntry = {
+                    name: prev.name || username,
+                    token: prev.token || myToken,
+                    solved: Math.max(prev.solved || 0, mySolved),
+                    bestStreak: Math.max(prev.bestStreak || 0, myBestStreak),
+                    wins: Math.max(prev.wins || 0, myWins),
+                    bestTime: (prev.bestTime > 0 && myBestTime > 0) ? Math.min(prev.bestTime, myBestTime) : (prev.bestTime || myBestTime || 0),
+                    bookmarks: Array.isArray(bookmarkIds) ? bookmarkIds : [],
+                    notes: personalNotes || {},
+                    checklist: currentChecklist || {},
+                    mastered: Array.isArray(masteredIds) ? masteredIds : [],
+                    mistakes: Array.isArray(mistakeIds) ? mistakeIds : [],
+                    lastSession: lastSess,
+                    profileUpdatedAt: Date.now(),
+                    updatedAt: Date.now()
+                };
+
+                localStorage.setItem('med26_profile_updated_at', String(updatedEntry.profileUpdatedAt));
+                dbData[safeKey] = updatedEntry;
+
+                if (updatedEntry.solved > 0 || updatedEntry.bestTime > 0 || updatedEntry.bestStreak > 0 || updatedEntry.wins > 0 || hasLocalPersonalData) {
+                    try {
+                        await fetch(`${FIREBASE_BASE_URL}/scores/${encodeURIComponent(safeKey)}.json`, {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(updatedEntry)
+                        });
+                        updateCloudBadgeStatus(true);
+                    } catch (e) {}
+                }
+            }
+        }
+        globalLivePlayers = Object.values(dbData);
+    };
+
+    window.changeUsernamePrompt = async function() {
+        const currName = (localStorage.getItem('med26_username') || '').trim();
+        const myToken = getMyDeviceToken();
+
+        const newNameInput = prompt(
+            `👤 اسمك الحالي: ${currName || 'غير محدد'}\n🔑 كود ملكية ومزامنة حسابك (أدخله في الآيباد أو البيسي لنقل المفضلة والملاحظات والـ Checklist): [ ${myToken} ]\n\nأدخل اسم المستخدم الخاص بك:`,
+            currName
+        );
+
+        if (!newNameInput || !newNameInput.trim()) return;
+        const cleanNewName = newNameInput.trim();
+        const newKey = cleanNewName.toLowerCase().replace(/[.#$\[\]\/]/g, '_');
+        const oldKey = currName ? currName.toLowerCase().replace(/[.#$\[\]\/]/g, '_') : '';
+
+        try {
+            const res = await fetch(`${FIREBASE_BASE_URL}/scores/${encodeURIComponent(newKey)}.json?t=${Date.now()}`, { cache: 'no-store' });
+            const existingUser = res.ok ? await res.json() : null;
+
+            if (existingUser && existingUser.token && existingUser.token !== myToken) {
+                const enteredPin = prompt(
+                    `🔒 الحساب "${cleanNewName}" محمي بكود ملكية!\n\nإذا كان هذا حسابك على جهازك الآخر (البيسي أو الآيباد)، أدخل كود الملكية المكون من 4 أرقام لنقل المفضلة والملاحظات والـ Checklist إلى هذا الجهاز:`
+                );
+                if (enteredPin && enteredPin.trim() === String(existingUser.token)) {
+                    localStorage.setItem('med26_device_token', String(existingUser.token));
+                    localStorage.setItem('med26_username', existingUser.name);
+
+                    if (typeof existingUser.solved === 'number') localStorage.setItem('med26_total_solved_count', String(existingUser.solved));
+                    if (typeof existingUser.bestStreak === 'number') localStorage.setItem('med26_best_streak', String(existingUser.bestStreak));
+                    if (typeof existingUser.bestTime === 'number') localStorage.setItem('med26_best_sim_time', String(existingUser.bestTime));
+                    if (typeof existingUser.wins === 'number') localStorage.setItem('med26_challenge_wins', String(existingUser.wins));
+
+                    applyCloudProfileToLocal(existingUser, true);
+                    await window.syncLiveScoreboard(true);
+                    if (typeof renderScoreboardLists === 'function') renderScoreboardLists();
+
+                    alert(
+                        `✅ تم ربط جهازك بحسابك "${existingUser.name}" ومزامنة بياناتك بنجاح!\n\n` +
+                        `⭐ المفضلة: ${bookmarkIds.length} محطة\n` +
+                        `📝 الملاحظات الشخصية: ${Object.keys(personalNotes || {}).length} ملاحظة\n` +
+                        `📋 جدول اللابات: ${Object.keys(typeof getChecklistData === 'function' ? getChecklistData() : {}).length} لاب محفوظ\n` +
+                        `🏆 المحطات المحلولة: ${getTotalSolvedCount()} محطة`
+                    );
+                    return;
+                } else {
+                    alert('❌ الكود غير صحيح! لا يمكنك استخدام هذا الاسم لأنه محجوز لطالب آخر في الدفعة.');
+                    return;
+                }
+            }
+
+            if (oldKey && oldKey !== newKey) {
+                const oldRes = await fetch(`${FIREBASE_BASE_URL}/scores/${encodeURIComponent(oldKey)}.json?t=${Date.now()}`, { cache: 'no-store' });
+                const oldData = oldRes.ok ? await oldRes.json() : null;
+                if (oldData && (!oldData.token || oldData.token === myToken)) {
+                    await fetch(`${FIREBASE_BASE_URL}/scores/${encodeURIComponent(oldKey)}.json`, { method: 'DELETE' });
+                }
+            }
+
+            localStorage.setItem('med26_username', cleanNewName);
+            if (existingUser && existingUser.token === myToken) applyCloudProfileToLocal(existingUser, true);
+            await window.syncLiveScoreboard(true);
+            if (typeof renderScoreboardLists === 'function') renderScoreboardLists();
+            alert(`✅ تم حفظ ومزامنة حسابك باسم "${cleanNewName}" بنجاح!\n🔑 كود الملكية والمزامنة لأجهزتك الأخرى هو: [ ${localStorage.getItem('med26_device_token')} ]`);
+        } catch (e) {
+            alert('تأكد من اتصالك بالإنترنت لإتمام المزامنة السحابية.');
+        }
+    };
+
+    window.forceManualCloudSync = async function() {
+        await window.syncLiveScoreboard(false);
+        await window.syncLiveScoreboard(true);
+        const myToken = getMyDeviceToken();
+        const user = localStorage.getItem('med26_username') || 'طالب MED26';
+        alert(
+            `☁️ تمت المزامنة السحابية لحسابك (${user}) بنجاح!\n` +
+            `🔑 كود الربط مع الآيباد/البيسي: [ ${myToken} ]\n\n` +
+            `• المفضلة المحفوظة: ${bookmarkIds.length} محطة ⭐\n` +
+            `• الملاحظات الشخصية: ${Object.keys(personalNotes || {}).length} ملاحظة 📝\n` +
+            `• المحطات المتقنة: ${masteredIds.length} محطة ✅`
+        );
+    };
+
+    // 4. ربط أزرار المفضلة والملاحظات والـ Checklist بالمزامنة الفورية
+    const origToggleBookmark = window.toggleBookmarkCurrent;
+    if (typeof origToggleBookmark === 'function') {
+        window.toggleBookmarkCurrent = function(...args) {
+            const res = origToggleBookmark.apply(this, args);
+            scheduleCloudProfilePush(150);
+            return res;
+        };
+    }
+
+    const origSaveNote = window.savePersonalNote;
+    if (typeof origSaveNote === 'function') {
+        window.savePersonalNote = function(...args) {
+            const res = origSaveNote.apply(this, args);
+            scheduleCloudProfilePush(700);
+            return res;
+        };
+    }
+
+    const origSaveChecklist = window.saveChecklistItem;
+    if (typeof origSaveChecklist === 'function') {
+        window.saveChecklistItem = function(labId, field, value, evt) {
+            const res = origSaveChecklist.apply(this, [labId, field, value, evt]);
+            scheduleCloudProfilePush(field === 'notes' ? 700 : 150);
+            return res;
+        };
+    }
+
+    const origMarkQ = window.markQuestion;
+    if (typeof origMarkQ === 'function') {
+        window.markQuestion = function(...args) {
+            const res = origMarkQ.apply(this, args);
+            scheduleCloudProfilePush(250);
+            return res;
+        };
+    }
+
+    setTimeout(() => {
+        const menu = document.getElementById('my-tools-menu');
+        if (menu && !document.getElementById('tools-cloud-sync-btn')) {
+            const btn = document.createElement('button');
+            btn.id = 'tools-cloud-sync-btn';
+            btn.type = 'button';
+            btn.onclick = () => { menu.classList.add('hidden'); window.forceManualCloudSync(); };
+            btn.className = 'w-full text-right px-3 py-2 rounded-xl text-xs font-extrabold hover:bg-[var(--bg-secondary)] flex items-center justify-between text-sky-300';
+            btn.innerHTML = '<span>☁️ مزامنة المفضلة والملاحظات الآن</span><span>🔄</span>';
+            menu.insertBefore(btn, menu.firstChild);
+        }
+        window.syncLiveScoreboard(false);
+    }, 600);
+
+    window.addEventListener('focus', () => window.syncLiveScoreboard(false));
+});
