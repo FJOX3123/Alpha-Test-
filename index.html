@@ -217,6 +217,16 @@
             }
         }
     </style>
+    <script>
+        // إخفاء الإقرار في 0ms عند العودة للصفحة الرئيسية أثناء نفس الجلسة بعد الضغط على "موافق"، وإبقاؤه ثابتاً عند أول دخول للموقع
+        if (sessionStorage.getItem('med26_session_agreed') === '1') {
+            document.documentElement.classList.add('session-agreed');
+        }
+    </script>
+    <style>
+        html.session-agreed #disclaimer-modal { display: none !important; opacity: 0 !important; pointer-events: none !important; }
+        html.session-agreed body.modal-open { overflow: auto !important; height: auto !important; touch-action: auto !important; }
+    </style>
 </head>
 <body data-default-view="home" class="min-h-screen flex flex-col justify-between modal-open pb-16 md:pb-0">
 
@@ -5490,21 +5500,13 @@ window.shareCurrentChallengeLink = function() {
             };
         }
 
-        // ج) عدم تكرار شاشة التنويه الإلزامية في كل مرة يتم فيها تحديث الصفحة أو الانتقال بين الصفحات بعد الموافقة عليها
+        // ج) حفظ موافقة الإقرار في الجلسة الحالية فقط عند الضغط الفعلي على زر "موافق"
         const origAcceptDisc = window.acceptDisclaimer;
         window.acceptDisclaimer = function() {
-            sessionStorage.setItem('med26_disclaimer_accepted', '1');
-            localStorage.setItem('med26_disclaimer_accepted', '1');
+            sessionStorage.setItem('med26_session_agreed', '1');
+            document.documentElement.classList.add('session-agreed');
             if (typeof origAcceptDisc === 'function') origAcceptDisc();
         };
-
-        if (sessionStorage.getItem('med26_disclaimer_accepted') === '1' || localStorage.getItem('med26_disclaimer_accepted') === '1') {
-            window.addEventListener('DOMContentLoaded', () => {
-                const modal = document.getElementById('disclaimer-modal');
-                if (modal) modal.style.display = 'none';
-                document.body.classList.remove('modal-open');
-            });
-        }
     })();
 
     // ================= 2. نظام فصل القوائم في صفحات ويب مستقلة بالروابط (Smart URL Routing + Multi-Page Support) =================
@@ -5624,7 +5626,7 @@ window.shareCurrentChallengeLink = function() {
                 // فحص روابط التحديات أو المحطات المشتركة أولاً
                 const params = new URLSearchParams(window.location.search);
                 if (params.get('challenge') || params.get('station')) {
-                    if (sessionStorage.getItem('med26_disclaimer_accepted') === '1' || localStorage.getItem('med26_disclaimer_accepted') === '1') {
+                    if (sessionStorage.getItem('med26_session_agreed') === '1') {
                         window.acceptDisclaimer();
                     }
                     return;
