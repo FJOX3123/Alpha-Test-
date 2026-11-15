@@ -4363,5 +4363,684 @@ window.shareCurrentChallengeLink = function() {
 };
 
 </script>
+<!-- ================= الترقية الشاملة: Bento Dashboard + Top-to-Bottom Video Animation + UI Polish ================= -->
+<style>
+    /* 1. أشعة الإضاءة العلوية والذرات المضيئة (مستوحاة من المقطع) */
+    #cinematic-top-spotlight {
+        position: fixed;
+        top: -180px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 1100px;
+        height: 620px;
+        background: radial-gradient(ellipse at 50% 0%, rgba(235, 210, 164, 0.22) 0%, rgba(207, 169, 107, 0.09) 42%, transparent 75%);
+        filter: blur(35px);
+        pointer-events: none;
+        z-index: 1;
+        animation: spotlightBreath 6s ease-in-out infinite alternate;
+    }
+    #cinematic-top-rays {
+        position: fixed;
+        top: -120px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 1300px;
+        height: 700px;
+        background: conic-gradient(from 155deg at 50% 0%, transparent 0deg, rgba(235, 210, 164, 0.08) 12deg, transparent 25deg, rgba(207, 169, 107, 0.12) 36deg, transparent 50deg);
+        filter: blur(22px);
+        pointer-events: none;
+        z-index: 1;
+    }
+    body.light-mode #cinematic-top-spotlight,
+    body.light-mode #cinematic-top-rays {
+        opacity: 0.35;
+    }
+    @keyframes spotlightBreath {
+        0% { opacity: 0.75; transform: translateX(-50%) scale(0.96); }
+        100% { opacity: 1; transform: translateX(-50%) scale(1.06); }
+    }
+
+    /* 2. أنميشن الانسدال المتدرج من الأعلى إلى الأسفل (Top-to-Bottom Scroll Cascade) */
+    .cascade-reveal {
+        opacity: 0;
+        transform: translateY(-34px) scale(0.975) perspective(900px) rotateX(4deg);
+        filter: blur(5px);
+        transition: opacity 0.75s cubic-bezier(0.16, 1, 0.3, 1),
+                    transform 0.75s cubic-bezier(0.16, 1, 0.3, 1),
+                    filter 0.75s cubic-bezier(0.16, 1, 0.3, 1);
+        will-change: opacity, transform, filter;
+    }
+    .cascade-reveal.is-visible {
+        opacity: 1;
+        transform: translateY(0) scale(1) perspective(900px) rotateX(0deg);
+        filter: blur(0);
+    }
+
+    /* 3. إطار ذهبي مضيء يتبع حركة الماوس فوق بطاقات Bento */
+    .app-card {
+        --mouse-x: 50%;
+        --mouse-y: 0%;
+        transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease, border-color 0.3s ease !important;
+    }
+    .app-card::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        background: radial-gradient(520px circle at var(--mouse-x) var(--mouse-y), rgba(235, 210, 164, 0.11), transparent 45%);
+        opacity: 0;
+        transition: opacity 0.35s ease;
+        pointer-events: none;
+        z-index: 1;
+    }
+    .app-card:hover::before {
+        opacity: 1;
+    }
+    .app-card:hover {
+        border-color: rgba(235, 210, 164, 0.65) !important;
+        box-shadow: 0 18px 40px -12px rgba(0, 0, 0, 0.5), 0 0 22px rgba(207, 169, 107, 0.14) !important;
+    }
+
+    /* 4. إضاءة خلفية مخصصة لبطاقات المواد الأربع (Subject Ambient Glow) */
+    .subject-glow-micro { background-image: radial-gradient(circle at 15% 15%, rgba(16, 185, 129, 0.14), transparent 55%); }
+    .subject-glow-patho { background-image: radial-gradient(circle at 15% 15%, rgba(244, 63, 94, 0.14), transparent 55%); }
+    .subject-glow-histo { background-image: radial-gradient(circle at 15% 15%, rgba(168, 85, 247, 0.14), transparent 55%); }
+    .subject-glow-surg  { background-image: radial-gradient(circle at 15% 15%, rgba(14, 165, 233, 0.14), transparent 55%); }
+
+    /* 5. تصميم بطاقات أطوار اللعب (Game Modes) */
+    .gamemode-card {
+        background: linear-gradient(145deg, rgba(44, 40, 35, 0.92) 0%, rgba(28, 26, 23, 0.96) 100%);
+        border: 1.5px solid rgba(207, 169, 107, 0.35);
+        position: relative;
+        overflow: hidden;
+        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    body.light-mode .gamemode-card {
+        background: linear-gradient(145deg, #ffffff 0%, #f3ede2 100%);
+    }
+    .gamemode-card:hover {
+        transform: translateY(-4px);
+        border-color: #ebd2a4;
+        box-shadow: 0 14px 30px -8px rgba(207, 169, 107, 0.25);
+    }
+</style>
+
+<!-- أشعة الإضاءة العلوية والذرات العائمة -->
+<div id="cinematic-top-spotlight"></div>
+<div id="cinematic-top-rays"></div>
+<canvas id="stardust-canvas" class="fixed inset-0 pointer-events-none z-[1] opacity-70"></canvas>
+
+<script>
+    // ================= 1. خلفية النجوم والذرات العائمة المضيئة (كالمقطع تماماً) =================
+    (function initStardustCanvas() {
+        const canvas = document.getElementById('stardust-canvas');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        let w = canvas.width = window.innerWidth;
+        let h = canvas.height = window.innerHeight;
+        window.addEventListener('resize', () => {
+            w = canvas.width = window.innerWidth;
+            h = canvas.height = window.innerHeight;
+        });
+
+        const particles = Array.from({ length: 42 }, () => ({
+            x: Math.random() * w,
+            y: Math.random() * h,
+            r: Math.random() * 1.8 + 0.6,
+            vy: Math.random() * 0.35 + 0.12, // حركة ناعمة من الأعلى إلى الأسفل
+            vx: (Math.random() - 0.5) * 0.2,
+            alpha: Math.random() * 0.65 + 0.2
+        }));
+
+        function drawParticles() {
+            ctx.clearRect(0, 0, w, h);
+            particles.forEach(p => {
+                p.y += p.vy;
+                p.x += p.vx;
+                if (p.y > h) { p.y = -5; p.x = Math.random() * w; }
+                if (p.x > w) p.x = 0;
+                if (p.x < 0) p.x = w;
+
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(235, 210, 164, ${p.alpha})`;
+                ctx.fill();
+            });
+            requestAnimationFrame(drawParticles);
+        }
+        drawParticles();
+    })();
+
+    // ================= 2. محرك أنميشن النزول من الأعلى إلى الأسفل + تتبع الماوس =================
+    function triggerTopToBottomCascade() {
+        const elements = document.querySelectorAll(
+            '#main-header, #view-home > div, #view-home .grid > div, #view-atlas .app-card, #view-custom .app-card, #view-scoreboard .app-card, #view-trainer .app-card'
+        );
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('is-visible');
+                }
+            });
+        }, { threshold: 0.06, rootMargin: '0px 0px -30px 0px' });
+
+        elements.forEach((el, idx) => {
+            if (!el.classList.contains('cascade-reveal')) {
+                el.classList.add('cascade-reveal');
+                el.style.transitionDelay = `${Math.min(idx * 65, 380)}ms`;
+            }
+            observer.observe(el);
+        });
+    }
+
+    // تتبع الماوس لإضاءة حواف البطاقات
+    document.addEventListener('mousemove', (e) => {
+        document.querySelectorAll('.app-card, .gamemode-card').forEach(card => {
+            const rect = card.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            card.style.setProperty('--mouse-x', `${x}px`);
+            card.style.setProperty('--mouse-y', `${y}px`);
+        });
+    }, { passive: true });
+
+    // ================= 3. نظام اللقب التفاعلي للطالب وتنظيم الشريط العلوي (⚙️ أدواتي) =================
+    function getStudentRankInfo(solvedCount) {
+        if (solvedCount >= 60) return { title: 'أسطورة الـ OSPE', icon: '👑', color: 'text-amber-300 border-amber-400/60 bg-amber-500/20' };
+        if (solvedCount >= 30) return { title: 'متألق', icon: '🔥', color: 'text-orange-300 border-orange-400/50 bg-orange-500/15' };
+        if (solvedCount >= 10) return { title: 'متمكن', icon: '⚡', color: 'text-emerald-300 border-emerald-400/50 bg-emerald-500/15' };
+        return { title: 'مبتدئ', icon: '🌱', color: 'text-sky-300 border-sky-400/40 bg-sky-500/15' };
+    }
+
+    function updateUserRankBadgeUI() {
+        const solved = typeof getTotalSolvedCount === 'function' ? getTotalSolvedCount() : masteredIds.length;
+        const rank = getStudentRankInfo(solved);
+        const userName = localStorage.getItem('med26_username') || 'طالب MED26';
+
+        const topBadge = document.getElementById('top-user-badge');
+        if (topBadge) {
+            topBadge.className = 'pill-btn px-3 py-1.5 rounded-2xl text-xs font-extrabold flex items-center gap-2 shadow-sm';
+            topBadge.innerHTML = `
+                <span>👤</span>
+                <span id="top-username-text" class="text-[var(--gold-bright)] font-black">${userName}</span>
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-black border ${rank.color}">${rank.icon} ${rank.title}</span>
+            `;
+        }
+
+        // تحديث ترحيب البانر الرئيسي
+        const heroWelcome = document.getElementById('bento-welcome-name');
+        const heroRank = document.getElementById('bento-welcome-rank');
+        if (heroWelcome) heroWelcome.innerText = userName;
+        if (heroRank) {
+            heroRank.className = `px-2.5 py-0.5 rounded-full text-xs font-black border ${rank.color}`;
+            heroRank.innerText = `${rank.icon} ${rank.title}`;
+        }
+    }
+
+    function reorganizeTopNavbar() {
+        const desktopNav = document.querySelector('#main-header .hidden.md\\:flex');
+        if (!desktopNav || document.getElementById('my-tools-dropdown-wrap')) return;
+
+        // إخفاء الأزرار الثانوية المزدحمة من البار العلوي وجمعها في قائمة "⚙️ أدواتي"
+        Array.from(desktopNav.children).forEach(el => {
+            const txt = (el.innerText || '');
+            const oc = (el.getAttribute('onclick') || '');
+            if (oc.includes('startExamSimulator') || oc.includes('startBlitzMode') || oc.includes('printCustomPDF') || oc.includes('toggleTheme') || oc.includes("switchView('custom')") || txt.includes('@Med26JU_bot')) {
+                el.style.display = 'none';
+            }
+        });
+
+        // تنسيق الشريط العلوي ككبسولة زجاجية فخمة (مثل المقطع)
+        desktopNav.className = 'hidden md:flex items-center gap-1.5 bg-[var(--bg-main)]/80 border border-[var(--border-color)] px-2.5 py-1.5 rounded-2xl shadow-inner';
+
+        // إنشاء زر وقائمة "⚙️ أدواتي" المنسدلة
+        const toolsWrap = document.createElement('div');
+        toolsWrap.id = 'my-tools-dropdown-wrap';
+        toolsWrap.className = 'relative';
+        toolsWrap.innerHTML = `
+            <button type="button" onclick="document.getElementById('my-tools-menu').classList.toggle('hidden')" class="pill-btn px-3.5 py-2 rounded-xl text-xs lg:text-sm font-black flex items-center gap-1.5">
+                <span>⚙️ أدواتي</span>
+                <span class="text-[10px]">▼</span>
+            </button>
+            <div id="my-tools-menu" class="hidden absolute left-0 mt-2 w-60 bg-[var(--bg-card)] border-2 border-[var(--gold-primary)] rounded-2xl shadow-2xl p-2 z-50 space-y-1 text-right">
+                <button onclick="switchView('custom');document.getElementById('my-tools-menu').classList.add('hidden')" class="w-full text-right px-3 py-2 rounded-xl text-xs font-bold hover:bg-[var(--bg-secondary)] flex items-center justify-between">
+                    <span>🎯 إعداد التدريب المخصص</span><span>⬅️</span>
+                </button>
+                <button onclick="printCustomPDF('both');document.getElementById('my-tools-menu').classList.add('hidden')" class="w-full text-right px-3 py-2 rounded-xl text-xs font-bold hover:bg-[var(--bg-secondary)] flex items-center justify-between">
+                    <span>🖨️ طباعة أخطائي ومفضلتي PDF</span><span>📄</span>
+                </button>
+                <button onclick="changeUsernamePrompt();document.getElementById('my-tools-menu').classList.add('hidden')" class="w-full text-right px-3 py-2 rounded-xl text-xs font-bold hover:bg-[var(--bg-secondary)] flex items-center justify-between text-amber-300">
+                    <span>🔑 اسمي وكود مزامنة أجهزتي</span><span>👤</span>
+                </button>
+                <button onclick="toggleTheme();document.getElementById('my-tools-menu').classList.add('hidden')" class="w-full text-right px-3 py-2 rounded-xl text-xs font-bold hover:bg-[var(--bg-secondary)] flex items-center justify-between">
+                    <span>☀️ / 🌙 تبديل المظهر (فاتح/داكن)</span><span>🎨</span>
+                </button>
+                <a href="https://t.me/Med26JU_bot" target="_blank" class="w-full text-right px-3 py-2 rounded-xl text-xs font-extrabold hover:bg-[var(--bg-secondary)] flex items-center justify-between text-[var(--gold-bright)] border-t border-[var(--border-color)] pt-2">
+                    <span>✈️ بوت الدفعة الرسمي</span><span dir="ltr">@Med26JU_bot</span>
+                </a>
+            </div>
+        `;
+        desktopNav.appendChild(toolsWrap);
+
+        // إغلاق القائمة عند النقر خارجها
+        document.addEventListener('click', (e) => {
+            if (!toolsWrap.contains(e.target)) {
+                const menu = document.getElementById('my-tools-menu');
+                if (menu) menu.classList.add('hidden');
+            }
+        });
+    }
+
+    // ================= 4. حفظ واستئناف "أكمل من حيث توقفت" (Continue Session) =================
+    function saveLastSessionState() {
+        if (document.getElementById('view-trainer').classList.contains('hidden')) return;
+        const q = currentList[currentIndex];
+        if (!q) return;
+        const title = document.getElementById('trainer-title').innerText || `${q.subject} (${q.lab})`;
+        const state = {
+            title: title,
+            subject: q.subject,
+            lab: q.lab,
+            stationId: q.id,
+            index: currentIndex,
+            ids: currentList.map(item => item.id),
+            savedAt: Date.now()
+        };
+        localStorage.setItem('med26_last_session', JSON.stringify(state));
+        updateContinueSessionBtnUI();
+    }
+
+    function resumeLastSession() {
+        try {
+            const raw = localStorage.getItem('med26_last_session');
+            if (!raw) {
+                startTraining({ highYield: true });
+                return;
+            }
+            const state = JSON.parse(raw);
+            const restoredList = (state.ids || []).map(id => questionsDB.find(q => q.id === id)).filter(Boolean);
+            if (restoredList.length > 0) {
+                currentList = restoredList;
+                currentIndex = Math.min(state.index || 0, restoredList.length - 1);
+                isExamSimulator = false;
+                isBlitzMode = false;
+                activeTimerSeconds = 0;
+                sessionResults = {};
+                sessionStartTime = Date.now();
+                document.getElementById('trainer-title').innerText = state.title || 'استئناف الجلسة السابقة';
+                switchView('trainer');
+                renderQuestion();
+                return;
+            }
+        } catch (e) {}
+        startTraining({ highYield: true });
+    }
+
+    function updateContinueSessionBtnUI() {
+        const subTxt = document.getElementById('continue-session-subtext');
+        if (!subTxt) return;
+        try {
+            const raw = localStorage.getItem('med26_last_session');
+            if (raw) {
+                const st = JSON.parse(raw);
+                subTxt.innerText = `${st.subject} • ${st.lab} (المحطة ${(st.index || 0) + 1} من ${(st.ids || []).length})`;
+                return;
+            }
+        } catch (e) {}
+        subTxt.innerText = 'ابدأ بالمحطات الأكثر تكراراً في الاختبار (High-Yield)';
+    }
+
+    // ================= 5. بناء لوحة Bento Grid + محطة اليوم + أطوار الاختبار =================
+    let currentSpotStation = null;
+
+    function pickRandomSpotOfTheDay(forceRandom = false) {
+        const visualStations = questionsDB.filter(q => !q.noSample);
+        if (visualStations.length === 0) return;
+        if (!forceRandom) {
+            // اختيار محطة اليوم تلقائياً حسب تاريخ اليوم أو عشوائياً عند الضغط
+            const daySeed = new Date().getDate() + new Date().getMonth() * 31;
+            currentSpotStation = visualStations[daySeed % visualStations.length];
+        } else {
+            currentSpotStation = visualStations[Math.floor(Math.random() * visualStations.length)];
+        }
+        renderSpotOfTheDayUI();
+    }
+
+    function renderSpotOfTheDayUI() {
+        if (!currentSpotStation) return;
+        const q = currentSpotStation;
+        const imgEl = document.getElementById('spot-day-img');
+        const subEl = document.getElementById('spot-day-sub');
+        const qEl = document.getElementById('spot-day-q');
+        const ansBox = document.getElementById('spot-day-ans');
+        const revBtn = document.getElementById('spot-day-reveal-btn');
+
+        if (!imgEl || !qEl) return;
+        setSlideSource(imgEl, q.page, q.slot || 0, false);
+        subEl.innerText = `${q.subject} • ${q.lab} (${q.year})`;
+        qEl.innerText = q.q;
+        ansBox.innerHTML = q.a;
+        ansBox.classList.add('hidden');
+        revBtn.classList.remove('hidden');
+    }
+
+    function updateHeroLiveQuickStats() {
+        // 1. أعلى Streak
+        const bestStreak = Math.max(parseInt(localStorage.getItem('med26_best_streak') || '0', 10), currentStreak);
+        const streakEl = document.getElementById('hero-quick-streak');
+        if (streakEl) streakEl.innerText = `🔥 ${bestStreak} متتالية`;
+
+        // 2. نسبة ختم اللابات من 12
+        const clData = typeof getChecklistData === 'function' ? getChecklistData() : {};
+        let studiedLabs = 0;
+        if (typeof F2_OSPE_LABS !== 'undefined') {
+            F2_OSPE_LABS.forEach(l => { if (clData[l.id] && clData[l.id].study1) studiedLabs++; });
+        }
+        const clPct = Math.round((studiedLabs / 12) * 100);
+        const clEl = document.getElementById('hero-quick-labs');
+        if (clEl) clEl.innerText = `✅ ${studiedLabs}/12 لاب (${clPct}%)`;
+
+        // 3. الترتيب الحالي في الدفعة + أسرع وقت في المحاكي
+        const username = (localStorage.getItem('med26_username') || '').toLowerCase();
+        const mySolved = typeof getTotalSolvedCount === 'function' ? getTotalSolvedCount() : masteredIds.length;
+        let players = Array.isArray(globalLivePlayers) ? [...globalLivePlayers] : [];
+        if (mySolved > 0 && !players.some(p => (p.name || '').toLowerCase() === username)) {
+            players.push({ name: username, solved: mySolved });
+        }
+        players.sort((a, b) => (b.solved || 0) - (a.solved || 0));
+        const myRankIdx = players.findIndex(p => (p.name || '').toLowerCase() === username);
+        const rankEl = document.getElementById('hero-quick-rank');
+        if (rankEl) {
+            rankEl.innerText = myRankIdx !== -1 ? `🏆 المركز #${myRankIdx + 1}` : (mySolved > 0 ? '🏆 المركز #1' : '🏆 ابدأ لتتصدر');
+        }
+
+        // تحديث أسرع وقت مسجل في الدفعة تحت بطاقة المحاكي
+        const fastestTimes = players.map(p => p.bestTime).filter(t => typeof t === 'number' && t > 0);
+        const myBestTime = parseInt(localStorage.getItem('med26_best_sim_time') || '0', 10);
+        if (myBestTime > 0) fastestTimes.push(myBestTime);
+        const bestSec = fastestTimes.length > 0 ? Math.min(...fastestTimes) : 135;
+        const fm = String(Math.floor(bestSec / 60)).padStart(2, '0');
+        const fs = String(bestSec % 60).padStart(2, '0');
+        const fastestEl = document.getElementById('gamemode-fastest-time');
+        if (fastestEl) fastestEl.innerText = `⚡ أسرع وقت مسجل في الدفعة: ${fm}:${fs} دقيقة`;
+    }
+
+    function upgradeHomeToBentoDashboard() {
+        const homeSec = document.getElementById('view-home');
+        if (!homeSec || document.getElementById('bento-hero-upgraded')) return;
+
+        const children = Array.from(homeSec.children);
+        const heroCard = children[1]; // البانر الترحيبي
+        const quickModesCard = children[2]; // شريط التدريب السريع
+
+        // أ) تطوير البانر الترحيبي ليضم الترحيب بالاسم واللقب + الإحصائيات الـ 3 + زر "أكمل من حيث توقفت"
+        if (heroCard) {
+            heroCard.id = 'bento-hero-upgraded';
+            const leftCol = heroCard.querySelector('.space-y-2\\.5');
+            if (leftCol) {
+                const welcomeStrip = document.createElement('div');
+                welcomeStrip.className = 'space-y-3 pb-2';
+                welcomeStrip.innerHTML = `
+                    <div class="flex flex-wrap items-center justify-center lg:justify-start gap-2">
+                        <span class="text-sm sm:text-base font-extrabold text-[var(--text-muted)]">مرحباً بك يا دكتور،</span>
+                        <span id="bento-welcome-name" class="text-base sm:text-lg font-black text-[var(--gold-bright)]">طالب MED26</span>
+                        <span id="bento-welcome-rank" class="px-2.5 py-0.5 rounded-full text-xs font-black border">🌱 مبتدئ</span>
+                    </div>
+                    <!-- 3 إحصائيات سريعة في صف واحد -->
+                    <div class="grid grid-cols-3 gap-2 max-w-xl mx-auto lg:mx-0">
+                        <div class="bg-[var(--bg-secondary)]/90 border border-[var(--border-color)] rounded-xl px-3 py-2 text-center">
+                            <div class="text-[10px] text-[var(--text-muted)] font-bold">سلسلة الإجابات</div>
+                            <div id="hero-quick-streak" class="text-xs sm:text-sm font-black text-amber-300 mt-0.5">🔥 0 متتالية</div>
+                        </div>
+                        <div onclick="openLabChecklistModal()" class="bg-[var(--bg-secondary)]/90 border border-[var(--border-color)] rounded-xl px-3 py-2 text-center cursor-pointer hover:border-emerald-400 transition">
+                            <div class="text-[10px] text-[var(--text-muted)] font-bold">ختم اللابات</div>
+                            <div id="hero-quick-labs" class="text-xs sm:text-sm font-black text-emerald-400 mt-0.5">✅ 0/12 لاب</div>
+                        </div>
+                        <div onclick="switchView('scoreboard')" class="bg-[var(--bg-secondary)]/90 border border-[var(--border-color)] rounded-xl px-3 py-2 text-center cursor-pointer hover:border-amber-400 transition">
+                            <div class="text-[10px] text-[var(--text-muted)] font-bold">ترتيبك بالدفعة</div>
+                            <div id="hero-quick-rank" class="text-xs sm:text-sm font-black text-[var(--gold-bright)] mt-0.5">🏆 #--</div>
+                        </div>
+                    </div>
+                    <!-- زر أكمل من حيث توقفت البارز -->
+                    <div class="pt-1">
+                        <button onclick="resumeLastSession()" class="w-full sm:w-auto gold-btn px-6 py-3 rounded-2xl text-right flex items-center justify-between sm:justify-start gap-3 shadow-xl">
+                            <span class="text-xl">▶️</span>
+                            <div>
+                                <div class="text-xs sm:text-sm font-black leading-tight">أكمل من حيث توقفت (Continue Session)</div>
+                                <div id="continue-session-subtext" class="text-[10px] sm:text-[11px] font-bold opacity-85">ابدأ بالمحطات الأكثر تكراراً في الاختبار</div>
+                            </div>
+                        </button>
+                    </div>
+                `;
+                leftCol.insertBefore(welcomeStrip, leftCol.firstChild);
+            }
+        }
+
+        // ب) تحويل شريط التدريب السريع إلى قسم مستقل لـ "أوضاع الاختبار" (Game Modes) + "محطة اليوم العشوائية" (Spot of the Day)
+        if (quickModesCard) {
+            const bentoMiddleSection = document.createElement('div');
+            bentoMiddleSection.className = 'grid grid-cols-1 lg:grid-cols-12 gap-5';
+            bentoMiddleSection.innerHTML = `
+                <!-- أوضاع الاختبار والمنافسة (8 أعمدة) -->
+                <div class="lg:col-span-8 app-card rounded-3xl p-5 sm:p-6 flex flex-col justify-between space-y-4">
+                    <div class="flex flex-wrap justify-between items-center gap-2 border-b border-[var(--border-color)] pb-3">
+                        <div>
+                            <h3 class="text-base sm:text-xl font-black text-[var(--gold-bright)] flex items-center gap-2">🎮 أطوار الاختبار والمنافسة (Game Modes)</h3>
+                            <p class="text-xs text-[var(--text-muted)] font-bold">اختر نمط التدريب المناسب لوقتك أو نافس زملاءك في نفس المحطات</p>
+                        </div>
+                        <div class="flex gap-1.5">
+                            <button onclick="startTraining({source:'bookmarks'})" class="pill-btn px-3 py-1.5 rounded-xl text-xs font-bold text-amber-300">⭐ المفضلة (<span id="fav-count-btn">${bookmarkIds.length}</span>)</button>
+                            <button onclick="startTraining({source:'mistakes'})" class="pill-btn px-3 py-1.5 rounded-xl text-xs font-bold text-red-400">⚠️ أخطائي (<span id="mistake-count-btn">${mistakeIds.length}</span>)</button>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+                        <!-- 1. تدريب مخصص -->
+                        <div onclick="switchView('custom')" class="gamemode-card rounded-2xl p-4 cursor-pointer flex flex-col justify-between space-y-3">
+                            <div class="space-y-1.5">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-2xl">🎯</span>
+                                    <span class="text-[10px] font-black px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40">فلترة اللابات</span>
+                                </div>
+                                <h4 class="font-black text-sm sm:text-base text-white">تدريب مخصص</h4>
+                                <p class="text-[11px] text-[var(--text-muted)] leading-relaxed">اختر المواد واللابات الفرعية والسنوات لتوليد اختبارك الخاص.</p>
+                            </div>
+                            <div class="text-xs font-black text-[var(--gold-bright)] flex items-center justify-between pt-2 border-t border-[var(--border-color)]">
+                                <span>إعداد الاختبار</span><span>⬅️</span>
+                            </div>
+                        </div>
+
+                        <!-- 2. محاكي 18 محطة -->
+                        <div onclick="startExamSimulator()" class="gamemode-card rounded-2xl p-4 cursor-pointer flex flex-col justify-between space-y-3 border-amber-500/50">
+                            <div class="space-y-1.5">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-2xl">⏱️</span>
+                                    <span class="text-[10px] font-black px-2 py-0.5 rounded-full gold-btn">الدرجة من 20</span>
+                                </div>
+                                <h4 class="font-black text-sm sm:text-base text-white">محاكي (18 محطة)</h4>
+                                <p class="text-[11px] text-[var(--text-muted)] leading-relaxed">محاكاة كاملة للاختبار الفعلي مع إخفاء اسم اللاب ومؤقت 90 ثانية.</p>
+                            </div>
+                            <div id="gamemode-fastest-time" class="text-[11px] font-black text-emerald-400 pt-2 border-t border-[var(--border-color)]">
+                                ⚡ أسرع وقت مسجل في الدفعة: 02:15 دقيقة
+                            </div>
+                        </div>
+
+                        <!-- 3. تحدي 60 ثانية Blitz -->
+                        <div onclick="startBlitzMode()" class="gamemode-card rounded-2xl p-4 cursor-pointer flex flex-col justify-between space-y-3">
+                            <div class="space-y-1.5">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-2xl">⚡</span>
+                                    <span class="text-[10px] font-black px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/40">25 سؤال MCQ</span>
+                                </div>
+                                <h4 class="font-black text-sm sm:text-base text-amber-300">تحدي 60 ثانية</h4>
+                                <p class="text-[11px] text-[var(--text-muted)] leading-relaxed">تحدي السرعة القصوى لحل أكبر عدد من المحطات خلال دقيقة واحدة!</p>
+                            </div>
+                            <div class="text-xs font-black text-amber-300 flex items-center justify-between pt-2 border-t border-[var(--border-color)]">
+                                <span>ابدأ التحدي السريع</span><span>🚀</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-wrap gap-2 pt-1">
+                        <button onclick="createDirectFriendChallenge()" class="flex-1 pill-btn py-2.5 px-4 rounded-xl text-xs font-black text-emerald-300 flex justify-center items-center gap-2">
+                            <span>⚔️ إنشاء رابط تحدي صاحبي (18 محطة مشتركة)</span>
+                        </button>
+                        <button onclick="startTraining({highYield:true})" class="flex-1 pill-btn py-2.5 px-4 rounded-xl text-xs font-black text-amber-300 flex justify-center items-center gap-2">
+                            <span>🔥 مراجعة المحطات الأكثر تكراراً (High-Yield)</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- محطة اليوم العشوائية Spot of the Day (4 أعمدة) -->
+                <div class="lg:col-span-4 app-card rounded-3xl p-5 flex flex-col justify-between space-y-3 border-2 border-[var(--gold-primary)]/60">
+                    <div class="flex justify-between items-center border-b border-[var(--border-color)] pb-2.5">
+                        <div>
+                            <h3 class="text-sm sm:text-base font-black text-[var(--gold-bright)] flex items-center gap-1.5">🔬 محطة اليوم السريعة</h3>
+                            <p id="spot-day-sub" class="text-[10px] text-[var(--text-muted)] font-bold">مراجعة خاطفة في 15 ثانية</p>
+                        </div>
+                        <div class="flex gap-1">
+                            <button onclick="speakMedicalText(currentSpotStation ? currentSpotStation.a : '')" class="pill-btn px-2 py-1 rounded-lg text-xs" title="استمع للنطق">🔊</button>
+                            <button onclick="pickRandomSpotOfTheDay(true)" class="pill-btn px-2.5 py-1 rounded-lg text-[11px] font-bold" title="عينة عشوائية أخرى">🎲 أخرى</button>
+                        </div>
+                    </div>
+
+                    <div class="bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-2xl p-2 flex items-center justify-center">
+                        <img id="spot-day-img" src="" alt="Spot of the Day" onclick="openZoomModal(this.src)" class="h-36 w-full object-contain rounded-xl cursor-zoom-in">
+                    </div>
+
+                    <div id="spot-day-q" class="text-xs font-bold text-left dir-ltr bg-[var(--bg-secondary)]/80 p-2.5 rounded-xl border border-[var(--border-color)] line-clamp-2" dir="ltr"></div>
+
+                    <div>
+                        <button id="spot-day-reveal-btn" onclick="document.getElementById('spot-day-ans').classList.remove('hidden');this.classList.add('hidden');" class="w-full gold-btn py-2.5 rounded-xl text-xs font-black shadow">
+                            👁️ اكشف الإجابة الفورية
+                        </button>
+                        <div id="spot-day-ans" class="hidden bg-emerald-950/40 border border-emerald-500/50 rounded-xl p-2.5 text-xs font-bold text-left leading-relaxed" dir="ltr"></div>
+                    </div>
+                </div>
+            `;
+            quickModesCard.replaceWith(bentoMiddleSection);
+            pickRandomSpotOfTheDay(false);
+        }
+
+        // ج) إضافة الإضاءة الخلفية (Glow) لبطاقات المواد الأربع وتحديث صياغة التقدم
+        const glowMap = {
+            'MICROBIOLOGY': 'subject-glow-micro',
+            'PATHOLOGY': 'subject-glow-patho',
+            'HISTOLOGY': 'subject-glow-histo',
+            'SURGERY': 'subject-glow-surg'
+        };
+        ['MICROBIOLOGY', 'PATHOLOGY', 'HISTOLOGY', 'SURGERY'].forEach(sub => {
+            const barEl = document.getElementById(`prog-bar-${sub}`);
+            if (barEl) {
+                const card = barEl.closest('.app-card');
+                if (card) card.classList.add(glowMap[sub]);
+            }
+        });
+    }
+
+    // تحديث صياغة تقدم المواد الأربع لتكون "أتقنت X من Y محطة في [المادة]"
+    const origUpdateStatsUI = window.updateStatsUI;
+    window.updateStatsUI = function() {
+        if (typeof origUpdateStatsUI === 'function') origUpdateStatsUI();
+        ['MICROBIOLOGY', 'PATHOLOGY', 'HISTOLOGY', 'SURGERY'].forEach(sub => {
+            const subQs = questionsDB.filter(q => q.subject === sub);
+            const doneCount = subQs.filter(q => masteredIds.includes(q.id)).length;
+            const pct = subQs.length ? Math.round((doneCount / subQs.length) * 100) : 0;
+            const txtEl = document.getElementById(`prog-text-${sub}`);
+            if (txtEl) {
+                txtEl.innerText = `أتقنت ${doneCount} من ${subQs.length} محطة في ${sub} (${pct}%)`;
+            }
+        });
+        updateUserRankBadgeUI();
+        updateHeroLiveQuickStats();
+    };
+
+    // ================= 6. أوسمة التميز (Tags) على المحطات + ربط فلتر اللابات الفرعية =================
+    const origRenderQuestion = window.renderQuestion;
+    window.renderQuestion = function() {
+        if (typeof origRenderQuestion === 'function') origRenderQuestion();
+        saveLastSessionState();
+
+        const q = currentList[currentIndex];
+        if (!q) return;
+
+        // تحديث شارة "🔥 ركز عليها الدكتور" و إضافة شارة "📌 تجميعات سابقة"
+        const hyBadge = document.getElementById('q-highyield');
+        if (hyBadge) {
+            hyBadge.innerHTML = '🔥 ركّز عليها الدكتور (High-Yield)';
+        }
+
+        const metaContainer = document.getElementById('q-meta-badges');
+        if (metaContainer) {
+            let compTag = document.getElementById('q-compilation-tag');
+            if (!compTag) {
+                compTag = document.createElement('span');
+                compTag.id = 'q-compilation-tag';
+                compTag.className = 'bg-sky-500/20 text-sky-300 border border-sky-400/40 px-2.5 py-0.5 rounded-lg text-[10px] sm:text-xs font-extrabold';
+                metaContainer.appendChild(compTag);
+            }
+            compTag.innerText = q.category === 'compilation' ? '📌 تجميعات سابقة موثقة' : '🧪 تدريب عملي';
+        }
+    };
+
+    // ربط فلترة اللابات الفرعية في التدريب المخصص بدالة getCustomFilteredList مباشرة ليتحدث العداد فوراً
+    window.getCustomFilteredList = function() {
+        const checkedSubjects = Array.from(document.querySelectorAll('#custom-subjects input[type="checkbox"]:not(.sublab-cb):checked')).map(i => i.value);
+        const checkedSubLabs = Array.from(document.querySelectorAll('.sublab-cb:checked')).map(i => i.value);
+        const hasSubLabBoxes = document.querySelectorAll('.sublab-cb').length > 0;
+        const checkedYears = Array.from(document.querySelectorAll('#custom-years input:checked')).map(i => i.value);
+        const catEl = document.querySelector('input[name="custom-cat"]:checked');
+        const cat = catEl ? catEl.value : 'all';
+        const qType = document.getElementById('custom-type').value;
+        const highYieldOnly = document.getElementById('custom-highyield').checked;
+
+        return questionsDB.filter(q => {
+            if (!checkedSubjects.includes(q.subject)) return false;
+            if (hasSubLabBoxes && typeof detectStationLabId === 'function') {
+                const labId = detectStationLabId(q);
+                if (labId && !checkedSubLabs.includes(labId)) return false;
+            }
+            if (cat !== 'all' && q.category !== cat) return false;
+            if (q.category === 'compilation' && !checkedYears.includes(q.year)) return false;
+            if (qType !== 'all' && q.type !== qType) return false;
+            if (highYieldOnly && !q.highYield) return false;
+            return true;
+        });
+    };
+
+    // تحديث العداد تلقائياً عند تغيير أي لاب فرعي في التدريب المخصص
+    document.addEventListener('change', (e) => {
+        if (e.target && e.target.classList.contains('sublab-cb')) {
+            if (typeof updateCustomCount === 'function') updateCustomCount();
+        }
+    });
+
+    // ================= 7. تحديث الفوتر بالتوقيع الفاخر والعداد التنازلي المصغر =================
+    function upgradeLuxuryFooter() {
+        const footer = document.querySelector('footer > div');
+        if (!footer || document.getElementById('footer-luxury-sig')) return;
+        const sigDiv = document.createElement('div');
+        sigDiv.id = 'footer-luxury-sig';
+        sigDiv.className = 'w-full pt-3 mt-2 border-t border-[var(--border-color)]/50 flex flex-wrap justify-between items-center gap-2 text-[11px] text-[var(--text-muted)]/80 font-bold';
+        sigDiv.innerHTML = `
+            <span>⏳ موعد اختبار F2 OSPE: 27 ديسمبر • 8:00 صباحاً</span>
+            <span dir="ltr" class="tracking-wide text-[var(--gold-bright)]/85">Design & Layout by R. Daghrir • Practical Team MED26</span>
+        `;
+        footer.appendChild(sigDiv);
+    }
+
+    // تشغيل كافة الترقيات فور جهوزية الصفحة
+    function runAllBentoUpgrades() {
+        reorganizeTopNavbar();
+        upgradeHomeToBentoDashboard();
+        upgradeLuxuryFooter();
+        window.updateStatsUI();
+        updateContinueSessionBtnUI();
+        triggerTopToBottomCascade();
+    }
+
+    window.addEventListener('DOMContentLoaded', () => setTimeout(runAllBentoUpgrades, 150));
+    setTimeout(runAllBentoUpgrades, 750);
+</script>
 </body>
 </html>
