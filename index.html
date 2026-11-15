@@ -5382,33 +5382,9 @@ window.shareCurrentChallengeLink = function() {
     setTimeout(runAllCompleteUpgrades, 750);
 </script>
 <!-- ================= الترقية الشاملة V3: Station Navigator + Zen Mode + Mastery Heatmap + Ambient Glow + Cohort Toast + Audio FX ================= -->
+<<!-- ================= الترقية الشاملة V3 (المعدلة): خريطة المحطات + Zen Mode + تلوين لابات المواد + تصغير التخصيص + الأصوات ================= -->
 <style>
-    /* 1. نبض الإطارات التفاعلي (Ambient Screen Glow) */
-    #ambient-screen-glow {
-        position: fixed;
-        inset: 0;
-        pointer-events: none;
-        z-index: 9990;
-        opacity: 0;
-        transition: opacity 0.18s ease-out;
-    }
-    #ambient-screen-glow.glow-correct {
-        opacity: 1;
-        box-shadow: inset 0 0 65px 18px rgba(16, 185, 129, 0.55), inset 0 0 130px 35px rgba(16, 185, 129, 0.25);
-        animation: ambientPulseFade 0.75s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-    }
-    #ambient-screen-glow.glow-wrong {
-        opacity: 1;
-        box-shadow: inset 0 0 65px 18px rgba(239, 68, 68, 0.58), inset 0 0 130px 35px rgba(239, 68, 68, 0.25);
-        animation: ambientPulseFade 0.75s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-    }
-    @keyframes ambientPulseFade {
-        0% { opacity: 0.95; transform: scale(0.995); }
-        40% { opacity: 1; transform: scale(1); }
-        100% { opacity: 0; transform: scale(1); }
-    }
-
-    /* 2. شريط خريطة المحطات (Station Navigator) */
+    /* 1. شريط خريطة المحطات (Station Navigator) */
     #station-navigator-bar {
         scrollbar-width: thin;
         scrollbar-color: var(--gold-primary) transparent;
@@ -5421,9 +5397,9 @@ window.shareCurrentChallengeLink = function() {
         border-radius: 999px;
     }
     .st-nav-box {
-        min-width: 34px;
-        height: 34px;
-        border-radius: 10px;
+        min-width: 32px;
+        height: 32px;
+        border-radius: 9px;
         font-size: 12px;
         font-weight: 900;
         display: inline-flex;
@@ -5444,7 +5420,7 @@ window.shareCurrentChallengeLink = function() {
     .st-nav-box.nav-current {
         border-color: var(--gold-bright) !important;
         box-shadow: 0 0 0 2px rgba(235, 210, 164, 0.45), 0 4px 12px rgba(0, 0, 0, 0.4);
-        transform: scale(1.1);
+        transform: scale(1.08);
         color: var(--gold-bright);
         z-index: 2;
     }
@@ -5452,16 +5428,16 @@ window.shareCurrentChallengeLink = function() {
         background: linear-gradient(135deg, #059669 0%, #10b981 100%) !important;
         border-color: #6ee7b7 !important;
         color: #ffffff !important;
-        box-shadow: 0 0 12px rgba(16, 185, 129, 0.35);
+        box-shadow: 0 0 10px rgba(16, 185, 129, 0.35);
     }
     .st-nav-box.nav-wrong {
         background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%) !important;
         border-color: #fca5a5 !important;
         color: #ffffff !important;
-        box-shadow: 0 0 12px rgba(239, 68, 68, 0.35);
+        box-shadow: 0 0 10px rgba(239, 68, 68, 0.35);
     }
 
-    /* 3. وضع التركيز السينمائي (Zen Mode) */
+    /* 2. وضع التركيز السينمائي (Zen Mode) */
     body.med26-zen-mode {
         background-color: #070605 !important;
     }
@@ -5487,38 +5463,49 @@ window.shareCurrentChallengeLink = function() {
         box-shadow: 0 25px 70px rgba(0, 0, 0, 0.9), 0 0 40px rgba(207, 169, 107, 0.12) !important;
     }
 
-    /* 4. الخريطة الحرارية لإتقان اللابات (Mastery Heatmap) */
-    .heatmap-tile {
-        position: relative;
-        overflow: hidden;
-        transition: all 0.28s cubic-bezier(0.22, 1, 0.36, 1);
-        cursor: pointer;
+    /* 3. تلوين اللابات المكتملة داخل بطاقة كل مادة بنفس لون المادة */
+    .lab-done-micro {
+        background: linear-gradient(135deg, rgba(16, 185, 129, 0.38) 0%, rgba(5, 150, 105, 0.22) 100%) !important;
+        border-color: #10b981 !important;
+        color: #ecfdf5 !important;
+        box-shadow: 0 0 14px rgba(16, 185, 129, 0.25);
     }
-    .heatmap-tile:hover {
-        transform: translateY(-4px) scale(1.02);
+    .lab-done-patho {
+        background: linear-gradient(135deg, rgba(244, 63, 94, 0.38) 0%, rgba(225, 29, 72, 0.22) 100%) !important;
+        border-color: #f43f5e !important;
+        color: #fff1f2 !important;
+        box-shadow: 0 0 14px rgba(244, 63, 94, 0.25);
     }
-    .heat-lvl-0 {
-        background: rgba(30, 27, 23, 0.78);
-        border: 1.5px solid rgba(207, 169, 107, 0.22);
+    .lab-done-histo {
+        background: linear-gradient(135deg, rgba(168, 85, 247, 0.38) 0%, rgba(147, 51, 234, 0.22) 100%) !important;
+        border-color: #a855f7 !important;
+        color: #faf5ff !important;
+        box-shadow: 0 0 14px rgba(168, 85, 247, 0.25);
     }
-    .heat-lvl-1 {
-        background: linear-gradient(145deg, rgba(6, 78, 59, 0.32) 0%, rgba(20, 18, 16, 0.9) 100%);
-        border: 1.5px solid rgba(16, 185, 129, 0.38);
-        box-shadow: inset 0 0 12px rgba(16, 185, 129, 0.1);
+    .lab-done-surg {
+        background: linear-gradient(135deg, rgba(14, 165, 233, 0.38) 0%, rgba(2, 132, 199, 0.22) 100%) !important;
+        border-color: #0ea5e9 !important;
+        color: #f0f9ff !important;
+        box-shadow: 0 0 14px rgba(14, 165, 233, 0.25);
     }
-    .heat-lvl-2 {
-        background: linear-gradient(145deg, rgba(5, 150, 105, 0.38) 0%, rgba(6, 78, 59, 0.52) 100%);
-        border: 1.5px solid rgba(52, 211, 153, 0.6);
-        box-shadow: 0 0 16px rgba(16, 185, 129, 0.2), inset 0 0 14px rgba(16, 185, 129, 0.18);
+
+    /* 4. تصغير وضغط صفحة التدريب المخصص لإزالة المساحات الفارغة */
+    #view-custom .app-card {
+        padding: 1.25rem !important;
     }
-    .heat-lvl-3 {
-        background: linear-gradient(145deg, rgba(16, 185, 129, 0.52) 0%, rgba(5, 150, 105, 0.68) 100%);
-        border: 1.5px solid #6ee7b7;
-        box-shadow: 0 0 24px rgba(16, 185, 129, 0.42), inset 0 0 18px rgba(110, 231, 183, 0.28);
+    @media (min-width: 640px) {
+        #view-custom .app-card {
+            padding: 1.75rem !important;
+        }
     }
-    body.light-mode .heat-lvl-0 {
-        background: rgba(255, 255, 255, 0.85);
-        border-color: rgba(166, 124, 56, 0.3);
+    #view-custom .sublabs-container-box {
+        margin-top: 0.4rem !important;
+        padding-top: 0.4rem !important;
+    }
+    #view-custom .sublabs-container-box label {
+        padding-top: 2px !important;
+        padding-bottom: 2px !important;
+        font-size: 11px !important;
     }
 
     /* 5. إشعار "نبض الدفعة" الحي (Live Cohort Toast) */
@@ -5537,9 +5524,6 @@ window.shareCurrentChallengeLink = function() {
         opacity: 1;
     }
 </style>
-
-<!-- طبقة نبض الإطارات التفاعلي (Ambient Screen Glow) -->
-<div id="ambient-screen-glow"></div>
 
 <!-- إشعار نبض الدفعة الحي (Live Cohort Toast) -->
 <div id="live-cohort-toast" dir="rtl" class="bg-[var(--bg-card)]/95 backdrop-blur-md border-2 border-[var(--gold-primary)] rounded-2xl p-3.5 shadow-2xl flex items-center gap-3">
@@ -5562,7 +5546,6 @@ window.shareCurrentChallengeLink = function() {
         try {
             const AudioCtx = window.AudioContext || window.webkitAudioContext;
             const ctx = new AudioCtx();
-            // نغمة انطلاق تصاعدية حماسية (C5 -> E5 -> G5 -> C6)
             [523.25, 659.25, 783.99, 1046.50].forEach((freq, idx) => {
                 const osc = ctx.createOscillator();
                 const gain = ctx.createGain();
@@ -5582,7 +5565,6 @@ window.shareCurrentChallengeLink = function() {
         try {
             const AudioCtx = window.AudioContext || window.webkitAudioContext;
             const ctx = new AudioCtx();
-            // نغمة إنجاز احتفالية عند ظهور التقرير النهائي
             [523.25, 659.25, 783.99, 1046.50, 1318.51].forEach((freq, idx) => {
                 const osc = ctx.createOscillator();
                 const gain = ctx.createGain();
@@ -5604,7 +5586,6 @@ window.shareCurrentChallengeLink = function() {
         try {
             const AudioCtx = window.AudioContext || window.webkitAudioContext;
             const ctx = new AudioCtx();
-            // نغمة تركيز ناعمة عند بدء مؤقت البومودورو
             [440, 659.25, 880].forEach((freq, idx) => {
                 const osc = ctx.createOscillator();
                 const gain = ctx.createGain();
@@ -5620,31 +5601,16 @@ window.shareCurrentChallengeLink = function() {
         } catch (e) {}
     }
 
-    // ================= 2. نبض الإطارات التفاعلي (Ambient Screen Glow) =================
-    let glowTimeoutId = null;
-    function triggerAmbientGlow(isCorrect) {
-        const glowEl = document.getElementById('ambient-screen-glow');
-        if (!glowEl) return;
-        clearTimeout(glowTimeoutId);
-        glowEl.className = '';
-        void glowEl.offsetWidth; // إعادة تفعيل الأنميشن فوراً
-        glowEl.classList.add(isCorrect ? 'glow-correct' : 'glow-wrong');
-        glowTimeoutId = setTimeout(() => {
-            glowEl.className = '';
-        }, 800);
-    }
-
-    // ================= 3. شريط خريطة المحطات (Station Navigator) + وضع التركيز (Zen Mode) =================
+    // ================= 2. شريط خريطة المحطات (Station Navigator) + وضع التركيز (Zen Mode) =================
     function setupTrainerNavigatorAndZenUI() {
         const trainerSec = document.getElementById('view-trainer');
         const stationCard = document.getElementById('station-card');
         if (!trainerSec || !stationCard) return;
 
-        // أ) إنشاء حاوية شريط خريطة المحطات فوق بطاقة السؤال مباشرة
         if (!document.getElementById('station-navigator-wrap')) {
             const navWrap = document.createElement('div');
             navWrap.id = 'station-navigator-wrap';
-            navWrap.className = 'app-card rounded-2xl px-3.5 py-2.5 flex items-center justify-between gap-3';
+            navWrap.className = 'app-card rounded-2xl px-3.5 py-2 flex items-center justify-between gap-3';
             navWrap.innerHTML = `
                 <div class="flex items-center gap-2 shrink-0">
                     <span class="text-xs font-black text-[var(--gold-bright)]">🗺️ خريطة المحطات:</span>
@@ -5658,7 +5624,6 @@ window.shareCurrentChallengeLink = function() {
             stationCard.parentNode.insertBefore(navWrap, stationCard);
         }
 
-        // ب) إضافة زر وضع التركيز السينمائي (Zen Mode) في شريط التحكم العلوي للاختبار
         const qCounter = document.getElementById('question-counter');
         if (qCounter && qCounter.parentElement && !document.getElementById('zen-mode-toggle-btn')) {
             const zenBtn = document.createElement('button');
@@ -5687,7 +5652,6 @@ window.shareCurrentChallengeLink = function() {
             return `<button type="button" onclick="jumpToStation(${idx})" class="st-nav-box ${statusCls} ${currCls}" title="الانتقال إلى المحطة ${idx + 1}">${idx + 1}</button>`;
         }).join('');
 
-        // تمرير الشريط تلقائياً لتكون المحطة الحالية في المنتصف
         const activeBtn = bar.querySelector('.nav-current');
         if (activeBtn) {
             activeBtn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
@@ -5713,99 +5677,114 @@ window.shareCurrentChallengeLink = function() {
         if (lbl) lbl.innerText = shouldEnable ? 'إنهاء التركيز (Esc)' : 'وضع التركيز';
     }
 
-    // الخروج من وضع التركيز عند الضغط على زر Escape
     window.addEventListener('keydown', (e) => {
         if (e.key === 'Escape' && document.body.classList.contains('med26-zen-mode')) {
             toggleZenFocusMode(false);
         }
     });
 
-    // ================= 4. الخريطة الحرارية لإتقان اللابات الـ 12 (Mastery Heatmap) =================
-    const HEATMAP_LABS_MAP = [
-        { num: 1, subject: 'MICROBIOLOGY', dbLab: 'Gram-positive Bacteria', shortTitle: 'Gram + Bacteria', badge: 'sub-micro' },
-        { num: 2, subject: 'MICROBIOLOGY', dbLab: 'Gram-negative Bacteria', shortTitle: 'Gram - Bacteria', badge: 'sub-micro' },
-        { num: 3, subject: 'MICROBIOLOGY', dbLab: 'Antibiotic Susceptibility', shortTitle: 'Antibiotic Susceptibility', badge: 'sub-micro' },
-        { num: 4, subject: 'MICROBIOLOGY', dbLab: 'Molecular Techniques', shortTitle: 'Molecular & Viruses', badge: 'sub-micro' },
-        { num: 5, subject: 'MICROBIOLOGY', dbLab: 'Parasitic Diseases', shortTitle: 'Parasitic Diseases', badge: 'sub-micro' },
-        { num: 6, subject: 'PATHOLOGY', dbLab: 'Cell injury & Adaptation', shortTitle: 'Cell Injury & Adaptation', badge: 'sub-patho' },
-        { num: 7, subject: 'PATHOLOGY', dbLab: 'Inflammation', shortTitle: 'Inflammation', badge: 'sub-patho' },
-        { num: 8, subject: 'PATHOLOGY', dbLab: 'Hemodynamic Disorders', shortTitle: 'Hemodynamic Disorders', badge: 'sub-patho' },
-        { num: 9, subject: 'PATHOLOGY', dbLab: 'Neoplasia', shortTitle: 'Neoplasia', badge: 'sub-patho' },
-        { num: 10, subject: 'HISTOLOGY', dbLab: 'Loose Connective Tissues', shortTitle: 'Loose Connective Tissue', badge: 'sub-histo' },
-        { num: 11, subject: 'HISTOLOGY', dbLab: 'Small Blood Vessels', shortTitle: 'Small Blood Vessels', badge: 'sub-histo' },
-        { num: 12, subject: 'SURGERY', dbLab: 'Breast Cancer', shortTitle: 'Breast Examination', badge: 'sub-surg' }
-    ];
+    // ================= 3. تلوين أزرار اللابات داخل بطاقة كل مادة بنفس لون المادة عند الإنجاز =================
+    function updateSubjectCardsLabColors() {
+        // إزالة أي قسم خريطة حرارية منفصل إن وجد لتوفير المساحة
+        const oldHeatmap = document.getElementById('mastery-heatmap-section');
+        if (oldHeatmap) oldHeatmap.remove();
 
-    function renderMasteryHeatmap() {
-        const homeSec = document.getElementById('view-home');
-        if (!homeSec) return;
+        const colorConfig = {
+            'MICROBIOLOGY': { doneCls: 'lab-done-micro', rgb: '16, 185, 129', border: '#10b981' },
+            'PATHOLOGY':    { doneCls: 'lab-done-patho', rgb: '244, 63, 94',  border: '#f43f5e' },
+            'HISTOLOGY':    { doneCls: 'lab-done-histo', rgb: '168, 85, 247', border: '#a855f7' },
+            'SURGERY':      { doneCls: 'lab-done-surg',  rgb: '14, 165, 233', border: '#0ea5e9' }
+        };
 
-        let container = document.getElementById('mastery-heatmap-section');
-        if (!container) {
-            container = document.createElement('div');
-            container.id = 'mastery-heatmap-section';
-            container.className = 'app-card rounded-3xl p-5 sm:p-6 space-y-4';
-            // إدراج الخريطة الحرارية قبل شبكة المواد الأربع الكبيرة
-            const subjectsGrid = Array.from(homeSec.children).find(el => el.classList.contains('grid') && el.innerText.includes('MICROBIOLOGY'));
-            if (subjectsGrid) {
-                homeSec.insertBefore(container, subjectsGrid);
-            } else {
-                homeSec.appendChild(container);
+        const checklistData = typeof getChecklistData === 'function' ? getChecklistData() : {};
+
+        document.querySelectorAll('#view-home button[onclick*="startTraining"]').forEach(btn => {
+            const oc = btn.getAttribute('onclick') || '';
+            const subMatch = oc.match(/subject:\s*'([^']+)'/);
+            const labMatch = oc.match(/lab:\s*'([^']+)'/);
+            if (!subMatch || !labMatch) return;
+
+            const subject = subMatch[1];
+            const labName = labMatch[1];
+            const cfg = colorConfig[subject];
+            if (!cfg) return;
+
+            const labQs = questionsDB.filter(q => q.subject === subject && q.lab.includes(labName));
+            const total = labQs.length || 1;
+            const done = labQs.filter(q => masteredIds.includes(q.id)).length;
+            const pct = Math.round((done / total) * 100);
+
+            // فحص ما إذا كان الطالب قد أشّر على اللاب في جدول الـ Checklist أيضاً
+            let isCheckedInTable = false;
+            if (typeof F2_OSPE_LABS !== 'undefined') {
+                const matchedLabObj = F2_OSPE_LABS.find(l => l.subject.toUpperCase() === subject && (l.title.toLowerCase().includes(labName.toLowerCase().slice(0, 8)) || labName.toLowerCase().includes(l.title.toLowerCase().slice(0, 8))));
+                if (matchedLabObj && checklistData[matchedLabObj.id] && checklistData[matchedLabObj.id].study1) {
+                    isCheckedInTable = true;
+                }
             }
-        }
 
-        let totalMasteredLabs = 0;
-        const tilesHtml = HEATMAP_LABS_MAP.map(lab => {
-            const labQs = questionsDB.filter(q => q.subject === lab.subject && q.lab === lab.dbLab);
-            const doneCount = labQs.filter(q => masteredIds.includes(q.id)).length;
-            const totalCount = labQs.length || 1;
-            const pct = Math.round((doneCount / totalCount) * 100);
-            if (pct >= 80) totalMasteredLabs++;
+            btn.classList.remove('lab-done-micro', 'lab-done-patho', 'lab-done-histo', 'lab-done-surg');
+            btn.style.background = '';
+            btn.style.borderColor = '';
 
-            let heatClass = 'heat-lvl-0';
-            let statusIcon = '🌑';
-            if (pct >= 80) { heatClass = 'heat-lvl-3'; statusIcon = '🔥'; }
-            else if (pct >= 40) { heatClass = 'heat-lvl-2'; statusIcon = '⚡'; }
-            else if (pct > 0) { heatClass = 'heat-lvl-1'; statusIcon = '🌱'; }
+            const spans = btn.querySelectorAll('span');
+            const countSpan = spans.length > 1 ? spans[spans.length - 1] : null;
 
-            return `
-                <div onclick="startTraining({subject:'${lab.subject}', lab:'${lab.dbLab}'})" 
-                     class="heatmap-tile ${heatClass} rounded-2xl p-3 flex flex-col justify-between gap-2 text-right"
-                     title="اضغط للتدرب فوراً على محطات ${lab.shortTitle}">
-                    <div class="flex justify-between items-center gap-1">
-                        <span class="px-2 py-0.5 rounded-md text-[9px] font-black uppercase ${lab.badge}">Lab ${lab.num}</span>
-                        <span class="text-xs font-black ${pct > 0 ? 'text-emerald-300' : 'text-[var(--text-muted)]'}">${statusIcon} ${pct}%</span>
-                    </div>
-                    <div class="text-xs font-extrabold text-white dir-ltr text-left truncate" dir="ltr">${lab.shortTitle}</div>
-                    <div class="space-y-1">
-                        <div class="w-full h-1.5 bg-black/45 rounded-full overflow-hidden">
-                            <div class="h-full bg-gradient-to-r from-emerald-500 to-teal-300 transition-all duration-500" style="width:${pct}%"></div>
-                        </div>
-                        <div class="flex justify-between items-center text-[10px] text-[var(--text-muted)] font-bold">
-                            <span>أتقنت ${doneCount}/${labQs.length}</span>
-                            <span class="text-[var(--gold-bright)]">تدرّب ⬅️</span>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }).join('');
+            if (pct === 100 || isCheckedInTable) {
+                // إذا أتم الطالب اللاب يتلون الزر بالكامل بنفس لون المادة
+                btn.classList.add(cfg.doneCls);
+                if (countSpan) {
+                    countSpan.innerText = `✅ ${done}/${labQs.length}`;
+                    countSpan.className = 'text-[11px] font-black opacity-100';
+                }
+            } else if (done > 0) {
+                // تدرج لوني جزئي بنفس لون المادة حسب نسبة الإنجاز
+                btn.style.background = `linear-gradient(to left, rgba(${cfg.rgb}, 0.28) ${pct}%, var(--bg-secondary) ${pct}%)`;
+                btn.style.borderColor = `rgba(${cfg.rgb}, 0.65)`;
+                if (countSpan) {
+                    countSpan.innerText = `${done}/${labQs.length} (${pct}%)`;
+                    countSpan.className = 'text-[11px] font-extrabold opacity-95';
+                }
+            } else {
+                if (countSpan) {
+                    countSpan.innerText = `${labQs.length} محطة`;
+                    countSpan.className = 'text-[11px] opacity-75';
+                }
+            }
+        });
+    }
 
-        container.innerHTML = `
-            <div class="flex flex-wrap justify-between items-center gap-2 border-b border-[var(--border-color)] pb-3">
-                <div>
-                    <h3 class="text-base sm:text-xl font-black text-[var(--gold-bright)] flex items-center gap-2">
-                        <span>🟩 الخريطة الحرارية لإتقان اللابات الـ 12 (Mastery Heatmap)</span>
-                    </h3>
-                    <p class="text-xs text-[var(--text-muted)] font-bold">تزداد إضاءة كل لاب باللون الأخضر الزمردي كلما أتقنت محطاته • اضغط على أي لاب للتدرب عليه فوراً</p>
-                </div>
-                <div class="flex items-center gap-3 text-[11px] font-extrabold">
-                    <span class="px-3 py-1 rounded-xl bg-emerald-500/15 border border-emerald-500/40 text-emerald-300">لابات مكتملة (+80%): ${totalMasteredLabs} / 12</span>
-                </div>
-            </div>
-            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2.5">
-                ${tilesHtml}
-            </div>
-        `;
+    // ================= 4. ترتيب وتصغير صفحة التدريب المخصص لإزالة المساحات الفارغة =================
+    function compactCustomTrainingLayout() {
+        const customSec = document.getElementById('view-custom');
+        if (!customSec || document.getElementById('custom-left-stacked-col')) return;
+
+        const mainGrid = customSec.querySelector('.grid.grid-cols-1.md\\:grid-cols-2');
+        if (!mainGrid || mainGrid.children.length < 4) return;
+
+        const box1Subjects = mainGrid.children[0];
+        const box2Category = mainGrid.children[1];
+        const box3Years = mainGrid.children[2];
+        const box4Settings = mainGrid.children[3];
+
+        // تقليل الحشوات الداخلية للصناديق الأربعة لتصبح مدمجة وأنيقة
+        [box1Subjects, box2Category, box3Years, box4Settings].forEach(box => {
+            box.className = 'bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-2xl p-3.5 sm:p-4 space-y-2.5';
+        });
+
+        // تجميع صناديق (2. مصدر الأسئلة + 3. سنوات التجميعات + 4. إعدادات الجلسة) في عمود واحد متراص بدون أي فراغات
+        const leftStack = document.createElement('div');
+        leftStack.id = 'custom-left-stacked-col';
+        leftStack.className = 'flex flex-col justify-between gap-3.5';
+
+        leftStack.appendChild(box2Category);
+        leftStack.appendChild(box3Years);
+        leftStack.appendChild(box4Settings);
+
+        mainGrid.appendChild(leftStack);
+        mainGrid.className = 'grid grid-cols-1 lg:grid-cols-12 gap-4 z-10 relative items-start';
+        box1Subjects.classList.add('lg:col-span-7');
+        leftStack.classList.add('lg:col-span-5');
     }
 
     // ================= 5. إشعار "نبض الدفعة" الحي (Live Cohort Toast) =================
@@ -5872,7 +5851,6 @@ window.shareCurrentChallengeLink = function() {
                     }
                 }
             } else if (!initialPulseShown) {
-                // إظهار نبض ترحيبي يعرض متصدر الدفعة الحالي بعد 10 ثوانٍ من فتح الموقع
                 initialPulseShown = true;
                 const sorted = Object.values(data).filter(p => p && p.solved > 0).sort((a, b) => (b.solved || 0) - (a.solved || 0));
                 if (sorted.length > 0) {
@@ -5887,7 +5865,7 @@ window.shareCurrentChallengeLink = function() {
     setInterval(pollLiveCohortActivity, 22000);
     setTimeout(pollLiveCohortActivity, 4000);
 
-    // ================= 6. ربط جميع الميزات بالدوال الأساسية للمنصة تلقائياً =================
+    // ================= 6. ربط الميزات بالدوال الأساسية للمنصة تلقائياً =================
     (function hookAllV3Features() {
         // أ) ربط صوت بدء الاختبار وتجهيز شريط خريطة المحطات
         ['startTraining', 'launchCustomTraining', 'startExamSimulator', 'startBlitzMode', 'retrySessionMistakes'].forEach(fnName => {
@@ -5932,24 +5910,21 @@ window.shareCurrentChallengeLink = function() {
             window.togglePomoTimer._v3Hooked = true;
         }
 
-        // د) ربط نبض الإطارات التفاعلي (Ambient Glow) وتحديث خريطة المحطات والخريطة الحرارية عند الإجابة
+        // د) تحديث خريطة المحطات وتلوين لابات المواد عند الإجابة (بدون وميض الشاشة)
         const origMarkQ = window.markQuestion;
         if (typeof origMarkQ === 'function' && !origMarkQ._v3Hooked) {
             window.markQuestion = function(isMastered, autoAdvance = true) {
-                triggerAmbientGlow(Boolean(isMastered));
                 const res = origMarkQ.apply(this, [isMastered, autoAdvance]);
                 renderStationNavigator();
-                renderMasteryHeatmap();
+                updateSubjectCardsLabColors();
                 return res;
             };
             window.markQuestion._v3Hooked = true;
         }
 
-        // دعم زر "متوسط" في التكرار المتباعد لتحديث لون المربع في خريطة المحطات
         const origSRS = window.handleSpacedRepetition;
         if (typeof origSRS === 'function' && !origSRS._v3Hooked) {
             window.handleSpacedRepetition = function(level) {
-                if (level === 'medium') triggerAmbientGlow(false);
                 const res = origSRS.apply(this, [level]);
                 renderStationNavigator();
                 return res;
@@ -5957,40 +5932,40 @@ window.shareCurrentChallengeLink = function() {
             window.handleSpacedRepetition._v3Hooked = true;
         }
 
-        // دعم المصحح الكتابي التلقائي لنبض الإطارات
-        const origCheckTyped = window.checkTypedAnswer;
-        if (typeof origCheckTyped === 'function' && !origCheckTyped._v3Hooked) {
-            window.checkTypedAnswer = function(...args) {
-                const res = origCheckTyped.apply(this, args);
-                const fbEl = document.getElementById('typing-feedback');
-                if (fbEl && !fbEl.classList.contains('hidden')) {
-                    triggerAmbientGlow(fbEl.innerText.includes('✅'));
-                }
-                return res;
-            };
-            window.checkTypedAnswer._v3Hooked = true;
-        }
-
-        // هـ) تحديث شريط خريطة المحطات عند كل انتقال بين الأسئلة
+        // هـ) تحديث شريط خريطة المحطات + تحويل شارة السؤال إلى "🔥 الأكثر تكراراً"
         const origRenderQ = window.renderQuestion;
         if (typeof origRenderQ === 'function' && !origRenderQ._v3Hooked) {
             window.renderQuestion = function(...args) {
                 const res = origRenderQ.apply(this, args);
+                const hyBadge = document.getElementById('q-highyield');
+                if (hyBadge) {
+                    hyBadge.innerHTML = '🔥 الأكثر تكراراً';
+                }
                 renderStationNavigator();
                 return res;
             };
             window.renderQuestion._v3Hooked = true;
         }
 
-        // و) تحديث الخريطة الحرارية تلقائياً مع تحديث الإحصائيات والخروج من Zen Mode عند تغيير الصفحة
+        // و) تحديث ألوان أزرار اللابات داخل بطاقات المواد تلقائياً مع الإحصائيات والـ Checklist
         const origUpdateStats = window.updateStatsUI;
         if (typeof origUpdateStats === 'function' && !origUpdateStats._v3Hooked) {
             window.updateStatsUI = function(...args) {
                 const res = origUpdateStats.apply(this, args);
-                renderMasteryHeatmap();
+                updateSubjectCardsLabColors();
                 return res;
             };
             window.updateStatsUI._v3Hooked = true;
+        }
+
+        const origSaveChecklist = window.saveChecklistItem;
+        if (typeof origSaveChecklist === 'function' && !origSaveChecklist._v3Hooked) {
+            window.saveChecklistItem = function(...args) {
+                const res = origSaveChecklist.apply(this, args);
+                updateSubjectCardsLabColors();
+                return res;
+            };
+            window.saveChecklistItem._v3Hooked = true;
         }
 
         const origSwitch = window.switchView;
@@ -6003,17 +5978,19 @@ window.shareCurrentChallengeLink = function() {
         }
     })();
 
-    // تشغيل العناصر البصرية فور تحميل الصفحة
+    // تشغيل التعديلات فور تحميل الصفحة
     window.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => {
             setupTrainerNavigatorAndZenUI();
-            renderMasteryHeatmap();
+            compactCustomTrainingLayout();
+            updateSubjectCardsLabColors();
             if (typeof triggerBidirectionalCascade === 'function') triggerBidirectionalCascade();
         }, 250);
     });
     setTimeout(() => {
         setupTrainerNavigatorAndZenUI();
-        renderMasteryHeatmap();
+        compactCustomTrainingLayout();
+        updateSubjectCardsLabColors();
         if (typeof triggerBidirectionalCascade === 'function') triggerBidirectionalCascade();
     }, 850);
 </script>
