@@ -217,8 +217,15 @@
             }
         }
     </style>
+    <script>
+        document.documentElement.classList.add('session-agreed');
+    </script>
+    <style>
+        #disclaimer-modal { display: none !important; opacity: 0 !important; pointer-events: none !important; }
+        body.modal-open { overflow: auto !important; height: auto !important; touch-action: auto !important; }
+    </style>
 </head>
-<body data-default-view="custom" class="min-h-screen flex flex-col justify-between modal-open pb-16 md:pb-0">
+<body data-default-view="custom" class="min-h-screen flex flex-col justify-between pb-16 md:pb-0">
 
     <!-- ================= خلفية الموقع الطبوغرافية الثابتة والغنية ================= -->
     <div id="bg-Stage">
@@ -257,7 +264,7 @@
     </div>
 
     <!-- ================= 0. شاشة التنويه الإلزامية ================= -->
-    <div id="disclaimer-modal">
+    <div id="disclaimer-modal" style="display:none;">
         <div class="app-card max-w-2xl w-full rounded-3xl px-5 py-7 sm:px-10 sm:py-10 text-center space-y-5 border-2 border-[var(--gold-primary)] shadow-2xl mx-auto">
             <img data-logo class="h-16 sm:h-24 mx-auto object-contain" alt="MED26 Logo">
             
@@ -5490,21 +5497,13 @@ window.shareCurrentChallengeLink = function() {
             };
         }
 
-        // ج) عدم تكرار شاشة التنويه الإلزامية في كل مرة يتم فيها تحديث الصفحة أو الانتقال بين الصفحات بعد الموافقة عليها
+        // ج) حفظ موافقة الإقرار في الجلسة الحالية فقط عند الضغط الفعلي على زر "موافق"
         const origAcceptDisc = window.acceptDisclaimer;
         window.acceptDisclaimer = function() {
-            sessionStorage.setItem('med26_disclaimer_accepted', '1');
-            localStorage.setItem('med26_disclaimer_accepted', '1');
+            sessionStorage.setItem('med26_session_agreed', '1');
+            document.documentElement.classList.add('session-agreed');
             if (typeof origAcceptDisc === 'function') origAcceptDisc();
         };
-
-        if (sessionStorage.getItem('med26_disclaimer_accepted') === '1' || localStorage.getItem('med26_disclaimer_accepted') === '1') {
-            window.addEventListener('DOMContentLoaded', () => {
-                const modal = document.getElementById('disclaimer-modal');
-                if (modal) modal.style.display = 'none';
-                document.body.classList.remove('modal-open');
-            });
-        }
     })();
 
     // ================= 2. نظام فصل القوائم في صفحات ويب مستقلة بالروابط (Smart URL Routing + Multi-Page Support) =================
@@ -5624,7 +5623,7 @@ window.shareCurrentChallengeLink = function() {
                 // فحص روابط التحديات أو المحطات المشتركة أولاً
                 const params = new URLSearchParams(window.location.search);
                 if (params.get('challenge') || params.get('station')) {
-                    if (sessionStorage.getItem('med26_disclaimer_accepted') === '1' || localStorage.getItem('med26_disclaimer_accepted') === '1') {
+                    if (sessionStorage.getItem('med26_session_agreed') === '1') {
                         window.acceptDisclaimer();
                     }
                     return;
