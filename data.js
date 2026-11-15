@@ -573,7 +573,15 @@
             mnemonic: "• Hands on waist = Contract Pectoralis major.\n• Upper Outer Quadrant = الأكثر شيوعاً."
         }
     };
-	// ================= الترقية الشاملة V5: المزامنة السحابية الشاملة بالكود السري + تسريع الفتح 4x =================
+
+
+// ================= الترقية الشاملة V5: المزامنة السحابية الشاملة بالكود السري + تسريع الفتح 4x =================
+// مسح المفتاح القديم الذي كان يخفي الإقرار تلقائياً في البداية دون انتظار ضغط زر موافق
+try {
+    localStorage.removeItem('med26_disclaimer_accepted');
+    sessionStorage.removeItem('med26_disclaimer_accepted');
+} catch (e) {}
+
 window.addEventListener('DOMContentLoaded', () => {
     // 1. تسريع تحميل الشعار الفوري بدون فحص البكسلات الثقيل
     window.loadTransparentLogo = function() {
@@ -782,7 +790,10 @@ window.addEventListener('DOMContentLoaded', () => {
         const myToken = getMyDeviceToken();
 
         const newNameInput = prompt(
-            `👤 اسمك الحالي: ${currName || 'غير محدد'}\n🔑 كود ملكية ومزامنة حسابك (أدخله في الآيباد أو البيسي لنقل المفضلة والملاحظات والـ Checklist): [ ${myToken} ]\n\nأدخل اسم المستخدم الخاص بك:`,
+            `👤 اسمك الحالي: ${currName || 'غير محدد'}
+🔑 كود ملكية ومزامنة حسابك (أدخله في الآيباد أو البيسي لنقل المفضلة والملاحظات والـ Checklist): [ ${myToken} ]
+
+أدخل اسم المستخدم الخاص بك:`,
             currName
         );
 
@@ -797,7 +808,9 @@ window.addEventListener('DOMContentLoaded', () => {
 
             if (existingUser && existingUser.token && existingUser.token !== myToken) {
                 const enteredPin = prompt(
-                    `🔒 الحساب "${cleanNewName}" محمي بكود ملكية!\n\nإذا كان هذا حسابك على جهازك الآخر (البيسي أو الآيباد)، أدخل كود الملكية المكون من 4 أرقام لنقل المفضلة والملاحظات والـ Checklist إلى هذا الجهاز:`
+                    `🔒 الحساب "${cleanNewName}" محمي بكود ملكية!
+
+إذا كان هذا حسابك على جهازك الآخر (البيسي أو الآيباد)، أدخل كود الملكية المكون من 4 أرقام لنقل المفضلة والملاحظات والـ Checklist إلى هذا الجهاز:`
                 );
                 if (enteredPin && enteredPin.trim() === String(existingUser.token)) {
                     localStorage.setItem('med26_device_token', String(existingUser.token));
@@ -813,10 +826,15 @@ window.addEventListener('DOMContentLoaded', () => {
                     if (typeof renderScoreboardLists === 'function') renderScoreboardLists();
 
                     alert(
-                        `✅ تم ربط جهازك بحسابك "${existingUser.name}" ومزامنة بياناتك بنجاح!\n\n` +
-                        `⭐ المفضلة: ${bookmarkIds.length} محطة\n` +
-                        `📝 الملاحظات الشخصية: ${Object.keys(personalNotes || {}).length} ملاحظة\n` +
-                        `📋 جدول اللابات: ${Object.keys(typeof getChecklistData === 'function' ? getChecklistData() : {}).length} لاب محفوظ\n` +
+                        `✅ تم ربط جهازك بحسابك "${existingUser.name}" ومزامنة بياناتك بنجاح!
+
+` +
+                        `⭐ المفضلة: ${bookmarkIds.length} محطة
+` +
+                        `📝 الملاحظات الشخصية: ${Object.keys(personalNotes || {}).length} ملاحظة
+` +
+                        `📋 جدول اللابات: ${Object.keys(typeof getChecklistData === 'function' ? getChecklistData() : {}).length} لاب محفوظ
+` +
                         `🏆 المحطات المحلولة: ${getTotalSolvedCount()} محطة`
                     );
                     return;
@@ -838,7 +856,8 @@ window.addEventListener('DOMContentLoaded', () => {
             if (existingUser && existingUser.token === myToken) applyCloudProfileToLocal(existingUser, true);
             await window.syncLiveScoreboard(true);
             if (typeof renderScoreboardLists === 'function') renderScoreboardLists();
-            alert(`✅ تم حفظ ومزامنة حسابك باسم "${cleanNewName}" بنجاح!\n🔑 كود الملكية والمزامنة لأجهزتك الأخرى هو: [ ${localStorage.getItem('med26_device_token')} ]`);
+            alert(`✅ تم حفظ ومزامنة حسابك باسم "${cleanNewName}" بنجاح!
+🔑 كود الملكية والمزامنة لأجهزتك الأخرى هو: [ ${localStorage.getItem('med26_device_token')} ]`);
         } catch (e) {
             alert('تأكد من اتصالك بالإنترنت لإتمام المزامنة السحابية.');
         }
@@ -850,10 +869,15 @@ window.addEventListener('DOMContentLoaded', () => {
         const myToken = getMyDeviceToken();
         const user = localStorage.getItem('med26_username') || 'طالب MED26';
         alert(
-            `☁️ تمت المزامنة السحابية لحسابك (${user}) بنجاح!\n` +
-            `🔑 كود الربط مع الآيباد/البيسي: [ ${myToken} ]\n\n` +
-            `• المفضلة المحفوظة: ${bookmarkIds.length} محطة ⭐\n` +
-            `• الملاحظات الشخصية: ${Object.keys(personalNotes || {}).length} ملاحظة 📝\n` +
+            `☁️ تمت المزامنة السحابية لحسابك (${user}) بنجاح!
+` +
+            `🔑 كود الربط مع الآيباد/البيسي: [ ${myToken} ]
+
+` +
+            `• المفضلة المحفوظة: ${bookmarkIds.length} محطة ⭐
+` +
+            `• الملاحظات الشخصية: ${Object.keys(personalNotes || {}).length} ملاحظة 📝
+` +
             `• المحطات المتقنة: ${masteredIds.length} محطة ✅`
         );
     };
@@ -910,4 +934,1006 @@ window.addEventListener('DOMContentLoaded', () => {
     }, 600);
 
     window.addEventListener('focus', () => window.syncLiveScoreboard(false));
+});
+// ================= الترقية الشاملة V6 للمناضل: الشرح المخصص بالـ ID (107 محطة) + Viva Follow-up + Cloudflare Worker AI =================
+
+// 1. ضع رابط Cloudflare Worker المجاني الخاص بك هنا (وسيعمل المحرك المجاني المدمج تلقائياً حتى تضيف رابطك)
+const MED26_CLOUDFLARE_WORKER_URL = 'https://med26-ai.xxrayanxx85.workers.dev';
+
+// 2. قاعدة المعرفة الدقيقة المخصصة لكل محطة برقم الـ ID + الأسئلة الشفهية المتوقعة (Viva Follow-up)
+const stationKnowledgeById = {
+    // -------- MICROBIOLOGY: Gram-positive (101 - 109) --------
+    101: {
+        visual: "الصورة المجهرية تُظهر مكورات بنفسجية (Gram-positive cocci) مصطفة في سلاسل طويلة (Chains) مع قصة التهاب لوزتين صديدي.",
+        explain: "التهاب اللوزتين الصديدي (Tonsillitis with exudate) في طفل مع ظهور Gram-positive cocci in chains يشير قطعياً إلى بكتيريا Streptococcus pyogenes (Group A Streptococcus).",
+        diff: "لا تخلط بينها وبين S. aureus التي تظهر كعناقيد عنب (Clusters) وتكون Catalase-positive، بينما S. pyogenes تصطف في سلاسل (Chains) وتكون Catalase-negative.",
+        mnemonic: "Strep pyogenes = Strep (شريط/سلاسل Chains) + Pyogenes (صديد Exudate في اللوزتين).",
+        vivaQ: "ماذا لو سألك الدكتور على نفس هذه العينة: ما نوع تحلل الدم (Hemolysis) الذي تسببه هذه البكتيريا على Blood Agar؟ وأي مضاد حيوي نستخدمه في المختبر للتفريق حساسيةً لها؟",
+        vivaA: "تسبب تحللاً كاملاً للدم (<span class='kw-highlight'>Beta-hemolysis</span>)، وتكون حساسة لقرص <span class='kw-highlight'>Bacitracin (Sensitive)</span>."
+    },
+    102: {
+        visual: "سؤال سريري مباشر بدون شريحة (NO SAMPLE) يصف لوزتين متضخمتين حمراوين مغطاتين بإفرازات صديدية (Exudate).",
+        explain: "السبب البكتيري الأول لالتهاب البلعوم واللوزتين الصديدي الحاد هو Streptococcus pyogenes، وتظهر في صبغة جرام كمكورات موجبة الجرام في سلاسل.",
+        vivaQ: "ما هو الاختبار الإنزيمي السريع الذي يفرق جنس Streptococcus عن جنس Staphylococcus؟",
+        vivaA: "اختبار <span class='kw-highlight'>Catalase test</span> (يكون سلبياً في Streptococcus وإيجابياً في Staphylococcus)."
+    },
+    103: {
+        visual: "الصورة تعرض طبق أجار مقسوم نصفين: نصف تحول إلى اللون الأصفر الذهبي ونصف بقي وردياً/أحمر.",
+        explain: "هذا الوسط هو Mannitol Salt Agar (MSA) الذي يحتوي على تركيز ملح عالٍ (7.5% NaCl). بكتيريا S. aureus تخمر سكر المانيتول وتنتج حمضاً يحول كاشف Phenol red إلى اللون الأصفر (Yellow).",
+        vivaQ: "ماذا لو سألك الدكتور: ما اسم البكتيريا في النصف الآخر من الطبق التي نمت دون أن تغير لون الوسط للأصفر؟ وما اسم الكاشف اللوني في هذا الطبق؟",
+        vivaA: "البكتيريا غير المخمرة للمانيتول (اللون الوردي) هي <span class='kw-highlight'>Staphylococcus epidermidis</span>، والكاشف اللوني هو <span class='kw-highlight'>Phenol red</span>."
+    },
+    104: {
+        visual: "طبق Mannitol Salt Agar (MSA) تظهر فيه مستعمرات صفراء واضحة محاطة بهالة صفراء.",
+        explain: "اللون الأصفر (Yellow colony) على وسط MSA هو العلامة التشخيصية الفارقة لبكتيريا Staphylococcus aureus بسبب قدرتها على تخمير سكر المانيتول.",
+        vivaQ: "ما هو الاختبار التأكيدي الأهم لتفريق S. aureus عن بقية المكورات العنقودية (CoNS) في المختبر؟",
+        vivaA: "اختبار التجلط <span class='kw-highlight'>Coagulase test (+ve in S. aureus)</span>."
+    },
+    105: {
+        visual: "صورة سريرية لفحص الفم والبلعوم تُظهر تضخماً واحمراراً شديداً في اللوزتين مع نقط صديدية بيضاء (Follicular tonsillitis).",
+        explain: "حالة التهاب اللوزتين البكتيري الكلاسيكية يسببها Streptococcus pyogenes.",
+        vivaQ: "ما هي المضاعفات المناعية المتأخرة (Post-streptococcal sequelae) إذا لم يُعالج هذا المريض بالمضاد الحيوي؟",
+        vivaA: "الحمى الروماتيزمية (<span class='kw-highlight'>Rheumatic fever</span>) والتهاب كبيبات الكلى الحاد (<span class='kw-highlight'>Post-streptococcal glomerulonephritis</span>)."
+    },
+    106: {
+        visual: "صورة مجهرية لمسحة مباشرة تُظهر كريات دم بيضاء صديدية (Pus cells) مع مكورات موجبة الجرام متجمعة في عناقيد (Cocci in clusters).",
+        explain: "وجود خلايا صديدية في الخلفية يعني أنها مسحة مباشرة من العينة (Direct smear) وليست من مزرعة نقية، وتجمع المكورات كعناقيد العنب يميز Staphylococcus aureus.",
+        vivaQ: "كيف عرفت من الصورة أنها Direct smear وليست Culture smear؟",
+        vivaA: "بسبب وجود خلايا التهابية صديدية (<span class='kw-highlight'>Pus cells / Neutrophils</span>) في خلفية الشريحة."
+    },
+    107: {
+        visual: "صورة سريرية لالتهاب لوزتين جريبي حاد (Acute follicular tonsillitis) مغطى بصديد أبيض.",
+        explain: "البكتيريا المسببة هي Streptococcus pyogenes وعند زراعتها على Blood agar تعطي تحللاً كاملاً وشفافاً حول المستعمرات يسمى Beta hemolysis.",
+        vivaQ: "ما الفرق البصري على طبق Blood Agar بين Alpha و Beta و Gamma hemolysis؟",
+        vivaA: "• <span class='kw-highlight'>Beta</span>: منطقة شفافة تماماً (تحلل كامل).<br>• <span class='kw-highlight'>Alpha</span>: لون أخضر (تحلل جزئي مثل S. pneumoniae).<br>• <span class='kw-highlight'>Gamma</span>: لا يوجد تحلل."
+    },
+    108: {
+        visual: "صورة سريرية لخراج جلدي / جمرة (Skin carbuncle/abscess) ملتهب وممتلئ بالصديد.",
+        explain: "السبب الأشهر لخراجات الجلد والدمامل هو Staphylococcus aureus (أو S. pyogenes)، وكلاهما يظهر تحللاً من نوع Beta hemolysis على طبق أجار الدم.",
+        vivaQ: "ما هو الإنزيم الذي تفرزه S. aureus ويحول الفايبرينوجين إلى فايبرين لتكوين جدار حول الخراج؟",
+        vivaA: "إنزيم <span class='kw-highlight'>Coagulase</span>."
+    },
+    109: {
+        visual: "طبق أجار دم يظهر فيه خط زراعة عمودي وخط أفقي، وعند التقائهما داخل الدائرة (A) تَشكّل تحلل دموي يشبه رأس السهم (Arrow-head hemolysis).",
+        explain: "هذا هو اختبار CAMP test الإيجابي، والبكتيريا التي تعطي شكل رأس السهم هي Streptococcus agalactiae (Group B Streptococcus).",
+        vivaQ: "ما اسم البكتيريا المزروعة في الخط العمودي الطويل التي تتفاعل معها S. agalactiae لإظهار رأس السهم؟",
+        vivaA: "بكتيريا <span class='kw-highlight'>Staphylococcus aureus</span> المنتجة لسم Beta-lysin."
+    },
+
+    // -------- MICROBIOLOGY: Gram-negative (110 - 119) --------
+    110: {
+        visual: "أنابيب تفاعلات IMViC تُظهر: Indole سلبي (بدون حلقة حمراء)، و Methyl Red سلبي (أصفر)، و VP إيجابي (أحمر).",
+        explain: "النمط البيوكيميائي (Indole -, MR -, VP +, Citrate +) هو النمط الكلاسيكي لبكتيريا Klebsiella pneumoniae (وهي على عكس E. coli تماماً).",
+        vivaQ: "كيف يبدو شكل مستعمرات Klebsiella pneumoniae على طبق MacConkey agar؟ ولماذا؟",
+        vivaA: "مستعمرات وردية كبيرة ومخاطية جداً (<span class='kw-highlight'>Large mucoid pink colonies</span>) لأنها تخمر اللاكتوز وتمتلك كبسولة عديدة التسكر كبيرة (Polysaccharide capsule)."
+    },
+    111: {
+        visual: "طبق MacConkey agar بمستعمرات وردية داكنة جافة (Lactose fermenter) مع نتائج IMViC: Indole +ve, MR +ve, VP -ve, Citrate -ve.",
+        explain: "بكتيريا Escherichia coli (E. coli) تخمر اللاكتوز وتعطي إيجابية في أول اختبارين من IMViC (Indole +, Methyl Red +) وسلبية في الآخرين.",
+        vivaQ: "ماذا لو زرعنا E. coli على وسط Eosin Methylene Blue (EMB) agar، كيف سيظهر لون مستعمراتها؟",
+        vivaA: "ستعطي مستعمرات ذات لمعة معدنية خضراء مميزة (<span class='kw-highlight'>Green metallic sheen</span>)."
+    },
+    112: {
+        visual: "أنبوبان للاختبار: أحدهما تحول إلى اللون الوردي الفاقع (Bright pink/magenta) والآخر بقي أصفر برتقالياً.",
+        explain: "هذا هو اختبار اليورياز (Urease test). البكتيريا التي تفرز إنزيم اليورياز بكثافة وتحول الوسط للوردي الفاقع هي Proteus mirabilis.",
+        vivaQ: "ما هي الظاهرة المميزة التي تحدثها Proteus mirabilis عند زراعتها على طبق Blood Agar؟",
+        vivaA: "ظاهرة الزحف والانتشار الموجي (<span class='kw-highlight'>Swarming motility</span>) بسبب سياطها الكثيرة."
+    },
+    113: {
+        visual: "أنبوبان مائلان (Slants) لوسط Simmons Citrate: أنبوب أخضر (سلبي) وأنبوب تحول إلى اللون الأزرق الملكي (Blue = إيجابي).",
+        explain: "تحول لون وسط Simmons citrate من الأخضر إلى الأزرق يدل على استهلاك السترات كربونياً ورفع قلوية الوسط، وأشهر مثال إيجابي هو Klebsiella pneumoniae.",
+        vivaQ: "ما اسم الكاشف اللوني (pH indicator) الموجود داخل أنبوب Citrate test والذي يتحول من الأخضر إلى الأزرق؟",
+        vivaA: "كاشف <span class='kw-highlight'>Bromothymol blue</span>."
+    },
+    114: {
+        visual: "أنبوبان لوسط TSI (Triple Sugar Iron): الأنبوب A أصفر بالكامل في السطح والقاع، والأنبوب B أحمر السطح وأصفر القاع مع ترسب أسود كثيف.",
+        explain: "الأنبوب A يمثل تفاعل A/A (Acid slant / Acid butt) لتخمر اللاكتوز والسكروز والجلوكوز. الأنبوب B يمثل K/A + H2S (سطح قلوي أحمر وقاع حمضي مع اسوداد غاز كبريتيد الهيدروجين H2S كما في Salmonella و Proteus).",
+        vivaQ: "كيف نفرق في أنبوب TSI بين وجود الغاز العادي (Gas) ووجود غاز كبريتيد الهيدروجين (H2S)؟",
+        vivaA: "الغاز العادي يظهر كفقاعات أو تشققات ورفع للأجار في القاع، بينما <span class='kw-highlight'>H2S</span> يظهر كراسب أسود (<span class='kw-highlight'>Blackening</span>) لتفاعله مع أملاح الحديد."
+    },
+    115: {
+        visual: "شريط API 20E البلاستيكي المحتوي على 20 حُجيرة (Cupules) صغيرة ملونة للتفاعلات البيوكيميائية السريعة.",
+        explain: "يُستخدم نظام API 20E للتعرف السريع على بكتيريا العائلة المعوية (Enterobacteriaceae)، والنتيجة المعروضة هنا تطابق Klebsiella.",
+        vivaQ: "ماذا تعني حروف API 20E؟ ولأي مجموعة بكتيرية يُستخدم هذا الشريط؟",
+        vivaA: "يُستخدم لتشخيص عصيات الجرام السالبة المعوية (<span class='kw-highlight'>Enterobacteriaceae / Gram-negative rods</span>) عبر 20 تفاعلاً بيوكيميائياً مصغراً."
+    },
+    116: {
+        visual: "طبق أجار يظهر فيه نمو بكتيري يفرز صبغة خضراء مزرقة منتشرة في الوسط (Greenish-blue diffusible pigment).",
+        explain: "البكتيريا الوحيدة الشهيرة بإفراز الصبغة الخضراء المزرقة (Pyocyanin و Pyoverdine) ذات الرائحة العطرية الشبيهة بالعنب هي Pseudomonas aeruginosa.",
+        vivaQ: "ما هي نتيجة اختبار الأوكسيداز (Oxidase test) وتخمر اللاكتوز في بكتيريا Pseudomonas aeruginosa؟",
+        vivaA: "تكون <span class='kw-highlight'>Oxidase positive (+ve)</span> وغير مخمرة للاكتوز (<span class='kw-highlight'>Non-lactose fermenter</span>)."
+    },
+    117: {
+        visual: "أنبوب مائل ذو لون وردي فاقع (Bright pink slant) يمثل إيجابية اختبار اليورياز.",
+        explain: "البكتيريا المنتجة لإنزيم Urease بقوة من بين الخيارات هي Proteus (بينما E. coli و Salmonella سلبيتان).",
+        vivaQ: "إلى ماذا يحلل إنزيم Urease مادة اليوريا ليرفع درجة الـ pH ويحول اللون للوردي؟",
+        vivaA: "يحلل اليوريا إلى أمونيا (<span class='kw-highlight'>Ammonia - NH3</span>) وثاني أكسيد الكربون، والأمونيا قلوية فتحول الكاشف للوردي."
+    },
+    118: {
+        visual: "أنبوبان: أنبوب Indole سلبي (حلقة صفراء) بجانب أنبوب Citrate إيجابي (أزرق اللون).",
+        explain: "الجمع بين Indole سلبي و Citrate إيجابي أزرق يميز بكتيريا Klebsiella عن E. coli.",
+        vivaQ: "ما اسم الكاشف (Reagent) الذي نضيف قطرات منه على سطح أنبوب البيبتون للكشف عن إنتاج الـ Indole؟",
+        vivaA: "كاشف كوفاكس (<span class='kw-highlight'>Kovac's reagent</span>)."
+    },
+    119: {
+        visual: "صورة مقربة لأنابيب Simmons Citrate المائلة بلونيها الأخضر والأزرق.",
+        explain: "هذا هو اختبار Citrate utilization test للكشف عن قدرة البكتيريا على استخدام السترات كمصدر وحيد للكربون.",
+        vivaQ: "اذكر بكتيريا سالبة الجرام تعطي نتيجة إيجابية (أزرق) وأخرى تعطي نتيجة سلبية (أخضر) في هذا الاختبار؟",
+        vivaA: "• إيجابي (أزرق): <span class='kw-highlight'>Klebsiella pneumoniae</span>.<br>• سلبي (أخضر): <span class='kw-highlight'>Escherichia coli</span>."
+    },
+
+    // -------- MICROBIOLOGY: Antibiotic Susceptibility (120 - 125) --------
+    120: {
+        visual: "طبق بتري مزروع ببكتيريا وموزع عليه أقراص ورقية للمضادات الحيوية، ويظهر السهم C مشيراً إلى الدائرة الشفافة الخالية من النمو حول القرص.",
+        explain: "الطريقة هي طريقة انتشار القرص (Kirby-Bauer Disc diffusion method)، والمنطقة C الشفافة هي منطقة تثبيط النمو (Zone of inhibition).",
+        vivaQ: "ماذا لو سألك الدكتور: كلما زاد قطر الدائرة الشفافة (Zone C)، هل تصبح البكتيريا أكثر حساسية أم أكثر مقاومة للمضاد؟",
+        vivaA: "تصبح البكتيريا أكثر حساسية (<span class='kw-highlight'>More Susceptible / Sensitive</span>) للمضاد الحيوي."
+    },
+    121: {
+        visual: "طبق حساسية المضادات الحيوية مع الإشارة للحرف C حول قرص المضاد.",
+        explain: "الطريقة هي Diffusion method والمنطقة C هي Zone of inhibition.",
+        vivaQ: "كم عدد الأقراص القصوى التي يُنصح بوضعها في طبق 100mm القياسي لمنع تداخل مناطق التثبيط؟",
+        vivaA: "عادةً من <span class='kw-highlight'>5 إلى 6 أقراص</span> كحد أقصى في الطبق العادي."
+    },
+    122: {
+        visual: "طبق أجار شفاف مائل للصفرة الفاتحة مع أقراص مضادات حيوية ودوائر تثبيط واضحة.",
+        explain: "الوسط القياسي المعتمد عالمياً لاختبار حساسية المضادات الحيوية هو Mueller-Hinton Agar (MH Agar).",
+        vivaQ: "لماذا نستخدم Mueller-Hinton Agar تحديداً في اختبار الحساسية ولا نستخدم أوساطاً أخرى؟",
+        vivaA: "لأنه وسط غير انتقائي يسمح بنمو معظم البكتيريا، ومضبوط السماكة والـ pH، ولا يحتوي على مثبطات تعيق انتشار المضادات الحيوية (مثل السلفوناميد)."
+    },
+    123: {
+        visual: "طبق Mueller-Hinton Agar المزروع بطريقة المسح الشامل (Lawn culture) مع أقراص المضادات.",
+        explain: "اسم الأجار هو Mueller-Hinton Agar (MH Agar).",
+        vivaQ: "ما هو المعيار القياسي لعكارة المعلق البكتيري (Turbidity standard) الذي نضبطه قبل مسح هذا الطبق؟",
+        vivaA: "معيار ماكفرلاند نصف (<span class='kw-highlight'>0.5 McFarland standard</span>)."
+    },
+    124: {
+        visual: "طبق اختبار الحساسية بالأقراص (ميد 2021).",
+        explain: "الاسم العلمي للوسط هو Mueller-Hinton Agar، ولكن لعدم وجوده في خيارات سنة 2021 يتم اختيار Disc Diffusion Method.",
+        vivaQ: "ما الفرق بين طريقة Kirby-Bauer Disc Diffusion وطريقة شريط E-test؟",
+        vivaA: "الأقراص تعطي نتيجة نوعية (S, I, R)، بينما شريط <span class='kw-highlight'>E-test</span> التدريجي يحدد قيمة التركيز المثبط الأدنى (<span class='kw-highlight'>MIC</span>) رقمياً."
+    },
+    125: {
+        visual: "طبق اختبار الحساسية مع وجود خيار Mueller-Hinton agar (MH) ضمن الاختيارات.",
+        explain: "الوسط هو Mueller-Hinton agar (MH).",
+        vivaQ: "ماذا نضيف إلى Mueller-Hinton agar إذا أردنا اختبار حساسية بكتيريا مدققة النمو مثل Streptococcus pneumoniae؟",
+        vivaA: "نضيف إليه 5% دم أغنام منزوع الفايبرين (<span class='kw-highlight'>Mueller-Hinton Blood Agar</span>)."
+    },
+
+    // -------- MICROBIOLOGY: Molecular & Viruses (126 - 131) --------
+    126: {
+        visual: "مخطط يوضح خطوات تحويل الـ RNA الفيروسي إلى cDNA ثم مضاعفته ومنحنى التألق في q-PCR.",
+        explain: "فيروس كورونا SARS-CoV-2 هو فيروس RNA، وبما أن إنزيم DNA polymerase في الـ PCR لا يعمل إلا على قوالب DNA، فلابد من استخدام إنزيم Reverse Transcriptase أولاً لتحويل الـ RNA إلى cDNA.",
+        vivaQ: "ماذا لو سألك الدكتور: ما معنى قيمة Ct (Cycle threshold) في منحنى الـ q-PCR؟ وهل القيمة المنخفضة للـ Ct تعني كمية فيروس عالية أم منخفضة؟",
+        vivaA: "قيمة <span class='kw-highlight'>Ct</span> هي رقم الدورة التي يتجاوز فيها الوميض الفلوري حد الكشف؛ وكلما كانت قيمة Ct <strong>أقل</strong> كان الحمل الفيروسي (<span class='kw-highlight'>Viral load</span>) لدى المريض <strong>أعلى</strong>!"
+    },
+    127: {
+        visual: "منحنى التضاعف الأسي (Amplification curve) الخاص بـ Real-time RT-qPCR.",
+        explain: "من أهم تطبيقات الـ qPCR قياس الحمل الفيروسي (Quantification of viral load) ومتابعة استجابة المريض للعلاج، والشرط الأساسي لفيروسات الـ RNA قبل الـ qPCR هو إجراء النسخ العكسي (Reverse transcription).",
+        vivaQ: "ما هي المراحل الحرارية الثلاث المتكررة في كل دورة من دورات الـ PCR؟",
+        vivaA: "1) فصل السلسلتين (<span class='kw-highlight'>Denaturation ~95°C</span>)<br>2) التصاق البادئات (<span class='kw-highlight'>Annealing ~55°C</span>)<br>3) الاستطالة وبناء الـ DNA (<span class='kw-highlight'>Extension ~72°C</span>)."
+    },
+    128: {
+        visual: "شريحة زجاجية أو سيليكونية عليها مئات النقاط الدائرية الدقيقة المضيئة بألوان فلورية (أخضر وأحمر وأصفر).",
+        explain: "هذه تقنية مصفوفة الـ DNA الدقيقة (DNA Microarray) التي تكشف آلاف الجينات أو عدة فيروسات في وقت واحد عبر التهجين المفلور.",
+        vivaQ: "على أي مبدأ جزيئي يعتمد ارتباط العينة بالمسابير (Probes) المثبتة على شريحة الـ Microarray؟",
+        vivaA: "يعتمد على مبدأ التهجين التكميلي للأحماض النووية (<span class='kw-highlight'>Complementary nucleic acid hybridization</span>)."
+    },
+    129: {
+        visual: "منحنى qPCR لتشخيص فيروس RNA.",
+        explain: "الشرط الواجب تنفيذه قبل بدء تفاعل qPCR لفيروسات الـ RNA هو إجراء النسخ العكسي (Conduct reverse transcription).",
+        vivaQ: "ما اسم الإنزيم المقاوم للحرارة العالية المستخرج من بكتيريا الينابيع الحارة والمستخدم في جهاز الـ PCR؟",
+        vivaA: "إنزيم <span class='kw-highlight'>Taq DNA polymerase</span> (من بكتيريا Thermus aquaticus)."
+    },
+    130: {
+        visual: "صورة مجهرية لخلية عصبية تحتوي داخل السيتوبلازم على جسم دائري/بيضوي مميز مصبوغ باللون الوردي المحمر (Inclusion body).",
+        explain: "هذه أجسام نيجري (Negri bodies)، وهي أجسام احتوائية سيتوبلازمية (Intracytoplasmic eosinophilic inclusion bodies) تشخيصية لعدوى فيروس داء الكلب (Rabies virus).",
+        vivaQ: "أين تتواجد الأجسام الاحتوائية الخاصة بفيروس الهربس (Herpesvirus / Cowdry type A bodies)؛ في السيتوبلازم أم في النواة؟",
+        vivaA: "تتواجد داخل النواة (<span class='kw-highlight'>Intranuclear inclusion bodies</span>)، بينما Negri bodies في السيتوبلازم."
+    },
+    131: {
+        visual: "شريط اختبار Western Blot لفيروس HIV يظهر عليه خطوط داكنة (Bands) تقابل بروتينات الفيروس مثل p24 و gp41 و gp120.",
+        explain: "اختبار Western Blot يُستخدم كاختبار تأكيدي (Confirmatory test) لعدوى HIV بعد ظهور نتيجة إيجابية في اختبار المسح الأولي (ELISA).",
+        vivaQ: "عن ماذا يكشف اختبار Western Blot تحديداً؛ عن الحمض النووي للفيروس أم عن الأجسام المضادة لبروتينات الفيروس؟",
+        vivaA: "يكشف عن وجود الأجسام المضادة (<span class='kw-highlight'>Specific Antibodies</span>) ضد بروتينات محددة لفيروس HIV مفصولة بالرحلان الكهربائي."
+    },
+
+    // -------- MICROBIOLOGY: Parasitic Diseases (132 - 143) --------
+    132: {
+        visual: "عبوة بلاستيكية نظيفة بغطاء محكم وملعقة مدمجة لجمع عينة البراز (Stool container).",
+        explain: "يجب جمع البراز في وعاء جاف ونظيف دون اختلاط بالبول أو الماء، وفحصه فوراً (خلال 30 دقيقة في العينات السائلة) للحفاظ على حركة الأطوار النشطة (Preserve trophozoite motility) مثل Entamoeba و Giardia.",
+        vivaQ: "لماذا نحذر المريض بشدة من اختلاط عينة البراز بالبول أو الماء عند الفحص المجهري؟",
+        vivaA: "لأن البول والماء يقتلان الأطوار النشطة المتغذية (<span class='kw-highlight'>Destroy motile trophozoites</span>) ويغيران الضغط الأسموزي."
+    },
+    133: {
+        visual: "شريحتان زجاجيتان للدم: إحداهما عليها نقطة دم سميكة دائرية (Thick smear) والأخرى مفرودة كطبقة رقيقة (Thin smear).",
+        explain: "مسحتا الدم السميكة والرقيقة (Thin and Thick blood films) المصبوغتان بصبغة Giemsa هما المعيار الذهبي لتشخيص طفيليات الدم مثل الملاريا (Malaria / Plasmodium) والفيلاريا (Wuchereria bancrofti) والتريبانوسوما.",
+        vivaQ: "ما الفرق الوظيفي بين المسحة السميكة (Thick film) والمسحة الرقيقة (Thin film) في تشخيص الملاريا؟",
+        vivaA: "• <span class='kw-highlight'>Thick film</span>: أكثر حساسية للبحث السريع عن وجود الطفيلي (Screening).<br>• <span class='kw-highlight'>Thin film</span>: لتحديد نوع وفصيلة الملاريا (<span class='kw-highlight'>Species identification</span>) لأن كريات الدم لا تتكسر فيها."
+    },
+    134: {
+        visual: "أداة مسحة السيلوفان حول الشرج (NIH swab / Scotch tape swab) الموضوعة داخل أنبوب زجاجي.",
+        explain: "تُستخدم مسحة NIH swab لالتقاط بويضات الدودة الدبوسية Enterobius vermicularis (Pinworm) من الثنيات الجلدية حول الشرج في الصباح الباكر قبل الاستحمام.",
+        vivaQ: "لماذا لا نعتمد على فحص البراز العادي لتشخيص دودة Enterobius vermicularis ونلجأ لمسحة حول الشرج؟",
+        vivaA: "لأن أنثى الدودة الدبوسية تهاجر ليلاً وتضع بويضاتها خارج المستقيم على الجلد حول الشرج (<span class='kw-highlight'>Perianal skin</span>) وليس داخل البراز."
+    },
+    135: {
+        visual: "صورة مجهرية لبويضة بنية ذهبية دائرية/بيضوية محاطة بجدار خارجي سميك ومتموج (Mammillated / corticated shell).",
+        explain: "هذه البويضة المخصبة ذات الجدار المتموج السميك هي بويضة دودة الإسكارس (Ascaris lumbricoides)، وأفضل عينة للكشف عنها هي عينة البراز (Stool sample).",
+        vivaQ: "ما هو الطور المعدي (Infective stage) لدودة Ascaris lumbricoides عند ابتلاع الطعام أو الماء الملوث؟",
+        vivaA: "البويضة الناضجة المحتوية على يرقة (<span class='kw-highlight'>Embryonated egg</span>)."
+    },
+    136: {
+        visual: "صورة مجهرية لبويضة كبيرة بيضوية شفافة تمتلك شوكة طرفية حادة وواضحة في أحد قطبيها (Terminal spine).",
+        explain: "الشوكة الطرفية (Terminal spine) هي البصمة المميزة لبويضة بلهارسيا المجاري البولية (Schistosoma haematobium)، ولذلك العينة التشخيصية هي عينة البول (Urine sample).",
+        vivaQ: "ماذا لو كانت الشوكة جانبية (Lateral spine) بدلاً من طرفية؛ ما اسم البلهارسيا حينها وما هي العينة المطلوبة؟",
+        vivaA: "الشوكة الجانبية (<span class='kw-highlight'>Lateral spine</span>) تميز <span class='kw-highlight'>Schistosoma mansoni</span> وعينتها هي البراز (<span class='kw-highlight'>Stool sample</span>)."
+    },
+    137: {
+        visual: "صورة مجهرية لبويضة شفافة غير متماثلة، مسطحة من جانب ومحدبة من الجانب الآخر (D-shaped / Plano-convex egg) وبداخلها يرقة مطوية.",
+        explain: "البويضة التي تشبه حرف D هي بويضة الدودة الدبوسية Enterobius vermicularis، وأفضل طريقة لتشخيصها هي جمع البويضات بمسحة من منطقة حول الشرج (Perianal swab).",
+        vivaQ: "ما هو العرض السريري الأشهر الذي يشتكي منه الطفل المصاب بهذه الدودة ليلاً؟",
+        vivaA: "حكة شديدة حول منطقة الشرج ليلاً (<span class='kw-highlight'>Nocturnal pruritus ani / perianal itching</span>)."
+    },
+    138: {
+        visual: "بويضة Schistosoma haematobium ذات الشوكة الطرفية الواضحة (Terminal spine).",
+        explain: "تُشخّص بويضة Schistosoma haematobium بفحص راسب عينة البول (Urine sample).",
+        vivaQ: "ما هو العرض البولي الكلاسيكي لمرضى Schistosoma haematobium؟",
+        vivaA: "بول دموي في نهاية التبول (<span class='kw-highlight'>Terminal hematuria</span>)."
+    },
+    139: {
+        visual: "صورة لتحضير مسحتي الدم الرقيقة والسميكة (Thin and Thick blood smears).",
+        explain: "من بين الخيارات الأربعة، الطفيلي الوحيد الذي يعيش في الدم ويُشخص بمسحة الدم هو مايكروفيلاريا Wuchereria bancrofti (بينما البقية طفيليات معوية أو كبدية/رئوية تُشخص بالبراز أو البلغم).",
+        vivaQ: "في أي وقت من اليوم يُفضل سحب عينة الدم للكشف عن Wuchereria bancrofti؟ ولماذا؟",
+        vivaA: "في منتصف الليل (بين 10 مساءً و 2 صباحاً) بسبب خاصية الدورية الليلية (<span class='kw-highlight'>Nocturnal periodicity</span>) للمايكروفيلاريا."
+    },
+    140: {
+        visual: "صورة مجهرية لطور متغذٍ (Trophozoite) كمثري الشكل يمتلك نواتين في المقدمة وأهداباً/أسواطاً فيبدو كوجه ينظر إليك (Old man with glasses).",
+        explain: "هذا هو الطور النشط لطفيلي Giardia lamblia، ولرؤية حركته المتساقطة كأوراق الشجر نستخدم المسحة الرطبة المباشرة للبراز الطازج غير المحفوظ (Direct wet mount for unpreserved stool).",
+        vivaQ: "لماذا نضيف قطرة من محلول اليود (Lugol's iodine) عند عمل المسحة الرطبة للبراز؟",
+        vivaA: "لصبغ وتوضيح تفاصيل الأنوية داخل الأكياس (<span class='kw-highlight'>Staining nuclei of cysts</span>)، لكنه يقتل الأطوار المتحركة."
+    },
+    141: {
+        visual: "شريط كاسيت الفحص السريع للملاريا (Malaria Rapid Diagnostic Test - RDT).",
+        explain: "يمثل هذا الكاسيت طريقة الكشف التشخيصي السريع (Rapid diagnostic detection) التي تعتمد على الكروماتوغرافيا المناعية للكشف عن مستضدات الطفيلي.",
+        vivaQ: "ما هي أشهر المستضدات البروتينية لطفيلي الملاريا التي يكشف عنها شريط الفحص السريع (RDT)؟",
+        vivaA: "مستضد <span class='kw-highlight'>HRP-2</span> (الخاص بـ P. falciparum) وإنزيم <span class='kw-highlight'>Parasite LDH (pLDH)</span>."
+    },
+    142: {
+        visual: "صورة مجهرية لبويضات Enterobius vermicularis المسطحة من جهة واحدة (D-shaped ova).",
+        explain: "أفضل طريقة للتشخيص هي الكشف عن البويضات عبر مسحة حول الشرج (Detecting ova in a perianal swab).",
+        vivaQ: "هل تحتاج بويضة Enterobius vermicularis إلى تربة أو عائل وسيط لتصبح معدية، أم أنها معدية فوراً؟",
+        vivaA: "تكون معدية خلال ساعات قليلة مباشرة وتسبب العدوى الذاتية (<span class='kw-highlight'>Autoinfection</span>) دون حاجة لعائل وسيط."
+    },
+    143: {
+        visual: "عبوة جمع عينة البراز القياسية ذات الغطاء المزود بملعقة.",
+        explain: "اسم العينة هو Stool Sample.",
+        vivaQ: "ما هو المحلول الحافظ الأشهر الذي يُستخدم لحفظ عينات البراز إذا تأخر فحصها؟",
+        vivaA: "الفورمالين بتركيز 10% (<span class='kw-highlight'>10% Formalin</span>) أو محلول <span class='kw-highlight'>PVA (Polyvinyl alcohol)</span>."
+    },
+
+    // -------- PATHOLOGY: Cell Injury & Adaptation (201 - 218) --------
+    201: {
+        visual: "عينة عيانية (Gross specimen) لكليتين جنباً إلى جنب: إحداهما بحجم وشكل طبيعي، والأخرى منكمشة وصغيرة جداً (Shrunken kidney).",
+        explain: "انكماش حجم العضو بعد اكتمال نموه بسبب نقص التروية المزمن أو الانسداد يسمى الضمور الكلوي (Atrophy of the kidney / Renal atrophy).",
+        vivaQ: "ماذا لو سألك الدكتور: ما هو السبب المرضي الأشهر لحدوث ضمور في كلية واحدة فقط بينما تبقى الأخرى طبيعية؟",
+        vivaA: "تضيق الشريان الكلوي في جهة واحدة (<span class='kw-highlight'>Unilateral renal artery stenosis</span>) بسبب تصلب الشرايين مما يقلل التروية الدموية."
+    },
+    202: {
+        visual: "مقطع نسيجي للرئة يظهر فيه ترسب حبيبات وكتل سوداء كثيفة (Black pigment) داخل الجدران السنخية والبلعميات.",
+        explain: "التشخيص هو السحار الكربوني الرئوي (Pulmonary Anthracosis) الناتج عن استنشاق ذرات الكربون والفحم وابتلاعها بواسطة Alveolar macrophages.",
+        vivaQ: "هل يُعتبر صباغ الكربون (Carbon) في هذه الشريحة صباغاً داخلي المنشأ (Endogenous) أم خارجي المنشأ (Exogenous)؟",
+        vivaA: "هو أشهر مثال على الأصباغ خارجية المنشأ (<span class='kw-highlight'>Exogenous pigment</span>)."
+    },
+    203: {
+        visual: "مقطع نسيجي للبروستات يُظهر ازدحاماً وزيادة كبيرة في عدد الغدد البروستاتية (Prostatic glands) مع توسع كيسي وتكاثر في السدى الليفي العضلي.",
+        explain: "زيادة عدد الغدد والخلايا تحت تأثير هرمون DHT يمثل فرط التنسج الحميد للبروستات (Benign Prostatic Hyperplasia - BPH).",
+        vivaQ: "كم طبقة من الخلايا الطلائية تبطن الغدد في BPH الحميد مقارنةً بسرطان البروستات الخبيث؟",
+        vivaA: "في BPH توجد طبقتان (<span class='kw-highlight'>Double layer: inner columnar & outer basal cells</span>)، بينما في السرطان تختفي الطبقة القاعدية."
+    },
+    204: {
+        visual: "صورة عيانية لكليتين إحداهما طبيعية والأخرى ضامرة ومنكمشة بشدة.",
+        explain: "آلية التكيف الخلوي هنا هي الضمور (Atrophy of the kidney) نتيجة نقص حجم وعدد الخلايا الكلوية.",
+        vivaQ: "ماذا يحدث للكلية الأخرى السليمة لتعويض نقص وظيفة الكلية الضامرة؟",
+        vivaA: "يحدث لها تضخم تعويضي (<span class='kw-highlight'>Compensatory hypertrophy and hyperplasia</span>)."
+    },
+    205: {
+        visual: "نسيج رئوي يحتوي على ترسبات صبغية سوداء داكنة (Carbon particles).",
+        explain: "التشخيص هو Lung Anthracosis.",
+        vivaQ: "أي فئة من الناس يظهر لديها هذا التغير بكثرة؟",
+        vivaA: "المدخنون، وسكان المدن المزدحمة، وعمال مناجم الفحم (<span class='kw-highlight'>Coal miners & smokers</span>)."
+    },
+    206: {
+        visual: "شريحة مجهرية لـ BPH تُظهر تجمعات غدد بروستاتية متكاثرة ومتوسعة كيسياً مع ثنيات حليمية داخل اللمعة.",
+        explain: "التشخيص هو Benign Prostatic Hyperplasia (BPH).",
+        vivaQ: "أي منطقة تشريحية في البروستات ينشأ منها الـ BPH وتضغط على الإحليل؟",
+        vivaA: "المنطقة الانتقالية حول الإحليل (<span class='kw-highlight'>Transitional / Periurethral zone</span>)."
+    },
+    207: {
+        visual: "صورة مجهرية لعضلة القلب تُظهر أليافاً عضلية قلبية عريضة ومتضخمة جداً مع أنوية كبيرة داكنة ومستطيلة (Boxcar nuclei).",
+        explain: "بما أن خلايا عضلة القلب غير قادرة على الانقسام، فإنها تتكيف مع زيادة العبء (مثل ارتفاع ضغط الدم) بزيادة حجم الخلية والنواة، وهو ما يسمى Myocardial hypertrophy.",
+        vivaQ: "ما هو السبب السريري الأشهر لتضخم عضلة البطين الأيسر (Left ventricular hypertrophy)؟",
+        vivaA: "ارتفاع ضغط الدم المزمن (<span class='kw-highlight'>Systemic hypertension</span>) أو تضيق الصمام الأبهري (<span class='kw-highlight'>Aortic stenosis</span>)."
+    },
+    208: {
+        visual: "شريحة BPH المجهرية (تكاثر الغدد والسدى العضلي الليفي).",
+        explain: "التشخيص هو Benign Prostatic Hyperplasia (BPH).",
+        vivaQ: "هل يُعد الـ BPH آفة ما قبل سرطانية تتحول إلى سرطان بروستات؟",
+        vivaA: "<span class='kw-highlight'>لا (No)</span>، الـ BPH تكيف حميد تماماً ولا يتحول إلى سرطان."
+    },
+    209: {
+        visual: "مقطع نسيجي لطلائية عنق الرحم (Cervical epithelium) يُظهر فقدان الانتظام والقطبية مع خلايا غير نموذجية وأنوية داكنة كبيرة تمتد من القاعدة حتى السطح.",
+        explain: "فقدان التمايز وانتشار الخلايا المختلة في كامل سمك الطلائية مع بقاء الغشاء القاعدي سليماً يسمى عسر التصنع في عنق الرحم (Cervical dysplasia / CIN).",
+        vivaQ: "ما هو الفيروس المسبب الرئيسي لعسر التصنع وسرطان عنق الرحم؟ وما أهم سلالاته عالية الخطورة؟",
+        vivaA: "فيروس الورم الحليمي البشري (<span class='kw-highlight'>Human Papillomavirus - HPV</span>)، وأخطر سلالاته <span class='kw-highlight'>HPV 16 & 18</span>."
+    },
+    210: {
+        visual: "مقطع نسيجي لعقدة النقرس (Gouty tophus) يُظهر فراغات إبرية باهتة لبلورات ذائبة محاطة بتفاعل التهابي وخلايا عملاقة.",
+        explain: "ينتج مرض النقرس (Gout) عن ترسب بلورات أملاح حمض اليوريك (Deposition of uric acid salts / Monosodium urate crystals) في المفاصل والأنسجة الرخوة.",
+        vivaQ: "ما هو الشكل المجهري لبلورات النقرس تحت المجهر المستقطب؟",
+        vivaA: "بلورات إبرية الشكل سلبية الانكسار المزدوج (<span class='kw-highlight'>Needle-shaped negatively birefringent crystals</span>)."
+    },
+    211: {
+        visual: "شريحة البروستات المتكاثرة الغدد (BPH).",
+        explain: "نوع التكيف الخلوي في البروستات هو فرط التنسج (Hyperplasia).",
+        vivaQ: "ما هو الهرمون المسؤول مباشرة عن تحفيز هذا الـ Hyperplasia في غدة البروستات؟",
+        vivaA: "هرمون ثنائي هيدروتستوستيرون (<span class='kw-highlight'>Dihydrotestosterone - DHT</span>)."
+    },
+    212: {
+        visual: "شريحة طلائية عنق الرحم المختلة الانتظام (Cervical dysplasia).",
+        explain: "العملية المرضية الظاهرة هي عسر التصنع (Dysplasia).",
+        vivaQ: "ما هو الخط الفاصل الذي إذا اخترقته خلايا الـ Dysplasia تتحول من Carcinoma in situ إلى Invasive carcinoma؟",
+        vivaA: "اختراق الغشاء القاعدي (<span class='kw-highlight'>Invasion of the basement membrane</span>)."
+    },
+    213: {
+        visual: "شريحة البروستات (Hyperplasia).",
+        explain: "آلية التكيف هي Hyperplasia.",
+        vivaQ: "لماذا لا يحدث Hyperplasia في عضلة القلب أو الخلايا العصبية؟",
+        vivaA: "لأنها خلايا دائمة غير قادرة على الانقسام الخيطي (<span class='kw-highlight'>Permanent non-dividing cells</span>) فتتكيف بالـ Hypertrophy فقط."
+    },
+    214: {
+        visual: "شريحة عنق الرحم (Dysplasia).",
+        explain: "التشخيص هو Dysplasia.",
+        vivaQ: "ما اسم مسحة الفحص المبكر التي تؤخذ من عنق الرحم للكشف عن الـ Dysplasia؟",
+        vivaA: "مسحة بابانيكولاو (<span class='kw-highlight'>Pap smear</span>)."
+    },
+    215: {
+        visual: "صورة لعقيدتين جلديتين صفراويتي اللون، مع مقطع مجهري يُظهر تجمعات خلايا بلعمية رغوية محملة بالدهون (Foamy macrophages).",
+        explain: "العقيدات الصفراء الناتجة عن تراكم الكوليسترول والدهون داخل الخلايا البلعمية في الأدمة تسمى الورم الأصفر (Xanthoma).",
+        vivaQ: "لماذا تظهر الخلايا البلعمية في شريحة الـ Xanthoma فارغة ورغوية (Foamy) تحت صبغة H&E العادية؟",
+        vivaA: "لأن الدهون والكوليسترول تذوب أثناء تمرير النسيج في الكحول والزيلين (<span class='kw-highlight'>Dissolve during tissue processing</span>)."
+    },
+    216: {
+        visual: "مقطع نسيجي للكلية تُظهر فيه الكبيبات الكلوية (Glomeruli) ترسب مادة وردية متجانسة غير خلوية (Pink amorphous hyaline material) تطمس الشعيرات الكبيبية.",
+        explain: "ترسب هذه المادة البروتينية الوردية غير الطبيعية خارج الخلايا في الكبيبات الكلوية يمثل الداء النشواني الكلوي (Renal Amyloidosis / Amyloid).",
+        vivaQ: "ما هي الصبغة الخاصة (Special stain) المستخدمة لتأكيد تشخيص الـ Amyloid؟ وما اللون الذي تعطيه تحت الضوء المستقطب؟",
+        vivaA: "صبغة أحمر الكونغو (<span class='kw-highlight'>Congo red stain</span>)، وتعطي لوناً أخضر تفاحياً مزدوج الانكسار (<span class='kw-highlight'>Apple-green birefringence</span>)."
+    },
+    217: {
+        visual: "شريحة الكلية ذات الكبيبات المترسب فيها مادة وردية متجانسة (Amyloid).",
+        explain: "التشخيص هو Amyloid.",
+        vivaQ: "ما هو العرض السريري الكلوي الذي يصاب به مريض Renal Amyloidosis نتيجة تلف الكبيبات؟",
+        vivaA: "المتلازمة الكلائية (<span class='kw-highlight'>Nephrotic syndrome</span>) مع زلال بولي شديد (Heavy proteinuria)."
+    },
+    218: {
+        visual: "صورة العقيدات الجلدية الصفراء والخلايا الرغوية (Xanthoma).",
+        explain: "التشخيص هو Xanthoma.",
+        vivaQ: "أي اضطراب أيضي في الدم يرتبط بظهور الـ Xanthoma؟",
+        vivaA: "فرط شحوم وكوليسترول الدم (<span class='kw-highlight'>Hyperlipidemia / Hypercholesterolemia</span>)."
+    },
+
+    // -------- PATHOLOGY: Inflammation (219 - 224) --------
+    219: {
+        visual: "مقطع عرضي في الزائدة الدودية يُظهر تقرح الغشاء المخاطي وارتشاحاً كثيفاً لخلايا الالتهاب الحاد يمتد عبر الطبقة العضلية حتى الدهن المحيط.",
+        explain: "التشخيص هو التهاب الزائدة الدودية الحاد الصديدي (Acute suppurative appendicitis) والخلية السائدة فيه هي العدلات (Neutrophils).",
+        vivaQ: "ما هو الشرط النسيجي الأساسي لتأكيد تشخيص Acute appendicitis تحت المجهر؟",
+        vivaA: "رؤية خلايا الـ <span class='kw-highlight'>Neutrophils</span> مرتشحة داخل الطبقة العضلية لجدار الزائدة (<span class='kw-highlight'>Muscularis propria infiltration</span>)."
+    },
+    220: {
+        visual: "مقطع نسيجي للكبد يُظهر أوراماً حبيبية (Granulomas) وتليفاً حول الوريد البابي يحيط ببويضات البلهارسيا المحتوية على شوكة.",
+        explain: "التشخيص هو بلهارسيا الكبد (Liver Schistosomiasis / Hepatic bilharziasis).",
+        vivaQ: "ما نوع كريات الدم البيضاء التي تزداد بقوة حول حبيبومات البلهارسيا الطفيلية؟ وما اسم التليف الكبدي الناتج عنها؟",
+        vivaA: "تزداد خلايا الحمضات (<span class='kw-highlight'>Eosinophils</span>)، وتسبب تليف غليسون الكلاسيكي (<span class='kw-highlight'>Pipe-stem fibrosis</span>)."
+    },
+    221: {
+        visual: "صورة مكبرة لجدار الزائدة الدودية الملتهب تظهر فيها خلايا ذات أنوية مفصصة (3-5 فصوص).",
+        explain: "خلايا الالتهاب الحاد السائدة في التهاب الزائدة الدودية هي العدلات (Neutrophils).",
+        vivaQ: "ما هي المضاعفات الخطيرة إذا لم تُستأصل الزائدة الملتهبة؟",
+        vivaA: "انفجار الزائدة الدودية (<span class='kw-highlight'>Perforation</span>) والتهاب الصفاق الصديدي (<span class='kw-highlight'>Peritonitis</span>)."
+    },
+    222: {
+        visual: "مقطع في عقدة لمفاوية لمريض درن (Tuberculosis) يُظهر منطقة مركزية وردية عديمة البنية الخلوية محاطة بحبيبوم.",
+        explain: "نوع النخر المميز لعدوى الدرن (TB) هو النخر التجبني (Caseous necrosis).",
+        vivaQ: "لماذا سُمّي هذا النخر بالنخر التجبني (Caseous necrosis)؟",
+        vivaA: "لأن مظهره العياني (Gross appearance) يشبه الجبن الأبيض الجاف المتفتت (<span class='kw-highlight'>Cheese-like appearance</span>)."
+    },
+    223: {
+        visual: "مقطع عرضي للزائدة الدودية الملتهبة (Acute suppurative appendicitis).",
+        explain: "التشخيص هو Acute suppurative appendicitis.",
+        vivaQ: "ما هو السبب الميكانيكي الأشهر لانسداد لمعة الزائدة الدودية وبدء الالتهاب؟",
+        vivaA: "انسداد اللمعة بحصاة برازية (<span class='kw-highlight'>Fecalith</span>) أو تضخم لمفاوي."
+    },
+    224: {
+        visual: "مقطع نسيجي في عقدة لمفاوية يُظهر خليتين عملاقتين كبيرتين تترتب فيهما الأنوية على المحيط بشكل نعل الفرس (Langhans giant cells).",
+        explain: "وجود حبيبومات مع خلايا لانغهانس العملاقة (Langhans giant cells) ذات الأنوية المحيطية مع نخر تجبني يشخص مرض الدرن (TB - Tuberculosis).",
+        vivaQ: "ما هي الصبغة الخاصة المستخدمة للكشف عن عصيات الدرن (Mycobacterium tuberculosis) داخل النسيج؟",
+        vivaA: "صبغة تسيل-نيلسن المقاومة للأحماض (<span class='kw-highlight'>Ziehl-Neelsen / Acid-fast stain</span>)."
+    },
+
+    // -------- PATHOLOGY: Hemodynamic Disorders (225 - 230) --------
+    225: {
+        visual: "عينة عيانية لرئة متضخمة، ثقيلة، صلبة القوام، وذات لون أحمر داكن مائل للبني.",
+        explain: "التشخيص هو احتقان الرئة الوريدي المزمن (Lung: Chronic venous congestion) الناتج غالباً عن فشل الجانب الأيسر للقلب.",
+        vivaQ: "ما اسم الخلايا البلعمية المحملة بصبغة الهيموسيديرين التي تظهر في رئة مريض الاحتقان الرئوي المزمن؟",
+        vivaA: "خلايا فشل القلب (<span class='kw-highlight'>Heart failure cells</span> - Hemosiderin-laden macrophages)."
+    },
+    226: {
+        visual: "صورة عيانية لرئة حمراء متضخمة وصلبة القوام.",
+        explain: "الوصف هو Reddish, enlarged, solid lung والتشخيص هو Chronic venous congestion in the lung.",
+        vivaQ: "ما هو السبب القلبي المباشر لاحتقان الرئة الوريدي المزمن؟",
+        vivaA: "فشل القلب الأيسر (<span class='kw-highlight'>Left-sided heart failure</span>) أو تضيق الصمام الميترالي (<span class='kw-highlight'>Mitral stenosis</span>)."
+    },
+    227: {
+        visual: "سطح مقطعي للكبد يظهر منقطاً بمناطق حمراء داكنة غائرة تتبادل مع مناطق صفراء/بنية باهتة فيشبه مقطع ثمرة جوزة الطيب (Nutmeg liver).",
+        explain: "مظهر كبد جوزة الطيب (Nutmeg liver) هو العلامة الكلاسيكية لاحتقان الكبد الوريدي المزمن (Liver: Chronic venous congestion).",
+        vivaQ: "ما سبب ظهور المناطق الحمراء الغائرة والمناطق الباهتة في Nutmeg liver؟",
+        vivaA: "المناطق الحمراء هي احتقان ونزف حول الوريد المركزي (<span class='kw-highlight'>Centrilobular congestion & necrosis</span>)، والمناطق الباهتة هي خلايا كبدية سليمة أو متدهنة على الأطراف."
+    },
+    228: {
+        visual: "صورة عيانية لمقطع الكبد ذي المظهر المنقط (Nutmeg appearance).",
+        explain: "التشخيص هو Chronic venous congestion of the liver.",
+        vivaQ: "هل ينتج احتقان الكبد الوريدي المزمن (Nutmeg liver) عن فشل القلب الأيمن أم الأيسر؟",
+        vivaA: "ينتج عن فشل الجانب الأيمن للقلب (<span class='kw-highlight'>Right-sided heart failure</span>)."
+    },
+    229: {
+        visual: "مقطع نسيجي لشريان مسدود بكتلة دموية تتكون من طبقات متبادلة من الفايبرين الوردي والصفائح مع كريات الدم الحمراء والبيضاء داخل اللمعة.",
+        explain: "التشخيص هو خثرة دموية حديثة داخل الشريان (Recent Thrombus / Recent Thrombosis).",
+        vivaQ: "ما اسم الخطوط الطبقية المتبادلة الفاتحة والداكنة التي تميز الخثرة المتكونة أثناء سريان الدم (Antemortem thrombus)؟",
+        vivaA: "خطوط زان (<span class='kw-highlight'>Lines of Zahn</span>)."
+    },
+    230: {
+        visual: "صورة سريرية لتورم شديد وصلب في الطرف السفلي (الساق والقدم) مع تغير في سماكة الجلد.",
+        explain: "التورم الناتج عن تجمع السوائل اللمفاوية والذي لا يترك حفرة عند الضغط عليه يسمى الوذمة غير الانطباعية الصلبة (Non-pitting edema / Hard edema).",
+        vivaQ: "ما هو الطفيلي الذي يسد الأوعية اللمفاوية ويسبب داء الفيل (Elephantiasis / Non-pitting lymphedema)؟",
+        vivaA: "طفيلي الفيلاريا (<span class='kw-highlight'>Wuchereria bancrofti</span>)."
+    },
+
+    // -------- PATHOLOGY: Neoplasia (231 - 242) --------
+    231: {
+        visual: "مقطع نسيجي للقولون يُظهر غدداً طلائية خبيثة غير منتظمة ومزدحمة بالخلايا المفرطة الصبغ تخترق طبقة Muscularis mucosae إلى الـ Submucosa.",
+        explain: "التشخيص هو السرطان الغدي في القولون (Adenocarcinoma of the colon)، والدليل الحاسم على الخباثة هو غزو واختراق طبقة تحت المخاطية (Submucosa).",
+        vivaQ: "لماذا ينشأ في القولون سرطان غدي (Adenocarcinoma) وليس سرطان حرشفي (Squamous cell carcinoma)؟",
+        vivaA: "لأن بطانة القولون الأصلية تتكون من طلائية عمودية غدية مفرزة للمخاط (<span class='kw-highlight'>Glandular columnar epithelium</span>)."
+    },
+    232: {
+        visual: "مقطع نسيجي يُظهر فصيصات من خلايا دهنية ناضجة كبيرة تبدو فارغة (لذوبان الدهن) مع أنوية مسطحة مضغوطة على الطرف يفصلها سدى وعائي ليفي رقيق.",
+        explain: "التشخيص هو الورم الشحمي الحميد (Lipoma)، وهو أكثر أورام الأنسجة الرخوة الحميدة شيوعاً في البالغين.",
+        vivaQ: "ما هو النظير الخبيث (Malignant counterpart) للورم الشحمي (Lipoma)؟",
+        vivaA: "الساركوما الشحمية (<span class='kw-highlight'>Liposarcoma</span>)."
+    },
+    233: {
+        visual: "شريحة سرطان القولون الغدي المخترق للـ Submucosa.",
+        explain: "التشخيص هو Adenocarcinoma of the colon.",
+        vivaQ: "أي عضو هو المكان الأول والأشهر لانتشار (Metastasis) سرطان القولون عبر الدورة البابية؟",
+        vivaA: "الكبد (<span class='kw-highlight'>Liver metastasis</span>) عبر الوريد البابي."
+    },
+    234: {
+        visual: "شريحة الورم الشحمي الحميد (Lipoma) بفصيصاته الدهنية الناضجة.",
+        explain: "التشخيص هو Lipoma.",
+        vivaQ: "كيف يبدو ملمس الـ Lipoma سريرياً تحت الجلد عند فحص المريض؟",
+        vivaA: "كتلة لينة، متحركة بسهولة، غير مؤلمة، ومفصصة (<span class='kw-highlight'>Soft, mobile, painless, lobulated mass</span>)."
+    },
+    235: {
+        visual: "مقطع نسيجي للـ Lipoma.",
+        explain: "التشخيص هو Lipoma.",
+        vivaQ: "لماذا تكون نواة الخلية الدهنية في الـ Lipoma مضغوطة على المحيط (Peripheral compressed nucleus)؟",
+        vivaA: "بسبب امتلاء السيتوبلازم بقطرة دهنية كبيرة واحدة تدفع النواة إلى طرف الخلية (<span class='kw-highlight'>Signet-ring like fat cell</span>)."
+    },
+    236: {
+        visual: "شريحة Adenocarcinoma of the colon.",
+        explain: "التشخيص هو Adenocarcinoma of the colon.",
+        vivaQ: "بماذا ينتصب الشكل العياني لسرطان القولون في الجانب الأيمن مقارنة بالجانب الأيسر؟",
+        vivaA: "في القولون الأيمن ينمو ككتلة بوليبية نازفة (<span class='kw-highlight'>Fungating/polypoid mass</span>)، وفي الأيسر ينمو كحلقة تضيق اللمعة (<span class='kw-highlight'>Annular napkin-ring constriction</span>)."
+    },
+    237: {
+        visual: "مقطع قولوني يوضح انتقال المخاطية الطبيعية إلى غدد خبيثة تغزو جدار القولون.",
+        explain: "التشخيص هو Adenocarcinoma.",
+        vivaQ: "ما هو الواسم الورمي (Tumor marker) الذي يُستخدم في الدم لمتابعة مرضى سرطان القولون؟",
+        vivaA: "المستضد السرطاني المضغي (<span class='kw-highlight'>CEA - Carcinoembryonic Antigen</span>)."
+    },
+    238: {
+        visual: "شريحة Adenocarcinoma القولون.",
+        explain: "التشخيص هو Adenocarcinoma.",
+        vivaQ: "ما نوع البوليب القولوني الأكثر قابلية للتحول إلى Adenocarcinoma؟",
+        vivaA: "البوليب الغدي الزغابي (<span class='kw-highlight'>Villous adenoma</span>)."
+    },
+    239: {
+        visual: "عينة عيانية لرحم مقطوع يظهر داخل تجويفه وجداره ورم كروي محدد الحواف ذو سطح مقطعي أبيض رمادي ملتف كالدوامات.",
+        explain: "هذا هو الورم العضلي الأملس الحميد في الرحم (Uterine Leiomyoma / Fibroid)، وهو أكثر الأورام الحميدة شيوعاً لدى النساء.",
+        vivaQ: "ما هو النظير الخبيث لورم الـ Leiomyoma؟ وما هي خلايا المنشأ؟",
+        vivaA: "النظير الخبيث هو <span class='kw-highlight'>Leiomyosarcoma</span>، وينشأ من خلايا العضلات الملساء (<span class='kw-highlight'>Smooth muscle cells of myometrium</span>)."
+    },
+    240: {
+        visual: "مقطع نسيجي من قرحة خبيثة في الجلد يظهر فيه أعشاش من الخلايا الحرشفية الخبيثة تخترق الأدمة وفي مركزها دوائر وردية صفائحية من الكيراتين.",
+        explain: "وجود لآلئ الكيراتين (Keratin pearls) الواضحة في مركز أعشاش الورم يدل على أن خلايا سرطان الخلايا الحرشفية متمايزة جيداً (Well-differentiated Squamous Cell Carcinoma).",
+        vivaQ: "ما اسم التراكيب الدائرية الوردية المميزة في مركز أعشاش هذا الورم والتي دلت على أنه Well-differentiated؟",
+        vivaA: "لآلئ الكيراتين (<span class='kw-highlight'>Keratin pearls / Cell nests</span>)."
+    },
+    241: {
+        visual: "صورة عيانية لورم الرحم الليفي الحميد (Leiomyoma).",
+        explain: "التشخيص هو Leiomyoma.",
+        vivaQ: "ماذا يحدث لحجم ورم الـ Leiomyoma بعد سن اليأس (Menopause)؟ ولماذا؟",
+        vivaA: "ينكمش ويصغر حجمه (<span class='kw-highlight'>Regresses/shrinks</span>) لأنه ورم يعتمد في نموه على هرمون الإستروجين (<span class='kw-highlight'>Estrogen-dependent</span>)."
+    },
+    242: {
+        visual: "شريحة سرطان القولون الغدي (Adenocarcinoma).",
+        explain: "التشخيص هو Adenocarcinoma.",
+        vivaQ: "لماذا يسبب سرطان القولون الأيمن فقر دم بعوز الحديد (Iron deficiency anemia) كأول عرض سريري؟",
+        vivaA: "بسبب النزف المزمن الخفي المستمر من سطح الورم في البراز (<span class='kw-highlight'>Chronic occult blood loss</span>)."
+    },
+
+    // -------- HISTOLOGY: Loose Connective Tissue & Blood Vessels (301 - 315) --------
+    301: {
+        visual: "شريحة النسيج الضام الرخو (دفعة 2025): الحرف A يشير لحزم سميكة وردية متموجة، والحرف B لخيوط رفيعة داكنة متفرعة، والحرف C لشبكة خيوط دقيقة.",
+        explain: "في هذه الصورة تحديداً: A = Collagen fibers (حزم عريضة)، B = Elastic fibers (ألياف مرنة متفرعة)، C = Reticular fibers.",
+        diff: "انتبه جيداً لفرق الترقيم بين دفعة 2025 ودفعة 2024! في 2025 (هذه الشريحة) الحرف A هو الكولاجين العريض، بينما في شريحة 2024 الحرف A يشير للخيط الرفيع (Elastic).",
+        vivaQ: "من أي نوع من الكولاجين تتكون ألياف الـ Reticular fibers (الحرف C)؟ وما هي صبغتها الخاصة؟",
+        vivaA: "تتكون من <span class='kw-highlight'>Collagen type III</span>، وتُصبغ باللون الأسود بصبغة الفضة (<span class='kw-highlight'>Silver stain / Reticulin stain</span>)."
+    },
+    302: {
+        visual: "شريحة النسيج الضام الرخو (دفعة 2024): السهم A يشير للخيط الرفيع المتفرع، والسهم B يشير للحزمة العريضة المتموجة، والسهم C للشبكة الخلفية.",
+        explain: "في شريحة 2024: A = Elastic fibers، و B = Collagen fibers، و C = Reticular fibers.",
+        vivaQ: "ما هي الخلية المسؤولة عن تصنيع وإفراز جميع هذه الألياف الثلاثة في النسيج الضام؟",
+        vivaA: "الخلية الليفية اليافعة (<span class='kw-highlight'>Fibroblast</span>)."
+    },
+    303: {
+        visual: "سؤال نظري مباشر حول مكونات المادة الأساسية غير المتشكلة (Ground substance) في النسيج الضام.",
+        explain: "المادة الأساسية تتكون من ثلاث عائلات جزيئية رئيسية: Proteoglycans، و Glycosaminoglycans (GAGs)، و Multiadhesive glycoproteins (مثل Fibronectin و Laminin).",
+        vivaQ: "اذكر مثالاً شهيراً على الـ GAGs غير المرتبطة بالبروتين والتي تحبس الماء بقوة في النسيج الضام؟",
+        vivaA: "حمض الهيالورونيك (<span class='kw-highlight'>Hyaluronic acid / Hyaluronan</span>)."
+    },
+    304: {
+        visual: "سؤال نظري مباشر عن الخلايا المقيمة الدائمة (Resident cells) في النسيج الضام.",
+        explain: "الخلايا المقيمة (Resident cells) تولد وتبقى داخل النسيج الضام لأداء وظائف بنائية ودفاعية، وأهمها: Fibroblast, Macrophage, Mast cell, Adipocyte, Pericyte.",
+        vivaQ: "أي خلية من الخلايا المقيمة تحتوي على حبيبات الهيستامين والهيبارين وتلعب دوراً رئيسياً في الحساسية؟",
+        vivaA: "الخلية البدينة (<span class='kw-highlight'>Mast cell</span>)."
+    },
+    305: {
+        visual: "سؤال نظري مباشر عن الخلايا المهاجرة العابرة (Wandering/Transient cells) في النسيج الضام.",
+        explain: "الخلايا المهاجرة تأتي من نخاع العظم عبر مجرى الدم وتدخل النسيج الضام عند الالتهاب، وتشمل: Lymphocyte, Neutrophil, Eosinophil, Basophil, Monocyte, Plasma cell.",
+        vivaQ: "من أي خلية تتمايز خلية الـ Plasma cell؟ وما هي وظيفتها؟",
+        vivaA: "تتمايز من الخلايا اللمفاوية البائية (<span class='kw-highlight'>B-lymphocytes</span>)، ووظيفتها إنتاج الأجسام المضادة (<span class='kw-highlight'>Antibodies</span>)."
+    },
+    306: {
+        visual: "مقطع في النسيج الضام يسأل عن الخلية التي تنتمي للخلايا المقيمة (Resident population).",
+        explain: "من بين الخيارات (Monocyte, Lymphocyte, Macrophage, Neutrophils)، الخلية الوحيدة المقيمة في النسيج هي الـ Macrophage (بينما البقية خلايا دم مهاجرة).",
+        vivaQ: "ماذا كان اسم خلية الـ Macrophage عندما كانت تسير في الدم قبل دخولها للنسيج الضام؟",
+        vivaA: "كانت تُسمى الخلية الوحيدة (<span class='kw-highlight'>Monocyte</span>)."
+    },
+    307: {
+        visual: "شريحة النسيج الضام تسأل عن الألياف المكونة من Collagen type III.",
+        explain: "الألياف الشبكية (Reticular fibers) هي التي تتكون من الكولاجين من النوع الثالث (Collagen type III).",
+        vivaQ: "من أي نوع من الكولاجين تتكون ألياف الكولاجين الكلاسيكية السميكة في الأوتار والأدمة والعظام؟",
+        vivaA: "تتكون من الكولاجين من النوع الأول (<span class='kw-highlight'>Collagen type I</span>)."
+    },
+    308: {
+        visual: "رسم توضيحي لجزيئات المادة الأساسية على سطح الخلية وفي النسيج الضام.",
+        explain: "جزيء Syndecan هو أحد البروتيوغليكانات الغشائية (Transmembrane proteoglycans) في المادة الأساسية (بينما Integrin مستقبل خلوي و Fibronectin بروتين سكري لاصق).",
+        vivaQ: "ما وظيفة بروتين Fibronectin في النسيج الضام؟",
+        vivaA: "هو بروتين سكري لاصق (<span class='kw-highlight'>Multiadhesive glycoprotein</span>) يربط ألياف الكولاجين بمستقبلات الـ Integrin على سطح الخلايا."
+    },
+    309: {
+        visual: "رسم جزيئات المادة الأساسية يسأل عن الـ Proteoglycan الضخم.",
+        explain: "جزيء Aggrecan هو أشهر وأكبر Proteoglycan في المادة الأساسية (خصوصاً في الغضاريف والنسيج الضام).",
+        vivaQ: "ما الذي يمنح جزيء الـ Aggrecan قدرته العالية على تحمل الضغط الميكانيكي؟",
+        vivaA: "ارتباطه بمئات السلاسل السكرية سالبة الشحنة (<span class='kw-highlight'>Chondroitin & Keratan sulfate GAGs</span>) التي تجذب جزيئات الماء."
+    },
+    310: {
+        visual: "شريحة نسيج ضام يحيط فيها الدائرة الحمراء بخلية مغزلية الشكل ذات نواة بيضوية ممدودة تسير بموازاة ألياف الكولاجين.",
+        explain: "الخلية المغزلية المحاطة بالدائرة الحمراء هي الخلية الليفية (Fibroblast).",
+        vivaQ: "كيف نفرق مجهرياً بين الخلية الليفية النشطة (Fibroblast) والخلية الليفية الخاملة (Fibrocyte)؟",
+        vivaA: "الـ <span class='kw-highlight'>Fibroblast</span> أكبر حجماً ولها نواة فاتحة (Euchromatic) وسيتوبلازم غني، بينما الـ <span class='kw-highlight'>Fibrocyte</span> أصغر ونواتها داكنة مضغوطة ومغزلية رفيعة."
+    },
+    311: {
+        visual: "لطخة دم / نسيج تُظهر كرية دم بيضاء ذات نواة مقسومة إلى فصين واضحين (Bilobed nucleus) وسيتوبلازم ممتلئ بحبيبات حمراء برتقالية لامعة.",
+        explain: "النواة ثنائية الفصوص مع الحبيبات الحمراء الكبيرة (Eosinophilic granules) تميز كرية الدم البيضاء الحمضية (Eosinophil).",
+        vivaQ: "في أي حالتين مرضيتين يرتفع عدد خلايا الـ Eosinophils في دم المريض؟",
+        vivaA: "في العدوى الطفيلية (<span class='kw-highlight'>Parasitic infections</span>) وفي تفاعلات الحساسية والربو (<span class='kw-highlight'>Allergic reactions & Asthma</span>)."
+    },
+    312: {
+        visual: "صورة لشعيرة دموية دقيقة (Capillary) يظهر فيها: A خلية مبطنة مسطحة، B لمعة الشعيرة الدموية، C خلية محيطية تحتضن الشعيرة من الخارج.",
+        explain: "في هذه الشريحة: A = Endothelial cell، و B = Capillary، و C = Pericyte.",
+        vivaQ: "ما هي وظيفة خلية الـ Pericyte (الحرف C) المحيطة بالشعيرات الدموية؟",
+        vivaA: "لها قدرة انقباضية لتنظيم تدفق الدم، وتعمل كخلية جذعية وعائية (<span class='kw-highlight'>Mesenchymal stem cell</span>) لتجديد الأوعية الدموية عند الإصابة."
+    },
+    313: {
+        visual: "مقطع نسيجي يجمع وعاءين دمويين متجاورين: الوعاء A ذو لمعة واسعة غير منتظمة وجدار رقيق جداً، والوعاء B ذو لمعة دائرية ضيقة وجدار عضلي سميك.",
+        explain: "الوعاء الواسع الرقيق الجدار A هو الوريد الصغير (Venule)، والوعاء الدائري السميك الجدار B هو الشرين (Arteriole).",
+        vivaQ: "كم طبقة من الخلايا العضلية الملساء توجد في طبقة Tunica media للشرين (Arteriole)؟",
+        vivaA: "من طبقة واحدة إلى ثلاث طبقات فقط (<span class='kw-highlight'>1 to 3 layers of smooth muscle cells</span>)."
+    },
+    314: {
+        visual: "صورة تخطيطية/مجهرية للشعيرة الدموية تُظهر: A الصفيحة القاعدية المستمرة المحيطة بالوعاء، B الخلايا البطانية، C خلية Pericyte.",
+        explain: "في هذه الصورة: A = Continuous basal lamina، و B = Endothelial cells، و C = Pericyte.",
+        vivaQ: "ما هي الأنواع الثلاثة للشعيرات الدموية (Capillaries) حسب استمرارية البطانة والصفيحة القاعدية؟",
+        vivaA: "1) مستمرة (<span class='kw-highlight'>Continuous</span> - في العضلات والدماغ)<br>2) مثقبة (<span class='kw-highlight'>Fenestrated</span> - في الكلى والغدد)<br>3) جيبية غير مستمرة (<span class='kw-highlight'>Sinusoidal/Discontinuous</span> - في الكبد والطحال)."
+    },
+    315: {
+        visual: "مقطع نسيجي للأوعية الدموية الدقيقة (دفعة 2024): A وعاء دائري سميك الجدار، B خلية عضلية ملساء/بطانية في جداره، C وعاء ذو لمعة واسعة وجدار رقيق.",
+        explain: "في شريحة 2024: A = Arteriole، و B = Smooth Muscle cell (or Endothelial cell)، و C = Venule.",
+        vivaQ: "أي طبقة من طبقات جدار الوعاء الدموي الثلاث تكون أسمك في الشرايين مقارنة بالأوردة؟",
+        vivaA: "الطبقة الوسطى العضلية (<span class='kw-highlight'>Tunica media</span>) أسمك في الشرايين، بينما الطبقة الخارجية (<span class='kw-highlight'>Tunica adventitia</span>) هي الأسمك في الأوردة الكبيرة."
+    },
+
+    // -------- SURGERY: Breast Cancer Examination (401 - 407) --------
+    401: {
+        visual: "صورة سريرية للثدي تُظهر احمراراً جلدياً واضحاً، وتغصناً يشبه قشر البرتقال، مع انكماش/انسحاب في الحلمة.",
+        explain: "العلامات غير الطبيعية الظاهرة هي: الاحمرار (Redness)، ومظهر قشر البرتقال (Peau d'orange)، وانكماش الحلمة (Nipple retraction/depression).",
+        vivaQ: "ماذا لو سألك الدكتور: ما هو التفسير التشريحي والمرضي لظهور جلد الثدي بمظهر قشر البرتقال (Peau d'orange)؟",
+        vivaA: "بسبب انسداد الأوعية اللمفاوية الجلدية بالخلايا السرطانية مما يسبب وذمة جلدية (<span class='kw-highlight'>Cutaneous lymphatic edema</span>) بينما تبقى بصيلات الشعر مشدودة للداخل بأربطة كوبر (<span class='kw-highlight'>Cooper's ligaments</span>)."
+    },
+    402: {
+        visual: "صورة سريرية لثدي مصاب يُظهر Redness و Peau d'orange و Nipple retraction.",
+        explain: "أي علامتين من: Redness / Peau d'orange / Nipple retraction.",
+        vivaQ: "ما الفرق السريري المهم بين انكماش الحلمة الخلقي القديم والانكماش الحديث (Recent nipple retraction)؟",
+        vivaA: "الانكماش الحديث المكتسب (<span class='kw-highlight'>Recent unilateral retraction</span>) علامة خطيرة تدل على غزو الورم لقنوات الحليب الكبيرة وشدها للداخل."
+    },
+    403: {
+        visual: "صورة توضيحية لعلامات سرطان الثدي تشمل الاحمرار، قشر البرتقال، وخروج إفرازات من الحلمة.",
+        explain: "العلامات هي: Redness, Peau d'orange, Nipple discharge.",
+        vivaQ: "أي نوع من إفرازات الحلمة (Nipple discharge) يُعد الأكثر إثارة للشك بوجود ورم في قنوات الثدي؟",
+        vivaA: "الإفراز الدموي التلقائي من ثدي واحد ومن قناة واحدة (<span class='kw-highlight'>Spontaneous unilateral bloody discharge</span>)."
+    },
+    404: {
+        visual: "صورتان لوضعيات فحص الثدي (Inspection): الوضعية A المريضة تضع يديها على خصرها وتضغط، والوضعية B ترفع ذراعيها فوق رأسها.",
+        explain: "في الوضعية A (اليدين على الخصر): يهدف الطبيب لتقليص عضلة الصدر الكبرى (Contract Pectoralis major muscle) لكشف التصاق الورم بها. وفي الوضعية B (رفع الذراعين): لإبراز أي كتل أو عدم تناظر أو انشداد في الجلد (Skin tethering/dimpling).",
+        vivaQ: "بأي جزء من أصابع اليد نقوم بجس الثدي (Palpation) أثناء الفحص السريري؟",
+        vivaA: "نستخدم بطون الأصابع الثلاثة الوسطى مبسوطة (<span class='kw-highlight'>Palmar surface / pads of the middle three fingers</span>) وليس أطراف الأصابع."
+    },
+    405: {
+        visual: "سؤال سريري مباشر عن الربع التشريحي الأكثر إصابة بسرطان الثدي.",
+        explain: "الربع العلوي الخارجي (Upper outer quadrant) هو الأكثر شيوعاً لسرطان الثدي (حوالي 50% من الحالات) لاحتوائه على أكبر كثافة من النسيج الغدي القنوي (Tail of Spence).",
+        vivaQ: "إلى أي مجموعة من العقد اللمفاوية ينتشر سرطان الربع العلوي الخارجي للثدي في المقام الأول؟",
+        vivaA: "إلى العقد اللمفاوية الإبطية في نفس الجهة (<span class='kw-highlight'>Ipsilateral axillary lymph nodes</span>)."
+    },
+    406: {
+        visual: "سؤال عن وضع المريضة يديها على خصرها (Hands on waist) أثناء فحص كتلة الثدي.",
+        explain: "الضغط باليدين على الخصر يقلص العضلة الصدرية الكبرى (Major pectoralis muscle) لاختبار ما إذا كانت الكتلة مثبتة في العضلة أم متحركة.",
+        vivaQ: "ماذا نسمي الثلاثية التشخيصية الذهبية (Triple assessment) لتشخيص أي كتلة في الثدي؟",
+        vivaA: "1) الفحص السريري (<span class='kw-highlight'>Clinical examination</span>)<br>2) التصوير الإشعاعي (<span class='kw-highlight'>Mammogram / Ultrasound</span>)<br>3) الخزعة النسيجية (<span class='kw-highlight'>Core needle biopsy / FNAC</span>)."
+    },
+    407: {
+        visual: "صورة مقربة لجلد الثدي يظهر فيه التوذم والمسامات الغائرة تماماً كقشرة البرتقال.",
+        explain: "العلامة الظاهرة في الصورة هي Peau d'Orange.",
+        vivaQ: "تحت أي تصنيف (T stage) في نظام TNM يُصنف سرطان الثدي المصحوب بـ Peau d'orange أو التهاب الجلد؟",
+        vivaA: "يُصنف في المرحلة المتقدمة موضعياً (<span class='kw-highlight'>T4b أو T4d Inflammatory breast carcinoma</span>)."
+    }
+};
+
+// دالة ذكية تجلب الشرح المخصص للمحطة بالـ ID مع دمجها بمعرفة المعمل
+function getStationRichKnowledge(q) {
+    if (!q) return {};
+    const byId = stationKnowledgeById[q.id] || {};
+    const byLab = (typeof labKnowledgeBase !== 'undefined' && labKnowledgeBase[q.lab]) ? labKnowledgeBase[q.lab] : {};
+    const cleanAns = (q.a || '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+
+    return {
+        visual: byId.visual || `عينة عملية موثقة من معمل ${q.lab} (دفعة ${q.year}).`,
+        explain: byId.explain || byLab.explain || `تعتمد هذه المحطة على الربط المباشر بين العلامة البصرية في العينة والتشخيص المعتمد (${cleanAns}).`,
+        diff: byId.diff || byLab.diff || `ركز على العلامات الفارقة المميزة في هذه الشريحة وقارنها بالإجابة النموذجية (${cleanAns}).`,
+        mnemonic: byId.mnemonic || byLab.mnemonic || `اربط الكلمة المفتاحية في السؤال مع (${cleanAns}) لتتذكرها فوراً في الاختبار.`,
+        vivaQ: byId.vivaQ || `ماذا لو سألك الدكتور في نفس هذه العينة (${q.lab}): ما هي العلامة الفارقة الأساسية التي جعلتك تختار (${cleanAns}) وتستبعد التشخيصات الأخرى؟`,
+        vivaA: byId.vivaA || `العلامة الحاسمة المعتمدة في دليل المعمل هي: <span class="kw-highlight">${cleanAns}</span>.`
+    };
+}
+
+// ================= 3. كرت الاختبار الشفهي التفاعلي (Viva Follow-up) داخل صندوق الإجابة وفي نافذة المناضل =================
+function injectVivaFollowupBox() {
+    const ansBox = document.getElementById('answer-box');
+    if (!ansBox || !currentList || !currentList[currentIndex]) return;
+
+    const q = currentList[currentIndex];
+    const info = getStationRichKnowledge(q);
+
+    let vivaCard = document.getElementById('munadil-viva-followup-card');
+    if (!vivaCard) {
+        vivaCard = document.createElement('div');
+        vivaCard.id = 'munadil-viva-followup-card';
+        vivaCard.dir = 'rtl';
+        vivaCard.className = 'mt-3 pt-3 border-t border-amber-500/40 bg-slate-950/75 rounded-2xl p-3.5 space-y-2.5 text-right';
+        ansBox.appendChild(vivaCard);
+    }
+
+    vivaCard.innerHTML = `
+        <div class="flex flex-wrap justify-between items-center gap-2">
+            <div class="flex items-center gap-1.5 text-xs sm:text-sm font-black text-amber-300">
+                <span>🎙️</span>
+                <span>سؤال "المناضل" الإضافي المتوقع على نفس العينة (Viva Follow-up):</span>
+            </div>
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-500/20 text-amber-200 border border-amber-500/40">محطة #${q.id}</span>
+        </div>
+        <p class="text-xs sm:text-sm font-bold text-white leading-relaxed">${info.vivaQ}</p>
+        <div class="flex flex-wrap items-center gap-2 pt-1">
+            <button type="button" onclick="document.getElementById('viva-ans-reveal-${q.id}').classList.remove('hidden');this.classList.add('hidden');" class="gold-btn px-3.5 py-1.5 rounded-xl text-xs font-black shadow">
+                👁️ اكشف إجابة سؤال المناضل
+            </button>
+            <button type="button" onclick="openAiTutor(); askAiPreset('explain');" class="pill-btn px-3 py-1.5 rounded-xl text-xs font-bold text-[var(--gold-bright)]">
+                🔍 شرح السهم والعلامة البصرية في الشريحة
+            </button>
+        </div>
+        <div id="viva-ans-reveal-${q.id}" class="hidden bg-emerald-950/60 border border-emerald-500/50 rounded-xl p-3 text-xs sm:text-sm font-bold text-emerald-100 leading-relaxed">
+            <span class="text-emerald-400 font-black block mb-1">✅ إجابة المناضل النموذجية:</span>
+            ${info.vivaA}
+        </div>
+    `;
+}
+
+// ================= 4. ترقية دوال "المناضل" للشرح بالـ ID + الدردشة الحية المجانية عبر Cloudflare Worker =================
+window.addEventListener('DOMContentLoaded', () => {
+    // أ) إضافة زر "🎙️ سؤال Viva إضافي على العينة" في لوحة أزرار المناضل السريعة
+    const presetGrid = document.querySelector('#ai-tutor-drawer .grid.grid-cols-2');
+    if (presetGrid && !document.getElementById('ai-viva-preset-btn')) {
+        const vivaBtn = document.createElement('button');
+        vivaBtn.id = 'ai-viva-preset-btn';
+        vivaBtn.type = 'button';
+        vivaBtn.onclick = () => window.askAiPreset('viva');
+        vivaBtn.className = 'col-span-2 gold-btn py-2 px-3 rounded-xl text-xs font-black text-center flex items-center justify-center gap-1.5 shadow';
+        vivaBtn.innerHTML = '<span>🎙️</span><span>اختبرني بسؤال إضافي متوقع على نفس العينة (Viva Follow-up)</span>';
+        presetGrid.insertBefore(vivaBtn, presetGrid.firstChild);
+    }
+
+    // ب) تحديث عنوان وحالة نافذة المناضل لتوضح أن الدردشة الحية مجانية ومفعلة للجميع
+    const subLabel = document.getElementById('ai-current-station-label');
+    if (subLabel) {
+        subLabel.innerText = 'متصل مجاناً • شرح مخصص لكل محطة بالـ ID';
+    }
+
+    // ج) ربط ظهور سؤال الـ Viva تلقائياً فور كشف الإجابة أو حل سؤال الاختيارات (MCQ)
+    const origReveal = window.revealAnswer;
+    if (typeof origReveal === 'function') {
+        window.revealAnswer = function(...args) {
+            const res = origReveal.apply(this, args);
+            injectVivaFollowupBox();
+            return res;
+        };
+    }
+
+    const origRenderQ = window.renderQuestion;
+    if (typeof origRenderQ === 'function') {
+        window.renderQuestion = function(...args) {
+            const res = origRenderQ.apply(this, args);
+            const oldViva = document.getElementById('munadil-viva-followup-card');
+            if (oldViva) oldViva.remove();
+            if (!document.getElementById('ai-tutor-drawer')?.classList.contains('drawer-closed')) {
+                window.updateAiTutorStationContext();
+            }
+            return res;
+        };
+    }
+
+    // د) ترقية دالة تحديث سياق المحطة في نافذة المناضل لتعرض رقم الـ ID ووصف الصورة الدقيق
+    window.updateAiTutorStationContext = function() {
+        const chatBox = document.getElementById('ai-chat-messages');
+        const label = document.getElementById('ai-current-station-label');
+        const isTrainerOpen = !document.getElementById('view-trainer')?.classList.contains('hidden');
+
+        if (isTrainerOpen && currentList && currentList[currentIndex]) {
+            const q = currentList[currentIndex];
+            const info = getStationRichKnowledge(q);
+            if (label) {
+                label.innerText = isExamSimulator && document.getElementById('answer-box')?.classList.contains('hidden')
+                    ? `محطة اختبار محاكي #${currentIndex + 1} (ID: ${q.id})`
+                    : `محطة #${q.id} • ${q.subject} (${q.lab})`;
+            }
+
+            if (chatBox && chatBox.dataset.lastStationId !== String(q.id)) {
+                chatBox.dataset.lastStationId = String(q.id);
+                chatBox.innerHTML = `
+                    <div class="ai-msg-bubble p-3.5 space-y-2">
+                        <div class="flex justify-between items-center">
+                            <span class="font-black text-[var(--gold-bright)] text-xs">🤖 المناضل | متابع للمحطة #${q.id}</span>
+                            <span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">AI مجاني مفعل</span>
+                        </div>
+                        <p class="text-xs text-[var(--text-main)] leading-relaxed">
+                            <strong>👁️ ما يظهر في هذه المحطة:</strong> ${info.visual}
+                        </p>
+                        <p class="text-[11px] text-[var(--text-muted)] font-bold">
+                            اضغط على <strong>"🎙️ سؤال إضافي متوقع (Viva)"</strong> أو اطلب شرح الأسهم والعلامات أو اكتب أي سؤال في الشات بالأسفل!
+                        </p>
+                    </div>
+                `;
+            }
+        } else if (chatBox && !chatBox.innerHTML.trim()) {
+            if (label) label.innerText = 'متصل مجاناً للجميع • F2 OSPE AI';
+            chatBox.innerHTML = `
+                <div class="ai-msg-bubble p-3.5 space-y-1.5">
+                    <div class="font-black text-[var(--gold-bright)] text-xs">🤖 المناضل | مساعد MED26 الذكي (مجاني للجميع)</div>
+                    <p class="text-xs text-[var(--text-main)]">اكتب أي سؤال طبي في بالأسفل وسأجيبك مباشرة بالذكاء الاصطناعي الحي، أو افتح أي محطة تدريبية لأشرح لك أسهم وعلامات صورتها برقم الـ ID وأختبرك بأسئلة الـ Viva المتوقعة!</p>
+                </div>
+            `;
+        }
+    };
+
+    // هـ) ترقية أزرار الشرح السريعة لتقرأ من قاعدة المعرفة المخصصة بالـ ID (stationKnowledgeById)
+    window.askAiPreset = function(mode) {
+        const isTrainerOpen = !document.getElementById('view-trainer')?.classList.contains('hidden');
+        if (!isTrainerOpen || !currentList || !currentList[currentIndex]) {
+            appendChatMessage('ai', 'يرجى فتح أي محطة تدريبية أولاً حتى أقوم بتحليل صورتها وشرح علاماتها لك برقم الـ ID.');
+            return;
+        }
+
+        if (document.getElementById('answer-box')?.classList.contains('hidden') && mode !== 'viva') {
+            window.revealAnswer();
+        }
+
+        const q = currentList[currentIndex];
+        const info = getStationRichKnowledge(q);
+        const cleanAns = (q.a || '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+
+        if (mode === 'viva') {
+            appendChatMessage('user', `🎙️ اختبرني بسؤال شفهي إضافي متوقع (Viva) على عينة المحطة #${q.id}`);
+            const vivaUniqueId = `chat-viva-ans-${q.id}-${Date.now()}`;
+            const vivaHtml = `
+                <div class="space-y-2">
+                    <div class="font-black text-amber-300 text-xs">🎙️ سؤال Viva المتوقع على هذه العينة (محطة #${q.id}):</div>
+                    <div class="font-bold text-white text-xs leading-relaxed">${info.vivaQ}</div>
+                    <button type="button" onclick="document.getElementById('${vivaUniqueId}').classList.remove('hidden');this.classList.add('hidden');" class="gold-btn px-3 py-1.5 rounded-xl text-[11px] font-black mt-1">
+                        👁️ إظهار إجابة الـ Viva النموذجية
+                    </button>
+                    <div id="${vivaUniqueId}" class="hidden bg-emerald-950/60 border border-emerald-500/50 rounded-xl p-2.5 text-xs font-bold text-emerald-100 mt-1.5 leading-relaxed">
+                        ✅ <strong>الإجابة:</strong> ${info.vivaA}
+                    </div>
+                </div>
+            `;
+            appendChatMessage('ai', vivaHtml, false);
+        } else if (mode === 'explain') {
+            appendChatMessage('user', `🧠 اشرح لي العلامة البصرية والإجابة في المحطة #${q.id} بالتفصيل`);
+            const response =
+                `<strong>🎯 الإجابة النموذجية للمحطة #${q.id}:</strong>\n<span class="kw-highlight">${cleanAns}</span>\n\n` +
+                `<strong>👁️ وصف السهم / العلامة في الصورة:</strong>\n${info.visual}\n\n` +
+                `<strong>🔍 التفسير العلمي الدقيق:</strong>\n${info.explain}` +
+                (q.note ? `\n\n📌 <strong>تنبيه فريق العملي:</strong> ${q.note}` : '');
+            appendChatMessage('ai', response, true);
+        } else if (mode === 'diff') {
+            appendChatMessage('user', `⚖️ كيف أفرق عينة المحطة #${q.id} عن الشرائح المشابهة لها؟`);
+            appendChatMessage('ai', `<strong>⚖️ التفريق الحاسم للمحطة #${q.id} (${q.lab}):</strong>\n${info.diff}`, true);
+        } else if (mode === 'mnemonic') {
+            appendChatMessage('user', `💡 عطني ربط وبصمة سريعة (Mnemonic) لحفظ المحطة #${q.id}`);
+            appendChatMessage('ai', `<strong>💡 بصمة "المناضل" السريعة للمحطة #${q.id}:</strong>\n${info.mnemonic}`, true);
+        } else if (mode === 'exam_tip') {
+            appendChatMessage('user', `🎯 كيف أضمن الدرجة الكاملة في المحطة #${q.id}؟`);
+            const tip = q.type === 'mcq'
+                ? `هذا السؤال اختيار من متعدد؛ بمجرد ملاحظة (${info.visual}) اختر فوراً:\n<span class="kw-highlight">${cleanAns}</span>`
+                : `في الأسئلة الكتابية، يبحث المصحح عن الكلمات المفتاحية التالية نصاً:\n<span class="kw-highlight">${cleanAns}</span>\n\n🎙️ <strong>سؤال إضافي قد يرد عليها:</strong>\n${info.vivaQ}`;
+            appendChatMessage('ai', tip, true);
+        }
+    };
+
+    // و) تشغيل الدردشة الحية مجاناً للجميع عبر وسيط Cloudflare Worker (مع محرك سحابي مجاني فوري)
+    window.configureUserApiKey = function() {
+        const savedWorker = localStorage.getItem('med26_cf_worker_url') || MED26_CLOUDFLARE_WORKER_URL || '';
+        const newUrl = prompt(
+            '☁️ إعدادات الدردشة السحابية المجانية لـ "المناضل":\n\n' +
+            '• الدردشة الحية تعمل مجاناً للجميع تلقائياً!\n' +
+            '• إذا أنشأت رابط Cloudflare Worker خاصاً بك، الصقه هنا (أو اتركه كما هو):',
+            savedWorker
+        );
+        if (newUrl !== null && newUrl.trim()) {
+            localStorage.setItem('med26_cf_worker_url', newUrl.trim());
+            alert('✅ تم حفظ رابط Cloudflare Worker بنجاح!');
+        }
+    };
+
+    window.sendCustomAiMessage = async function() {
+        const input = document.getElementById('ai-custom-input');
+        const userQ = (input?.value || '').trim();
+        if (!userQ) return;
+        input.value = '';
+        appendChatMessage('user', userQ);
+
+        const isTrainerOpen = !document.getElementById('view-trainer')?.classList.contains('hidden');
+        const q = (isTrainerOpen && currentList && currentList[currentIndex]) ? currentList[currentIndex] : null;
+        const info = q ? getStationRichKnowledge(q) : null;
+
+        const systemContext = q
+            ? `أنت "المناضل"، المساعد الطبي الذكي لطلاب الطب البشري (دفعة MED26 جامعة جازان) في اختبار Foundation 2 OSPE. الطالب يسألك الآن وهو يفتح المحطة رقم #${q.id} في مادة ${q.subject} (معمل ${q.lab}، دفعة ${q.year}). نص سؤال المحطة: "${q.q}". الإجابة النموذجية المعتمدة: "${q.a.replace(/<[^>]*>/g, ' ')}". وصف الصورة والعلامة البصرية: "${info.visual}". التفسير العلمي: "${info.explain}". أجب الطالب باللغة العربية بأسلوب واضح ومباشر ومنظم مع كتابة المصطلحات الطبية بالإنجليزية.`
+            : `أنت "المناضل"، المساعد الطبي الذكي لطلاب الطب البشري (دفعة MED26 جامعة جازان) في اختبار Foundation 2 OSPE (يشمل Microbiology, Pathology, Histology, Surgery). أجب الطالب باللغة العربية بدقة واختصار مفيد مع كتابة المصطلحات الطبية بالإنجليزية.`;
+
+        // إظهار مؤشر جاري التفكير
+        const chatBox = document.getElementById('ai-chat-messages');
+        const loadingDiv = document.createElement('div');
+        loadingDiv.className = 'ai-msg-bubble p-3 mr-2 text-xs font-bold text-[var(--gold-bright)] animate-pulse';
+        loadingDiv.innerText = '🤖 جاري تحليل سؤالك وكتابة الشرح الطبي...';
+        chatBox.appendChild(loadingDiv);
+        chatBox.scrollTop = chatBox.scrollHeight;
+
+        const workerUrl = (localStorage.getItem('med26_cf_worker_url') || MED26_CLOUDFLARE_WORKER_URL || '').trim();
+        const userApiKey = (localStorage.getItem('med26_gemini_api_key') || '').trim();
+
+        // 1. المحاولة الأولى: عبر وسيط Cloudflare Worker المجاني الخاص بالموقع (إن وُجد الرابط)
+        if (workerUrl) {
+            try {
+                const res = await fetch(workerUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        system: systemContext,
+                        message: userQ,
+                        stationId: q ? q.id : null
+                    })
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    const reply = data.reply || data?.candidates?.[0]?.content?.parts?.[0]?.text;
+                    if (reply) {
+                        loadingDiv.remove();
+                        appendChatMessage('ai', reply, true);
+                        return;
+                    }
+                }
+            } catch (e) {}
+        }
+
+        // 2. المحاولة الثانية: المحرك السحابي المجاني المفتوح (يعمل مجاناً لكل الطلاب بدون أي مفتاح API)
+        try {
+            const freeRes = await fetch('https://text.pollinations.ai/openai', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    model: 'openai',
+                    messages: [
+                        { role: 'system', content: systemContext },
+                        { role: 'user', content: userQ }
+                    ],
+                    temperature: 0.3
+                })
+            });
+            if (freeRes.ok) {
+                const freeData = await freeRes.json();
+                const freeReply = freeData?.choices?.[0]?.message?.content;
+                if (freeReply) {
+                    loadingDiv.remove();
+                    appendChatMessage('ai', freeReply, true);
+                    return;
+                }
+            }
+        } catch (e) {}
+
+        // 3. المحاولة الثالثة: إذا كان الطالب قد وضع مفتاح Gemini خاص به
+        if (userApiKey) {
+            try {
+                const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${userApiKey}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: `${systemContext}\n\nسؤال الطالب: ${userQ}` }] }]
+                    })
+                });
+                const data = await res.json();
+                const reply = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+                if (reply) {
+                    loadingDiv.remove();
+                    appendChatMessage('ai', reply, true);
+                    return;
+                }
+            } catch (e) {}
+        }
+
+        // 4. خط الدفاع المحلي الفوري (إذا انقطع الإنترنت): إجابة مخصصة من قاعدة بيانات المحطة بالـ ID
+        loadingDiv.remove();
+        if (q && info) {
+            const cleanAns = q.a.replace(/<[^>]*>/g, ' ').trim();
+            const offlineHtml =
+                `<strong>🔍 إجابة "المناضل" المخصصة للمحطة #${q.id} (${q.lab}):</strong>\n` +
+                `• <strong>التشخيص المعتمد:</strong> <span class="kw-highlight">${cleanAns}</span>\n` +
+                `• <strong>العلامة في الشريحة:</strong> ${info.visual}\n` +
+                `• <strong>الشرح العلمي:</strong> ${info.explain}\n` +
+                `• <strong>كيف تفرقها:</strong> ${info.diff}\n` +
+                `• <strong>سؤال Viva المتوقع:</strong> ${info.vivaQ}\n` +
+                `✅ <strong>إجابته:</strong> ${info.vivaA}`;
+            appendChatMessage('ai', offlineHtml, true);
+        } else {
+            appendChatMessage('ai', 'تأكد من اتصالك بالإنترنت للدردشة الحية، أو افتح أي محطة تدريبية لأشرح لك تفاصيلها من قاعدة المعرفة المدمجة!', false);
+        }
+    };
 });
