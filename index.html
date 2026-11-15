@@ -4363,71 +4363,153 @@ window.shareCurrentChallengeLink = function() {
 };
 
 </script>
-<!-- ================= الترقية الشاملة: Bento Dashboard + Top-to-Bottom Video Animation + UI Polish ================= -->
+<!-- ================= الترقية الشاملة الكاملة: الهوية الذهبية الفخمة + الضباب الكثيف + أنميشن الاتجاهين + الأذكار الشاملة ================= -->
 <style>
-    /* 1. أشعة الإضاءة العلوية والذرات المضيئة (مستوحاة من المقطع) */
-    #cinematic-top-spotlight {
-        position: fixed;
-        top: -180px;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 1100px;
-        height: 620px;
-        background: radial-gradient(ellipse at 50% 0%, rgba(235, 210, 164, 0.22) 0%, rgba(207, 169, 107, 0.09) 42%, transparent 75%);
-        filter: blur(35px);
-        pointer-events: none;
-        z-index: 1;
-        animation: spotlightBreath 6s ease-in-out infinite alternate;
-    }
-    #cinematic-top-rays {
-        position: fixed;
-        top: -120px;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 1300px;
-        height: 700px;
-        background: conic-gradient(from 155deg at 50% 0%, transparent 0deg, rgba(235, 210, 164, 0.08) 12deg, transparent 25deg, rgba(207, 169, 107, 0.12) 36deg, transparent 50deg);
-        filter: blur(22px);
-        pointer-events: none;
-        z-index: 1;
-    }
-    body.light-mode #cinematic-top-spotlight,
-    body.light-mode #cinematic-top-rays {
-        opacity: 0.35;
-    }
-    @keyframes spotlightBreath {
-        0% { opacity: 0.75; transform: translateX(-50%) scale(0.96); }
-        100% { opacity: 1; transform: translateX(-50%) scale(1.06); }
+    /* 1. اعتماد الألوان الفخمة المطابقة للصورة (الأسود الفحمي العميق والذهبي الدافئ) */
+    :root {
+        --bg-main: #141210 !important;
+        --bg-secondary: #1e1b17 !important;
+        --bg-card: rgba(36, 32, 27, 0.88) !important;
+        --text-main: #f7f4ef !important;
+        --text-muted: #c4baa8 !important;
+        --gold-bright: #ebd2a4 !important;
+        --gold-primary: #cfa96b !important;
+        --border-color: rgba(207, 169, 107, 0.38) !important;
+        --watermark-opacity: 0.05 !important;
     }
 
-    /* 2. أنميشن الانسدال المتدرج من الأعلى إلى الأسفل (Top-to-Bottom Scroll Cascade) */
+    body.light-mode {
+        --bg-main: #f6f3ec !important;
+        --bg-secondary: #ebe5d8 !important;
+        --bg-card: rgba(255, 255, 255, 0.94) !important;
+        --text-main: #1f1c18 !important;
+        --text-muted: #5c5346 !important;
+        --gold-bright: #8c6528 !important;
+        --gold-primary: #a67c38 !important;
+        --border-color: rgba(166, 124, 56, 0.35) !important;
+    }
+
+    /* 2. تكثيف الضباب المنتشر في الخلفية (Heavy Spreading Golden Fog) */
+    #cinematic-fog-stage {
+        position: fixed;
+        inset: 0;
+        width: 100vw;
+        height: 100vh;
+        pointer-events: none;
+        z-index: 1;
+        overflow: hidden;
+    }
+    .fog-layer {
+        position: absolute;
+        border-radius: 50%;
+        pointer-events: none;
+        will-change: transform, opacity;
+    }
+    .fog-top-spotlight {
+        top: -220px;
+        left: 50%;
+        width: 1400px;
+        height: 760px;
+        transform: translateX(-50%);
+        background:
+            conic-gradient(from 150deg at 50% 0%, transparent 0deg, rgba(235, 210, 164, 0.16) 15deg, rgba(207, 169, 107, 0.12) 28deg, transparent 44deg, rgba(235, 210, 164, 0.15) 58deg, transparent 75deg),
+            radial-gradient(ellipse at 50% 0%, rgba(235, 210, 164, 0.32) 0%, rgba(207, 169, 107, 0.16) 45%, transparent 75%);
+        filter: blur(45px);
+        animation: fogBeamBreath 7s ease-in-out infinite alternate;
+    }
+    .fog-cloud-right {
+        top: 6%;
+        right: -18%;
+        width: 95vw;
+        height: 75vh;
+        background: radial-gradient(ellipse at center, rgba(207, 169, 107, 0.24) 0%, rgba(235, 210, 164, 0.11) 45%, transparent 72%);
+        filter: blur(78px);
+        animation: fogDriftRight 16s ease-in-out infinite alternate;
+    }
+    .fog-cloud-left {
+        top: 30%;
+        left: -18%;
+        width: 95vw;
+        height: 80vh;
+        background: radial-gradient(ellipse at center, rgba(184, 143, 77, 0.22) 0%, rgba(16, 185, 129, 0.07) 48%, transparent 74%);
+        filter: blur(82px);
+        animation: fogDriftLeft 20s ease-in-out infinite alternate;
+    }
+    .fog-bottom-glow {
+        bottom: -240px;
+        left: 50%;
+        width: 130vw;
+        height: 550px;
+        transform: translateX(-50%);
+        background: radial-gradient(ellipse at 50% 100%, rgba(207, 169, 107, 0.28) 0%, rgba(184, 143, 77, 0.12) 48%, transparent 76%);
+        filter: blur(60px);
+        animation: fogBottomPulse 9s ease-in-out infinite alternate;
+    }
+    body.light-mode #cinematic-fog-stage {
+        opacity: 0.38;
+    }
+
+    @keyframes fogBeamBreath {
+        0% { opacity: 0.72; transform: translateX(-50%) scale(0.94) rotate(-1.5deg); }
+        100% { opacity: 1; transform: translateX(-50%) scale(1.08) rotate(1.5deg); }
+    }
+    @keyframes fogDriftRight {
+        0% { transform: translate3d(0, 0, 0) scale(1); opacity: 0.65; }
+        50% { transform: translate3d(-18vw, 7vh, 0) scale(1.15); opacity: 0.95; }
+        100% { transform: translate3d(-32vw, -5vh, 0) scale(1.04); opacity: 0.75; }
+    }
+    @keyframes fogDriftLeft {
+        0% { transform: translate3d(0, 0, 0) scale(1.04); opacity: 0.65; }
+        50% { transform: translate3d(20vw, -7vh, 0) scale(1.18); opacity: 0.95; }
+        100% { transform: translate3d(34vw, 6vh, 0) scale(0.96); opacity: 0.75; }
+    }
+    @keyframes fogBottomPulse {
+        0% { opacity: 0.6; transform: translateX(-50%) scaleY(0.9); }
+        100% { opacity: 1; transform: translateX(-50%) scaleY(1.16); }
+    }
+
+    /* 3. أنميشن حر ثنائي الاتجاه يشتغل عند النزول وعند الصعود للأعلى بدون Refresh */
     .cascade-reveal {
         opacity: 0;
-        transform: translateY(-34px) scale(0.975) perspective(900px) rotateX(4deg);
-        filter: blur(5px);
-        transition: opacity 0.75s cubic-bezier(0.16, 1, 0.3, 1),
-                    transform 0.75s cubic-bezier(0.16, 1, 0.3, 1),
-                    filter 0.75s cubic-bezier(0.16, 1, 0.3, 1);
+        filter: blur(7px);
+        transform: translate3d(0, -44px, 0) scale(0.95) perspective(1000px) rotateX(7deg);
+        transition:
+            opacity 0.68s cubic-bezier(0.22, 1, 0.36, 1),
+            transform 0.75s cubic-bezier(0.22, 1, 0.36, 1),
+            filter 0.68s cubic-bezier(0.22, 1, 0.36, 1);
         will-change: opacity, transform, filter;
     }
+    .cascade-reveal.out-top {
+        opacity: 0;
+        filter: blur(6px);
+        transform: translate3d(0, -44px, 0) scale(0.95) perspective(1000px) rotateX(7deg);
+    }
+    .cascade-reveal.out-bottom {
+        opacity: 0;
+        filter: blur(6px);
+        transform: translate3d(0, 44px, 0) scale(0.95) perspective(1000px) rotateX(-7deg);
+    }
     .cascade-reveal.is-visible {
-        opacity: 1;
-        transform: translateY(0) scale(1) perspective(900px) rotateX(0deg);
-        filter: blur(0);
+        opacity: 1 !important;
+        filter: blur(0px) !important;
+        transform: translate3d(0, 0, 0) scale(1) perspective(1000px) rotateX(0deg) !important;
     }
 
-    /* 3. إطار ذهبي مضيء يتبع حركة الماوس فوق بطاقات Bento */
+    /* حرية حركة البطاقات وتفاعلها مع الماوس */
     .app-card {
         --mouse-x: 50%;
         --mouse-y: 0%;
-        transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease, border-color 0.3s ease !important;
+        --tilt-x: 0deg;
+        --tilt-y: 0deg;
+        backdrop-filter: blur(14px);
+        transition: transform 0.32s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.32s ease, border-color 0.32s ease !important;
     }
     .app-card::before {
         content: "";
         position: absolute;
         inset: 0;
         border-radius: inherit;
-        background: radial-gradient(520px circle at var(--mouse-x) var(--mouse-y), rgba(235, 210, 164, 0.11), transparent 45%);
+        background: radial-gradient(540px circle at var(--mouse-x) var(--mouse-y), rgba(235, 210, 164, 0.14), transparent 45%);
         opacity: 0;
         transition: opacity 0.35s ease;
         pointer-events: none;
@@ -4437,41 +4519,74 @@ window.shareCurrentChallengeLink = function() {
         opacity: 1;
     }
     .app-card:hover {
-        border-color: rgba(235, 210, 164, 0.65) !important;
-        box-shadow: 0 18px 40px -12px rgba(0, 0, 0, 0.5), 0 0 22px rgba(207, 169, 107, 0.14) !important;
+        border-color: rgba(235, 210, 164, 0.72) !important;
+        box-shadow: 0 20px 44px -12px rgba(0, 0, 0, 0.65), 0 0 26px rgba(207, 169, 107, 0.2) !important;
+        transform: translateY(-5px) perspective(1000px) rotateX(var(--tilt-x)) rotateY(var(--tilt-y));
     }
 
-    /* 4. إضاءة خلفية مخصصة لبطاقات المواد الأربع (Subject Ambient Glow) */
-    .subject-glow-micro { background-image: radial-gradient(circle at 15% 15%, rgba(16, 185, 129, 0.14), transparent 55%); }
-    .subject-glow-patho { background-image: radial-gradient(circle at 15% 15%, rgba(244, 63, 94, 0.14), transparent 55%); }
-    .subject-glow-histo { background-image: radial-gradient(circle at 15% 15%, rgba(168, 85, 247, 0.14), transparent 55%); }
-    .subject-glow-surg  { background-image: radial-gradient(circle at 15% 15%, rgba(14, 165, 233, 0.14), transparent 55%); }
+    /* إضاءة خلفية لبطاقات المواد الأربع */
+    .subject-glow-micro { background-image: radial-gradient(circle at 15% 15%, rgba(16, 185, 129, 0.15), transparent 56%); }
+    .subject-glow-patho { background-image: radial-gradient(circle at 15% 15%, rgba(244, 63, 94, 0.15), transparent 56%); }
+    .subject-glow-histo { background-image: radial-gradient(circle at 15% 15%, rgba(168, 85, 247, 0.15), transparent 56%); }
+    .subject-glow-surg  { background-image: radial-gradient(circle at 15% 15%, rgba(14, 165, 233, 0.15), transparent 56%); }
 
-    /* 5. تصميم بطاقات أطوار اللعب (Game Modes) */
+    /* بطاقات أطوار الاختبار التنافسية */
     .gamemode-card {
-        background: linear-gradient(145deg, rgba(44, 40, 35, 0.92) 0%, rgba(28, 26, 23, 0.96) 100%);
-        border: 1.5px solid rgba(207, 169, 107, 0.35);
+        background: linear-gradient(145deg, rgba(44, 40, 35, 0.94) 0%, rgba(26, 23, 20, 0.98) 100%);
+        border: 1.5px solid rgba(207, 169, 107, 0.36);
         position: relative;
         overflow: hidden;
-        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        transition: all 0.32s cubic-bezier(0.22, 1, 0.36, 1);
     }
     body.light-mode .gamemode-card {
         background: linear-gradient(145deg, #ffffff 0%, #f3ede2 100%);
     }
     .gamemode-card:hover {
-        transform: translateY(-4px);
+        transform: translateY(-5px) scale(1.015);
         border-color: #ebd2a4;
-        box-shadow: 0 14px 30px -8px rgba(207, 169, 107, 0.25);
+        box-shadow: 0 16px 32px -8px rgba(207, 169, 107, 0.28);
+    }
+
+    /* 4. الشريط السفلي المتحرك من اليمين إلى اليسار (Right-to-Left Footer Marquee) */
+    .footer-marquee-wrap {
+        width: 100%;
+        overflow: hidden;
+        background: linear-gradient(90deg, rgba(20, 18, 16, 0.96) 0%, rgba(44, 38, 30, 0.88) 50%, rgba(20, 18, 16, 0.96) 100%);
+        border-top: 1.5px solid rgba(207, 169, 107, 0.4);
+        border-bottom: 1.5px solid rgba(207, 169, 107, 0.4);
+        padding: 10px 0;
+        position: relative;
+        direction: ltr;
+    }
+    body.light-mode .footer-marquee-wrap {
+        background: linear-gradient(90deg, #ebe5d8 0%, #dfd5c3 50%, #ebe5d8 100%);
+    }
+    .footer-marquee-track {
+        display: flex;
+        width: max-content;
+        animation: scrollRightToLeft 38s linear infinite;
+    }
+    .footer-marquee-wrap:hover .footer-marquee-track {
+        animation-play-state: paused;
+    }
+    /* تحريك من اليمين إلى اليسار */
+    @keyframes scrollRightToLeft {
+        0% { transform: translateX(-50%); }
+        100% { transform: translateX(0%); }
     }
 </style>
 
-<!-- أشعة الإضاءة العلوية والذرات العائمة -->
-<div id="cinematic-top-spotlight"></div>
-<div id="cinematic-top-rays"></div>
-<canvas id="stardust-canvas" class="fixed inset-0 pointer-events-none z-[1] opacity-70"></canvas>
+<!-- طبقات الضباب الذهبي الكثيف والذرات المضيئة في الخلفية -->
+<div id="cinematic-fog-stage">
+    <div class="fog-layer fog-top-spotlight"></div>
+    <div class="fog-layer fog-cloud-right"></div>
+    <div class="fog-layer fog-cloud-left"></div>
+    <div class="fog-layer fog-bottom-glow"></div>
+</div>
+<canvas id="stardust-canvas" class="fixed inset-0 pointer-events-none z-[1] opacity-75"></canvas>
 
 <script>
-    // ================= 1. خلفية النجوم والذرات العائمة المضيئة (كالمقطع تماماً) =================
+    // ================= 1. الذرات الذهبية العائمة بحرية في الخلفية =================
     (function initStardustCanvas() {
         const canvas = document.getElementById('stardust-canvas');
         if (!canvas) return;
@@ -4483,12 +4598,12 @@ window.shareCurrentChallengeLink = function() {
             h = canvas.height = window.innerHeight;
         });
 
-        const particles = Array.from({ length: 42 }, () => ({
+        const particles = Array.from({ length: 50 }, () => ({
             x: Math.random() * w,
             y: Math.random() * h,
-            r: Math.random() * 1.8 + 0.6,
-            vy: Math.random() * 0.35 + 0.12, // حركة ناعمة من الأعلى إلى الأسفل
-            vx: (Math.random() - 0.5) * 0.2,
+            r: Math.random() * 2 + 0.6,
+            vy: Math.random() * 0.4 + 0.12,
+            vx: (Math.random() - 0.5) * 0.35,
             alpha: Math.random() * 0.65 + 0.2
         }));
 
@@ -4497,7 +4612,7 @@ window.shareCurrentChallengeLink = function() {
             particles.forEach(p => {
                 p.y += p.vy;
                 p.x += p.vx;
-                if (p.y > h) { p.y = -5; p.x = Math.random() * w; }
+                if (p.y > h) { p.y = -6; p.x = Math.random() * w; }
                 if (p.x > w) p.x = 0;
                 if (p.x < 0) p.x = w;
 
@@ -4511,40 +4626,292 @@ window.shareCurrentChallengeLink = function() {
         drawParticles();
     })();
 
-    // ================= 2. محرك أنميشن النزول من الأعلى إلى الأسفل + تتبع الماوس =================
-    function triggerTopToBottomCascade() {
+    // ================= 2. أنميشن ثنائي الاتجاه (يرجع يشتغل كلما رفعت لفوق أو نزلت لتحت بدون Refresh) =================
+    let bidirectionalObserver = null;
+    function triggerBidirectionalCascade() {
+        if (bidirectionalObserver) bidirectionalObserver.disconnect();
+
         const elements = document.querySelectorAll(
-            '#main-header, #view-home > div, #view-home .grid > div, #view-atlas .app-card, #view-custom .app-card, #view-scoreboard .app-card, #view-trainer .app-card'
+            '#view-home > div, #view-home .grid > div, #view-atlas .app-card, #view-custom .app-card, #view-scoreboard .app-card, #view-trainer .app-card, #view-report .app-card'
         );
-        const observer = new IntersectionObserver((entries) => {
+
+        bidirectionalObserver = new IntersectionObserver((entries) => {
             entries.forEach((entry) => {
+                const el = entry.target;
                 if (entry.isIntersecting) {
-                    entry.target.classList.add('is-visible');
+                    el.classList.add('is-visible');
+                    el.classList.remove('out-top', 'out-bottom');
+                } else {
+                    // إعادة تهيئة الأنميشن عند الخروج من الشاشة ليعمل مجدداً عند العودة للأعلى أو للأسفل
+                    el.classList.remove('is-visible');
+                    if (entry.boundingClientRect.top < 0) {
+                        el.classList.add('out-top');
+                        el.classList.remove('out-bottom');
+                    } else {
+                        el.classList.add('out-bottom');
+                        el.classList.remove('out-top');
+                    }
                 }
             });
-        }, { threshold: 0.06, rootMargin: '0px 0px -30px 0px' });
+        }, { threshold: 0.05, rootMargin: '20px 0px -20px 0px' });
 
         elements.forEach((el, idx) => {
-            if (!el.classList.contains('cascade-reveal')) {
-                el.classList.add('cascade-reveal');
-                el.style.transitionDelay = `${Math.min(idx * 65, 380)}ms`;
-            }
-            observer.observe(el);
+            el.classList.add('cascade-reveal');
+            el.style.transitionDelay = `${(idx % 4) * 55}ms`;
+            bidirectionalObserver.observe(el);
         });
     }
 
-    // تتبع الماوس لإضاءة حواف البطاقات
+    // إمالة ثلاثية الأبعاد حرة (3D Tilt) وإضاءة تتبع حركة الماوس
     document.addEventListener('mousemove', (e) => {
         document.querySelectorAll('.app-card, .gamemode-card').forEach(card => {
             const rect = card.getBoundingClientRect();
+            if (rect.bottom < 0 || rect.top > window.innerHeight) return;
             const x = e.clientX - rect.left;
             const y = e.clientY - rect.top;
             card.style.setProperty('--mouse-x', `${x}px`);
             card.style.setProperty('--mouse-y', `${y}px`);
+
+            if (x >= 0 && x <= rect.width && y >= 0 && y <= rect.height) {
+                const tiltX = ((y / rect.height) - 0.5) * -3.5;
+                const tiltY = ((x / rect.width) - 0.5) * 3.5;
+                card.style.setProperty('--tilt-x', `${tiltX.toFixed(2)}deg`);
+                card.style.setProperty('--tilt-y', `${tiltY.toFixed(2)}deg`);
+            } else {
+                card.style.setProperty('--tilt-x', '0deg');
+                card.style.setProperty('--tilt-y', '0deg');
+            }
         });
     }, { passive: true });
 
-    // ================= 3. نظام اللقب التفاعلي للطالب وتنظيم الشريط العلوي (⚙️ أدواتي) =================
+    // ================= 3. منظومة الأذكار الشاملة في كافة أنحاء الموقع =================
+    const MED26_ADHKAR_LIST = [
+        "🌿 سُبْحَانَ اللَّهِ وَبِحَمْدِهِ، سُبْحَانَ اللَّهِ الْعَظِيمِ",
+        "✨ اللَّهُمَّ صَلِّ وَسَلِّمْ عَلَى نَبِيِّنَا مُحَمَّدٍ",
+        "🤲 اللَّهُمَّ لَا سَهْلَ إِلَّا مَا جَعَلْتَهُ سَهْلًا، وَأَنْتَ تَجْعَلُ الْحَزْنَ إِذَا شِئْتَ سَهْلًا",
+        "💎 لَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ الْعَلِيِّ الْعَظِيمِ",
+        "🌟 اللَّهُمَّ إِنِّي أَسْأَلُكَ فَهْمَ النَّبِيِّينَ، وَحِفْظَ الْمُرْسَلِينَ، وَالْمَلَائِكَةِ الْمُقَرَّبِينَ",
+        "🕋 لَا إِلَهَ إِلَّا أَنْتَ سُبْحَانَكَ إِنِّي كُنْتُ مِنَ الظَّالِمِينَ",
+        "🌱 أَسْتَغْفِرُ اللَّهَ الْعَظِيمَ وَأَتُوبُ إِلَيْهِ",
+        "👑 حَسْبِيَ اللَّهُ لَا إِلَهَ إِلَّا هُوَ عَلَيْهِ تَوَكَّلْتُ وَهُوَ رَبُّ الْعَرْشِ الْعَظِيمِ",
+        "📖 رَبِّ اشْرَحْ لِي صَدْرِي • وَيَسِّرْ لِي أَمْرِي",
+        "💡 رَبِّ زِدْنِي عِلْمًا وَانْفَعْنِي بِمَا عَلَّمْتَنِي"
+    ];
+    let currentDhikrIdx = 0;
+
+    function rotateGlobalAdhkar() {
+        currentDhikrIdx = (currentDhikrIdx + 1) % MED26_ADHKAR_LIST.length;
+        const text = MED26_ADHKAR_LIST[currentDhikrIdx];
+        document.querySelectorAll('.live-dhikr-text').forEach(el => {
+            el.style.opacity = '0';
+            setTimeout(() => {
+                el.innerText = text;
+                el.style.opacity = '1';
+            }, 220);
+        });
+    }
+    setInterval(rotateGlobalAdhkar, 7000);
+
+    function incrementTasbeehCounter(btnEl, key) {
+        const countSpan = btnEl.querySelector('.tasbeeh-count');
+        let val = parseInt(localStorage.getItem(`med26_tasbeeh_${key}`) || '0', 10) + 1;
+        localStorage.setItem(`med26_tasbeeh_${key}`, String(val));
+        if (countSpan) countSpan.innerText = val;
+        btnEl.classList.add('scale-95');
+        setTimeout(() => btnEl.classList.remove('scale-95'), 120);
+    }
+
+    function injectAdhkarEverywhere() {
+        // أ) كبسولة ذكر متجددة في الشريط العلوي (Header)
+        const headerContainer = document.querySelector('#main-header > div');
+        if (headerContainer && !document.getElementById('top-dhikr-pill')) {
+            const dhikrPill = document.createElement('div');
+            dhikrPill.id = 'top-dhikr-pill';
+            dhikrPill.onclick = rotateGlobalAdhkar;
+            dhikrPill.title = 'اضغط للذكر التالي';
+            dhikrPill.className = 'cursor-pointer bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/40 px-3 py-1.5 rounded-xl text-[11px] sm:text-xs font-extrabold text-[var(--gold-bright)] flex items-center gap-1.5 transition';
+            dhikrPill.innerHTML = `<span>📿</span><span class="live-dhikr-text transition-opacity duration-200">${MED26_ADHKAR_LIST[0]}</span>`;
+            headerContainer.insertBefore(dhikrPill, headerContainer.children[1]);
+        }
+
+        // ب) واحة الأذكار والتسبيح التفاعلية في الصفحة الرئيسية
+        const homeSec = document.getElementById('view-home');
+        if (homeSec && !document.getElementById('home-adhkar-oasis')) {
+            const t1 = localStorage.getItem('med26_tasbeeh_1') || '0';
+            const t2 = localStorage.getItem('med26_tasbeeh_2') || '0';
+            const t3 = localStorage.getItem('med26_tasbeeh_3') || '0';
+            const t4 = localStorage.getItem('med26_tasbeeh_4') || '0';
+
+            const oasis = document.createElement('div');
+            oasis.id = 'home-adhkar-oasis';
+            oasis.className = 'app-card rounded-2xl px-4 py-3 sm:px-6 sm:py-3.5 border border-emerald-500/40 flex flex-col lg:flex-row justify-between items-center gap-3';
+            oasis.innerHTML = `
+                <div class="flex items-center gap-2 text-center sm:text-right">
+                    <span class="text-lg">📿</span>
+                    <span class="text-xs sm:text-sm font-black text-emerald-300">واحة الأذكار أثناء المذاكرة:</span>
+                    <span class="live-dhikr-text text-xs sm:text-sm font-bold text-[var(--gold-bright)] transition-opacity duration-200">${MED26_ADHKAR_LIST[0]}</span>
+                </div>
+                <div class="flex flex-wrap justify-center items-center gap-1.5">
+                    <button onclick="incrementTasbeehCounter(this, '1')" class="pill-btn px-2.5 py-1 rounded-xl text-[11px] font-bold flex items-center gap-1.5 transition">
+                        <span>سبحان الله وبحمده</span>
+                        <span class="tasbeeh-count px-1.5 py-0.2 rounded-full bg-emerald-500/25 text-emerald-300 font-black">${t1}</span>
+                    </button>
+                    <button onclick="incrementTasbeehCounter(this, '2')" class="pill-btn px-2.5 py-1 rounded-xl text-[11px] font-bold flex items-center gap-1.5 transition">
+                        <span>أستغفر الله</span>
+                        <span class="tasbeeh-count px-1.5 py-0.2 rounded-full bg-amber-500/25 text-amber-300 font-black">${t2}</span>
+                    </button>
+                    <button onclick="incrementTasbeehCounter(this, '3')" class="pill-btn px-2.5 py-1 rounded-xl text-[11px] font-bold flex items-center gap-1.5 transition">
+                        <span>اللهم صلِّ على محمد</span>
+                        <span class="tasbeeh-count px-1.5 py-0.2 rounded-full bg-sky-500/25 text-sky-300 font-black">${t3}</span>
+                    </button>
+                    <button onclick="incrementTasbeehCounter(this, '4')" class="pill-btn px-2.5 py-1 rounded-xl text-[11px] font-bold flex items-center gap-1.5 transition">
+                        <span>لا حول ولا قوة إلا بالله</span>
+                        <span class="tasbeeh-count px-1.5 py-0.2 rounded-full bg-purple-500/25 text-purple-300 font-black">${t4}</span>
+                    </button>
+                </div>
+            `;
+            homeSec.insertBefore(oasis, homeSec.children[1]);
+        }
+
+        // ج) لافتات الأذكار في جميع صفحات الموقع (Trainer, Atlas, Custom, Scoreboard)
+        const targetViews = [
+            { id: 'view-trainer', bannerId: 'dhikr-banner-trainer' },
+            { id: 'view-atlas', bannerId: 'dhikr-banner-atlas' },
+            { id: 'view-custom', bannerId: 'dhikr-banner-custom' },
+            { id: 'view-scoreboard', bannerId: 'dhikr-banner-scoreboard' }
+        ];
+        targetViews.forEach(v => {
+            const sec = document.getElementById(v.id);
+            if (sec && !document.getElementById(v.bannerId)) {
+                const bar = document.createElement('div');
+                bar.id = v.bannerId;
+                bar.onclick = rotateGlobalAdhkar;
+                bar.className = 'cursor-pointer app-card rounded-2xl px-4 py-2.5 border border-amber-500/35 flex justify-between items-center gap-2 text-xs font-extrabold';
+                bar.innerHTML = `
+                    <div class="flex items-center gap-2">
+                        <span>🤲</span>
+                        <span class="text-emerald-300">ذكر وتوفيق:</span>
+                        <span class="live-dhikr-text text-[var(--gold-bright)] transition-opacity duration-200">${MED26_ADHKAR_LIST[2]}</span>
+                    </div>
+                    <span class="text-[10px] text-[var(--text-muted)] shrink-0">اضغط لذكر آخر  🔄</span>
+                `;
+                sec.insertBefore(bar, sec.firstChild);
+            }
+        });
+    }
+
+    // ================= 4. خيار حذف/إخفاء خانة البومودورو في اليمين تحت (لعدم الإزعاج في الجوال) =================
+    function hidePomodoroWidget() {
+        localStorage.setItem('med26_hide_pomo', '1');
+        const w = document.getElementById('med26-pomo-widget');
+        if (w) w.classList.add('hidden');
+    }
+
+    function showPomodoroWidget() {
+        localStorage.removeItem('med26_hide_pomo');
+        const w = document.getElementById('med26-pomo-widget');
+        if (w) {
+            w.classList.remove('hidden');
+            EnhancePomodoroWithCloseBtn();
+        }
+    }
+
+    function togglePomodoroVisibility() {
+        const w = document.getElementById('med26-pomo-widget');
+        if (!w || w.classList.contains('hidden')) {
+            showPomodoroWidget();
+        } else {
+            hidePomodoroWidget();
+        }
+    }
+
+    function EnhancePomodoroWithCloseBtn() {
+        const w = document.getElementById('med26-pomo-widget');
+        if (!w) return;
+
+        // إذا كان الطالب قد أخفاه سابقاً، نبقي عليه مخفياً
+        if (localStorage.getItem('med26_hide_pomo') === '1') {
+            w.classList.add('hidden');
+        }
+
+        // إضافة زر حذف (✕) بجانب كبسولة البومودورو المصغرة
+        const collapsed = document.getElementById('pomo-collapsed');
+        if (collapsed && !document.getElementById('pomo-quick-dismiss-btn')) {
+            const closeBtn = document.createElement('button');
+            closeBtn.id = 'pomo-quick-dismiss-btn';
+            closeBtn.type = 'button';
+            closeBtn.title = 'إخفاء مؤقت البومودورو';
+            closeBtn.className = 'mr-1 w-5 h-5 rounded-full bg-rose-500/25 hover:bg-rose-500 text-rose-200 hover:text-white text-[10px] font-black flex items-center justify-center transition';
+            closeBtn.innerText = '✕';
+            closeBtn.onclick = (e) => {
+                e.stopPropagation();
+                hidePomodoroWidget();
+            };
+            collapsed.appendChild(closeBtn);
+        }
+
+        // إضافة زر إخفاء داخل النافذة الموسعة للبومودورو
+        const expandedHeader = document.querySelector('#pomo-expanded > div:first-child');
+        if (expandedHeader && !document.getElementById('pomo-exp-dismiss-btn')) {
+            const hideBtn = document.createElement('button');
+            hideBtn.id = 'pomo-exp-dismiss-btn';
+            hideBtn.type = 'button';
+            hideBtn.className = 'text-rose-300 hover:text-white text-[11px] font-black px-2 py-0.5 rounded bg-rose-950/80 border border-rose-500/40';
+            hideBtn.innerText = 'إخفاء ✕';
+            hideBtn.onclick = () => hidePomodoroWidget();
+            expandedHeader.appendChild(hideBtn);
+        }
+    }
+
+    // ================= 5. تنسيق الشريط السفلي (Footer) + حذف الاسم وتاريخ الاختبار + شريط متحرك من اليمين إلى اليسار =================
+    function rebuildCleanMovingFooter() {
+        const footer = document.querySelector('footer');
+        if (!footer) return;
+
+        // بناء محتوى الشريط المتحرك (أذكار + Done by Practical Team)
+        const itemsHtml = [
+            `<span class="mx-6 text-xs sm:text-sm font-extrabold text-[var(--gold-bright)]">📿 سُبْحَانَ اللَّهِ وَبِحَمْدِهِ • سُبْحَانَ اللَّهِ الْعَظِيمِ</span>`,
+            `<span class="mx-6 text-xs sm:text-sm font-black text-white" dir="ltr">✨ Done by <span class="kw-highlight">Practical Team</span> • MED26</span>`,
+            `<span class="mx-6 text-xs sm:text-sm font-extrabold text-emerald-300">🤲 اللَّهُمَّ لَا سَهْلَ إِلَّا مَا جَعَلْتَهُ سَهْلًا</span>`,
+            `<span class="mx-6 text-xs sm:text-sm font-black text-white" dir="ltr">🏛️ MED26 JAZAN UNIVERSITY • FOUNDATION 2 OSPE</span>`,
+            `<span class="mx-6 text-xs sm:text-sm font-extrabold text-[var(--gold-bright)]">✨ اللَّهُمَّ صَلِّ وَسَلِّمْ عَلَى نَبِيِّنَا مُحَمَّدٍ</span>`,
+            `<span class="mx-6 text-xs sm:text-sm font-black text-white" dir="ltr">⚡ Done by <span class="kw-highlight">Practical Team</span></span>`,
+            `<span class="mx-6 text-xs sm:text-sm font-extrabold text-amber-300">💎 لَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ الْعَلِيِّ الْعَظِيمِ</span>`
+        ].join('');
+
+        footer.className = 'border-t border-[var(--border-color)] bg-[var(--bg-secondary)]/95 backdrop-blur-md pt-3 pb-5 mt-10 relative z-10 space-y-3';
+        footer.innerHTML = `
+            <!-- الشريط المتحرك من اليمين إلى اليسار -->
+            <div class="footer-marquee-wrap">
+                <div class="footer-marquee-track">
+                    <div class="flex items-center whitespace-nowrap">${itemsHtml}</div>
+                    <div class="flex items-center whitespace-nowrap">${itemsHtml}</div>
+                </div>
+            </div>
+
+            <!-- السطر السفلي المنسق والنظيف (بدون الاسم وبدون تاريخ الاختبار) -->
+            <div class="max-w-[1440px] w-[95%] mx-auto flex flex-col sm:flex-row justify-between items-center gap-3 text-center sm:text-right pt-1">
+                <div class="flex items-center gap-2.5">
+                    <img data-logo alt="MED26 Logo" class="h-8 sm:h-10 object-contain">
+                    <span class="text-xs sm:text-sm font-black text-[var(--text-muted)]">
+                        MED26 JAZAN UNIVERSITY • FOUNDATION 2 OSPE
+                    </span>
+                </div>
+                <div class="flex flex-wrap justify-center items-center gap-3">
+                    <a href="https://t.me/Med26JU_bot" target="_blank" class="pill-btn px-3.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5">
+                        <span>بوت الدفعة:</span>
+                        <span dir="ltr" class="kw-highlight">@Med26JU_bot</span>
+                    </a>
+                    <div dir="ltr" class="text-xs sm:text-sm font-black text-[var(--text-main)]">
+                        Done by <span class="kw-highlight">Practical Team</span>
+                    </div>
+                </div>
+            </div>
+        `;
+        if (typeof loadTransparentLogo === 'function') loadTransparentLogo();
+    }
+
+    // ================= 6. تنظيم الشريط العلوي (⚙️ أدواتي) + Bento Dashboard + محطة اليوم =================
     function getStudentRankInfo(solvedCount) {
         if (solvedCount >= 60) return { title: 'أسطورة الـ OSPE', icon: '👑', color: 'text-amber-300 border-amber-400/60 bg-amber-500/20' };
         if (solvedCount >= 30) return { title: 'متألق', icon: '🔥', color: 'text-orange-300 border-orange-400/50 bg-orange-500/15' };
@@ -4567,7 +4934,6 @@ window.shareCurrentChallengeLink = function() {
             `;
         }
 
-        // تحديث ترحيب البانر الرئيسي
         const heroWelcome = document.getElementById('bento-welcome-name');
         const heroRank = document.getElementById('bento-welcome-rank');
         if (heroWelcome) heroWelcome.innerText = userName;
@@ -4581,7 +4947,6 @@ window.shareCurrentChallengeLink = function() {
         const desktopNav = document.querySelector('#main-header .hidden.md\\:flex');
         if (!desktopNav || document.getElementById('my-tools-dropdown-wrap')) return;
 
-        // إخفاء الأزرار الثانوية المزدحمة من البار العلوي وجمعها في قائمة "⚙️ أدواتي"
         Array.from(desktopNav.children).forEach(el => {
             const txt = (el.innerText || '');
             const oc = (el.getAttribute('onclick') || '');
@@ -4590,10 +4955,8 @@ window.shareCurrentChallengeLink = function() {
             }
         });
 
-        // تنسيق الشريط العلوي ككبسولة زجاجية فخمة (مثل المقطع)
         desktopNav.className = 'hidden md:flex items-center gap-1.5 bg-[var(--bg-main)]/80 border border-[var(--border-color)] px-2.5 py-1.5 rounded-2xl shadow-inner';
 
-        // إنشاء زر وقائمة "⚙️ أدواتي" المنسدلة
         const toolsWrap = document.createElement('div');
         toolsWrap.id = 'my-tools-dropdown-wrap';
         toolsWrap.className = 'relative';
@@ -4602,9 +4965,12 @@ window.shareCurrentChallengeLink = function() {
                 <span>⚙️ أدواتي</span>
                 <span class="text-[10px]">▼</span>
             </button>
-            <div id="my-tools-menu" class="hidden absolute left-0 mt-2 w-60 bg-[var(--bg-card)] border-2 border-[var(--gold-primary)] rounded-2xl shadow-2xl p-2 z-50 space-y-1 text-right">
+            <div id="my-tools-menu" class="hidden absolute left-0 mt-2 w-64 bg-[var(--bg-card)] border-2 border-[var(--gold-primary)] rounded-2xl shadow-2xl p-2 z-50 space-y-1 text-right">
                 <button onclick="switchView('custom');document.getElementById('my-tools-menu').classList.add('hidden')" class="w-full text-right px-3 py-2 rounded-xl text-xs font-bold hover:bg-[var(--bg-secondary)] flex items-center justify-between">
                     <span>🎯 إعداد التدريب المخصص</span><span>⬅️</span>
+                </button>
+                <button onclick="togglePomodoroVisibility();document.getElementById('my-tools-menu').classList.add('hidden')" class="w-full text-right px-3 py-2 rounded-xl text-xs font-bold hover:bg-[var(--bg-secondary)] flex items-center justify-between text-emerald-300">
+                    <span>🍅 إظهار / إخفاء مؤقت بومودورو</span><span>⏱️</span>
                 </button>
                 <button onclick="printCustomPDF('both');document.getElementById('my-tools-menu').classList.add('hidden')" class="w-full text-right px-3 py-2 rounded-xl text-xs font-bold hover:bg-[var(--bg-secondary)] flex items-center justify-between">
                     <span>🖨️ طباعة أخطائي ومفضلتي PDF</span><span>📄</span>
@@ -4622,7 +4988,6 @@ window.shareCurrentChallengeLink = function() {
         `;
         desktopNav.appendChild(toolsWrap);
 
-        // إغلاق القائمة عند النقر خارجها
         document.addEventListener('click', (e) => {
             if (!toolsWrap.contains(e.target)) {
                 const menu = document.getElementById('my-tools-menu');
@@ -4631,7 +4996,6 @@ window.shareCurrentChallengeLink = function() {
         });
     }
 
-    // ================= 4. حفظ واستئناف "أكمل من حيث توقفت" (Continue Session) =================
     function saveLastSessionState() {
         if (document.getElementById('view-trainer').classList.contains('hidden')) return;
         const q = currentList[currentIndex];
@@ -4690,14 +5054,11 @@ window.shareCurrentChallengeLink = function() {
         subTxt.innerText = 'ابدأ بالمحطات الأكثر تكراراً في الاختبار (High-Yield)';
     }
 
-    // ================= 5. بناء لوحة Bento Grid + محطة اليوم + أطوار الاختبار =================
     let currentSpotStation = null;
-
     function pickRandomSpotOfTheDay(forceRandom = false) {
         const visualStations = questionsDB.filter(q => !q.noSample);
         if (visualStations.length === 0) return;
         if (!forceRandom) {
-            // اختيار محطة اليوم تلقائياً حسب تاريخ اليوم أو عشوائياً عند الضغط
             const daySeed = new Date().getDate() + new Date().getMonth() * 31;
             currentSpotStation = visualStations[daySeed % visualStations.length];
         } else {
@@ -4725,12 +5086,10 @@ window.shareCurrentChallengeLink = function() {
     }
 
     function updateHeroLiveQuickStats() {
-        // 1. أعلى Streak
         const bestStreak = Math.max(parseInt(localStorage.getItem('med26_best_streak') || '0', 10), currentStreak);
         const streakEl = document.getElementById('hero-quick-streak');
         if (streakEl) streakEl.innerText = `🔥 ${bestStreak} متتالية`;
 
-        // 2. نسبة ختم اللابات من 12
         const clData = typeof getChecklistData === 'function' ? getChecklistData() : {};
         let studiedLabs = 0;
         if (typeof F2_OSPE_LABS !== 'undefined') {
@@ -4740,7 +5099,6 @@ window.shareCurrentChallengeLink = function() {
         const clEl = document.getElementById('hero-quick-labs');
         if (clEl) clEl.innerText = `✅ ${studiedLabs}/12 لاب (${clPct}%)`;
 
-        // 3. الترتيب الحالي في الدفعة + أسرع وقت في المحاكي
         const username = (localStorage.getItem('med26_username') || '').toLowerCase();
         const mySolved = typeof getTotalSolvedCount === 'function' ? getTotalSolvedCount() : masteredIds.length;
         let players = Array.isArray(globalLivePlayers) ? [...globalLivePlayers] : [];
@@ -4754,7 +5112,6 @@ window.shareCurrentChallengeLink = function() {
             rankEl.innerText = myRankIdx !== -1 ? `🏆 المركز #${myRankIdx + 1}` : (mySolved > 0 ? '🏆 المركز #1' : '🏆 ابدأ لتتصدر');
         }
 
-        // تحديث أسرع وقت مسجل في الدفعة تحت بطاقة المحاكي
         const fastestTimes = players.map(p => p.bestTime).filter(t => typeof t === 'number' && t > 0);
         const myBestTime = parseInt(localStorage.getItem('med26_best_sim_time') || '0', 10);
         if (myBestTime > 0) fastestTimes.push(myBestTime);
@@ -4769,11 +5126,10 @@ window.shareCurrentChallengeLink = function() {
         const homeSec = document.getElementById('view-home');
         if (!homeSec || document.getElementById('bento-hero-upgraded')) return;
 
-        const children = Array.from(homeSec.children);
-        const heroCard = children[1]; // البانر الترحيبي
-        const quickModesCard = children[2]; // شريط التدريب السريع
+        const allCards = Array.from(homeSec.children);
+        const heroCard = allCards.find(el => el.querySelector('#stat-total'));
+        const quickModesCard = allCards.find(el => (el.innerText || '').includes('التدريب السريع والتحديات'));
 
-        // أ) تطوير البانر الترحيبي ليضم الترحيب بالاسم واللقب + الإحصائيات الـ 3 + زر "أكمل من حيث توقفت"
         if (heroCard) {
             heroCard.id = 'bento-hero-upgraded';
             const leftCol = heroCard.querySelector('.space-y-2\\.5');
@@ -4786,7 +5142,6 @@ window.shareCurrentChallengeLink = function() {
                         <span id="bento-welcome-name" class="text-base sm:text-lg font-black text-[var(--gold-bright)]">طالب MED26</span>
                         <span id="bento-welcome-rank" class="px-2.5 py-0.5 rounded-full text-xs font-black border">🌱 مبتدئ</span>
                     </div>
-                    <!-- 3 إحصائيات سريعة في صف واحد -->
                     <div class="grid grid-cols-3 gap-2 max-w-xl mx-auto lg:mx-0">
                         <div class="bg-[var(--bg-secondary)]/90 border border-[var(--border-color)] rounded-xl px-3 py-2 text-center">
                             <div class="text-[10px] text-[var(--text-muted)] font-bold">سلسلة الإجابات</div>
@@ -4801,7 +5156,6 @@ window.shareCurrentChallengeLink = function() {
                             <div id="hero-quick-rank" class="text-xs sm:text-sm font-black text-[var(--gold-bright)] mt-0.5">🏆 #--</div>
                         </div>
                     </div>
-                    <!-- زر أكمل من حيث توقفت البارز -->
                     <div class="pt-1">
                         <button onclick="resumeLastSession()" class="w-full sm:w-auto gold-btn px-6 py-3 rounded-2xl text-right flex items-center justify-between sm:justify-start gap-3 shadow-xl">
                             <span class="text-xl">▶️</span>
@@ -4816,12 +5170,10 @@ window.shareCurrentChallengeLink = function() {
             }
         }
 
-        // ب) تحويل شريط التدريب السريع إلى قسم مستقل لـ "أوضاع الاختبار" (Game Modes) + "محطة اليوم العشوائية" (Spot of the Day)
         if (quickModesCard) {
             const bentoMiddleSection = document.createElement('div');
             bentoMiddleSection.className = 'grid grid-cols-1 lg:grid-cols-12 gap-5';
             bentoMiddleSection.innerHTML = `
-                <!-- أوضاع الاختبار والمنافسة (8 أعمدة) -->
                 <div class="lg:col-span-8 app-card rounded-3xl p-5 sm:p-6 flex flex-col justify-between space-y-4">
                     <div class="flex flex-wrap justify-between items-center gap-2 border-b border-[var(--border-color)] pb-3">
                         <div>
@@ -4835,7 +5187,6 @@ window.shareCurrentChallengeLink = function() {
                     </div>
 
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
-                        <!-- 1. تدريب مخصص -->
                         <div onclick="switchView('custom')" class="gamemode-card rounded-2xl p-4 cursor-pointer flex flex-col justify-between space-y-3">
                             <div class="space-y-1.5">
                                 <div class="flex justify-between items-center">
@@ -4850,7 +5201,6 @@ window.shareCurrentChallengeLink = function() {
                             </div>
                         </div>
 
-                        <!-- 2. محاكي 18 محطة -->
                         <div onclick="startExamSimulator()" class="gamemode-card rounded-2xl p-4 cursor-pointer flex flex-col justify-between space-y-3 border-amber-500/50">
                             <div class="space-y-1.5">
                                 <div class="flex justify-between items-center">
@@ -4865,7 +5215,6 @@ window.shareCurrentChallengeLink = function() {
                             </div>
                         </div>
 
-                        <!-- 3. تحدي 60 ثانية Blitz -->
                         <div onclick="startBlitzMode()" class="gamemode-card rounded-2xl p-4 cursor-pointer flex flex-col justify-between space-y-3">
                             <div class="space-y-1.5">
                                 <div class="flex justify-between items-center">
@@ -4891,7 +5240,6 @@ window.shareCurrentChallengeLink = function() {
                     </div>
                 </div>
 
-                <!-- محطة اليوم العشوائية Spot of the Day (4 أعمدة) -->
                 <div class="lg:col-span-4 app-card rounded-3xl p-5 flex flex-col justify-between space-y-3 border-2 border-[var(--gold-primary)]/60">
                     <div class="flex justify-between items-center border-b border-[var(--border-color)] pb-2.5">
                         <div>
@@ -4922,7 +5270,6 @@ window.shareCurrentChallengeLink = function() {
             pickRandomSpotOfTheDay(false);
         }
 
-        // ج) إضافة الإضاءة الخلفية (Glow) لبطاقات المواد الأربع وتحديث صياغة التقدم
         const glowMap = {
             'MICROBIOLOGY': 'subject-glow-micro',
             'PATHOLOGY': 'subject-glow-patho',
@@ -4938,7 +5285,6 @@ window.shareCurrentChallengeLink = function() {
         });
     }
 
-    // تحديث صياغة تقدم المواد الأربع لتكون "أتقنت X من Y محطة في [المادة]"
     const origUpdateStatsUI = window.updateStatsUI;
     window.updateStatsUI = function() {
         if (typeof origUpdateStatsUI === 'function') origUpdateStatsUI();
@@ -4955,16 +5301,15 @@ window.shareCurrentChallengeLink = function() {
         updateHeroLiveQuickStats();
     };
 
-    // ================= 6. أوسمة التميز (Tags) على المحطات + ربط فلتر اللابات الفرعية =================
     const origRenderQuestion = window.renderQuestion;
     window.renderQuestion = function() {
         if (typeof origRenderQuestion === 'function') origRenderQuestion();
         saveLastSessionState();
+        rotateGlobalAdhkar(); // تجديد الذكر تلقائياً مع كل محطة جديدة
 
         const q = currentList[currentIndex];
         if (!q) return;
 
-        // تحديث شارة "🔥 ركز عليها الدكتور" و إضافة شارة "📌 تجميعات سابقة"
         const hyBadge = document.getElementById('q-highyield');
         if (hyBadge) {
             hyBadge.innerHTML = '🔥 ركّز عليها الدكتور (High-Yield)';
@@ -4983,7 +5328,14 @@ window.shareCurrentChallengeLink = function() {
         }
     };
 
-    // ربط فلترة اللابات الفرعية في التدريب المخصص بدالة getCustomFilteredList مباشرة ليتحدث العداد فوراً
+    // إعادة تفعيل الأنميشن عند التنقل بين صفحات الموقع
+    const origSwitchViewBento = window.switchView;
+    window.switchView = function(view) {
+        if (typeof origSwitchViewBento === 'function') origSwitchViewBento(view);
+        setTimeout(triggerBidirectionalCascade, 60);
+    };
+
+    // ربط فلترة اللابات الفرعية في التدريب المخصص بالعداد
     window.getCustomFilteredList = function() {
         const checkedSubjects = Array.from(document.querySelectorAll('#custom-subjects input[type="checkbox"]:not(.sublab-cb):checked')).map(i => i.value);
         const checkedSubLabs = Array.from(document.querySelectorAll('.sublab-cb:checked')).map(i => i.value);
@@ -5008,39 +5360,26 @@ window.shareCurrentChallengeLink = function() {
         });
     };
 
-    // تحديث العداد تلقائياً عند تغيير أي لاب فرعي في التدريب المخصص
     document.addEventListener('change', (e) => {
         if (e.target && e.target.classList.contains('sublab-cb')) {
             if (typeof updateCustomCount === 'function') updateCustomCount();
         }
     });
 
-    // ================= 7. تحديث الفوتر بالتوقيع الفاخر والعداد التنازلي المصغر =================
-    function upgradeLuxuryFooter() {
-        const footer = document.querySelector('footer > div');
-        if (!footer || document.getElementById('footer-luxury-sig')) return;
-        const sigDiv = document.createElement('div');
-        sigDiv.id = 'footer-luxury-sig';
-        sigDiv.className = 'w-full pt-3 mt-2 border-t border-[var(--border-color)]/50 flex flex-wrap justify-between items-center gap-2 text-[11px] text-[var(--text-muted)]/80 font-bold';
-        sigDiv.innerHTML = `
-            <span>⏳ موعد اختبار F2 OSPE: 27 ديسمبر • 8:00 صباحاً</span>
-            <span dir="ltr" class="tracking-wide text-[var(--gold-bright)]/85">Design & Layout by R. Daghrir • Practical Team MED26</span>
-        `;
-        footer.appendChild(sigDiv);
-    }
-
-    // تشغيل كافة الترقيات فور جهوزية الصفحة
-    function runAllBentoUpgrades() {
+    // تشغيل كافة التحديثات فور جهوزية الصفحة
+    function runAllCompleteUpgrades() {
         reorganizeTopNavbar();
         upgradeHomeToBentoDashboard();
-        upgradeLuxuryFooter();
+        injectAdhkarEverywhere();
+        rebuildCleanMovingFooter();
+        EnhancePomodoroWithCloseBtn();
         window.updateStatsUI();
         updateContinueSessionBtnUI();
-        triggerTopToBottomCascade();
+        triggerBidirectionalCascade();
     }
 
-    window.addEventListener('DOMContentLoaded', () => setTimeout(runAllBentoUpgrades, 150));
-    setTimeout(runAllBentoUpgrades, 750);
+    window.addEventListener('DOMContentLoaded', () => setTimeout(runAllCompleteUpgrades, 150));
+    setTimeout(runAllCompleteUpgrades, 750);
 </script>
 </body>
 </html>
