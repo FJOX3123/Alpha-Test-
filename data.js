@@ -938,7 +938,7 @@ window.addEventListener('DOMContentLoaded', () => {
 // ================= الترقية الشاملة V6 للمناضل: الشرح المخصص بالـ ID (107 محطة) + Viva Follow-up + Cloudflare Worker AI =================
 
 // 1. ضع رابط Cloudflare Worker المجاني الخاص بك هنا (وسيعمل المحرك المجاني المدمج تلقائياً حتى تضيف رابطك)
-const MED26_CLOUDFLARE_WORKER_URL = 'https://med26-ai.xxrayanxx85.workers.dev';
+const MED26_CLOUDFLARE_WORKER_URL = '';
 
 // 2. قاعدة المعرفة الدقيقة المخصصة لكل محطة برقم الـ ID + الأسئلة الشفهية المتوقعة (Viva Follow-up)
 const stationKnowledgeById = {
