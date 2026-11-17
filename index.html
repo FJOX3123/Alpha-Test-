@@ -5817,5 +5817,367 @@ window.shareCurrentChallengeLink = function() {
         }, 900);
     })();
 </script>
+<!-- ================= الإصلاح النهائي الشامل للسرعة القصوى وإلغاء حركة القوائم (PC, iPad, Mobile) ================= -->
+<style>
+    /* 1. منع التمدد الأفقي وضبط أبعاد الشاشة لجميع الأجهزة */
+    html, body {
+        max-width: 100vw !important;
+        width: 100% !important;
+        overflow-x: hidden !important;
+        position: relative;
+        -webkit-text-size-adjust: 100%;
+    }
+    header, main, footer, section, .app-card {
+        max-width: 100% !important;
+        min-width: 0 !important;
+    }
+    .footer-marquee-wrap {
+        max-width: 100vw !important;
+        width: 100% !important;
+        overflow: hidden !important;
+        contain: layout paint;
+    }
+
+    /* 2. إلغاء حركة وميلان جميع القوائم والبطاقات نهائياً في كل الصفحات وعلى جميع الأجهزة */
+    .app-card,
+    .app-card:hover,
+    .gamemode-card,
+    .gamemode-card:hover,
+    .cascade-reveal,
+    .cascade-reveal.out-top,
+    .cascade-reveal.out-bottom,
+    .cascade-reveal.is-visible,
+    #scoreboard-four-lists > div,
+    #scoreboard-four-lists > div:hover,
+    #scoreboard-four-lists div[class*="rounded-xl"],
+    #scoreboard-four-lists div[class*="rounded-xl"]:hover,
+    #atlas-grid > div,
+    #atlas-grid > div:hover,
+    #station-card,
+    #station-card:hover {
+        opacity: 1 !important;
+        filter: none !important;
+        transform: none !important;
+        transition: background-color 0.15s ease, border-color 0.15s ease !important;
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+        will-change: auto !important;
+    }
+
+    /* تثبيت لون البطاقات الفخم بدون عبء الضبابية (Backdrop Blur) الذي يسبب تعليق الآيباد والجوال */
+    .app-card {
+        background-color: #24201b !important;
+    }
+    body.light-mode .app-card {
+        background-color: #ffffff !important;
+    }
+    .app-card::before,
+    .gamemode-card::before {
+        display: none !important;
+        content: none !important;
+    }
+
+    /* 3. إيقاف الأنميشن المستمر المسبب لثقل وتعليق قائمة المتصدرين والخلفية */
+    .rank-1-fx,
+    .rank-2-fx,
+    .rank-3-fx {
+        animation: none !important;
+        transform: none !important;
+    }
+    .rank-1-fx::after {
+        display: none !important;
+        animation: none !important;
+    }
+    .fog-layer {
+        animation: none !important;
+    }
+    #stardust-canvas {
+        display: none !important;
+    }
+
+    /* 4. تسريع عرض بطاقات الأطلس البصري (رسم البطاقات الظاهرة على الشاشة فقط) */
+    #atlas-grid > div {
+        content-visibility: auto;
+        contain-intrinsic-size: 340px;
+    }
+
+    /* 5. ضبط الهيدر والأزرار العائمة وشريط الجوال السفلي */
+    @media (max-width: 1023px) {
+        #top-dhikr-pill {
+            display: none !important;
+        }
+    }
+    @media (max-width: 767px) {
+        body {
+            padding-bottom: 128px !important;
+        }
+        #top-user-badge {
+            padding: 4px 8px !important;
+            font-size: 11px !important;
+        }
+        #top-user-badge span:last-child {
+            display: none !important;
+        }
+        #med26-pomo-widget {
+            bottom: 74px !important;
+            right: 10px !important;
+            z-index: 45 !important;
+        }
+        #pomo-collapsed {
+            padding: 5px 10px !important;
+            font-size: 11px !important;
+        }
+        #ai-floating-btn {
+            bottom: 74px !important;
+            left: 10px !important;
+            padding: 8px 12px !important;
+            font-size: 11px !important;
+            z-index: 45 !important;
+        }
+        #custom-subjects {
+            grid-template-columns: 1fr !important;
+        }
+        #mobile-bottom-bar {
+            grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+            padding: 6px 4px !important;
+            gap: 3px !important;
+        }
+        #f2-checklist-modal table {
+            min-width: 680px !important;
+        }
+    }
+</style>
+
+<script>
+    (function applyUltimatePerformanceAndStabilityFix() {
+        // 1. قطع مستمع حركة الماوس (3D Tilt Mousemove) نهائياً لمنع تحرك القوائم واستهلاك المعالج
+        document.addEventListener('mousemove', function(e) {
+            if (typeof loupeActive !== 'undefined' && loupeActive && e.target.closest && e.target.closest('#loupe-container')) {
+                return; // السماح بعدسة المجهر فقط عند تشغيلها داخل السؤال
+            }
+            e.stopImmediatePropagation();
+        }, true);
+
+        // 2. إيقاف حلقة رسم الكانفاس الخلفية لتوفير المعالج والبطارية
+        const sdCanvas = document.getElementById('stardust-canvas');
+        if (sdCanvas) {
+            const sdCtx = sdCanvas.getContext('2d');
+            if (sdCtx) {
+                sdCtx.clearRect = function() {};
+                sdCtx.arc = function() {};
+                sdCtx.fill = function() {};
+            }
+        }
+
+        // 3. إلغاء مراقب الأنميشن الذي كان يخفي أو يحرك البطاقات عند النزول والصعود
+        window.triggerBidirectionalCascade = function() {
+            if (typeof bidirectionalObserver !== 'undefined' && bidirectionalObserver) {
+                bidirectionalObserver.disconnect();
+            }
+            document.querySelectorAll('.cascade-reveal').forEach(el => {
+                el.classList.remove('cascade-reveal', 'out-top', 'out-bottom');
+                el.classList.add('is-visible');
+                el.style.transitionDelay = '0ms';
+            });
+        };
+
+        // 4. تسريع صفحة الأطلس البصري (تحميل كسول فوري للصور وبناء سريع بضغطة واحدة)
+        window.renderAtlasGrid = function() {
+            const grid = document.getElementById('atlas-grid');
+            if (!grid) return;
+            const searchEl = document.getElementById('atlas-search');
+            const query = (searchEl ? searchEl.value : '').toLowerCase().trim();
+
+            const seenSlideSlot = new Set();
+            const filtered = questionsDB.filter(q => {
+                if (q.noSample) return false;
+                if (currentAtlasFilter !== 'ALL' && q.subject !== currentAtlasFilter) return false;
+                const key = `${q.page}_${q.slot}`;
+                if (seenSlideSlot.has(key)) return false;
+                const myNote = (personalNotes[q.id] || '').toLowerCase();
+                if (query && !q.a.toLowerCase().includes(query) && !q.lab.toLowerCase().includes(query) && !q.q.toLowerCase().includes(query) && !myNote.includes(query)) {
+                    return false;
+                }
+                seenSlideSlot.add(key);
+                return true;
+            });
+
+            grid.innerHTML = filtered.map(q => {
+                const staticSrc = `slides/p${q.page}_s${q.slot || 0}.png`;
+                const savedNoteHtml = personalNotes[q.id]
+                    ? `<div class="bg-amber-500/15 border border-amber-400/40 rounded-xl p-2 text-xs text-amber-200 font-bold">📝 ربطتي: ${personalNotes[q.id]}</div>`
+                    : '';
+
+                return `
+                    <div class="app-card rounded-2xl p-4 flex flex-col justify-between space-y-3">
+                        <div class="space-y-2.5">
+                            <div class="flex justify-between items-center gap-1">
+                                <span class="px-2.5 py-0.5 rounded-lg text-[10px] font-black uppercase ${getSubjectBadgeClass(q.subject)}">${q.subject}</span>
+                                <span class="text-[11px] text-[var(--text-muted)] font-bold truncate">${q.lab} (${q.year})</span>
+                            </div>
+                            <div class="bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-xl p-2 flex items-center justify-center">
+                                <img src="${staticSrc}" loading="lazy" decoding="async" onclick="openZoomModal(this.src)" class="w-full h-44 object-contain rounded-lg cursor-zoom-in">
+                            </div>
+                            <div class="bg-emerald-950/30 border border-emerald-500/40 rounded-xl p-3 text-left text-xs sm:text-sm font-bold leading-relaxed" dir="ltr">
+                                ${q.a}
+                            </div>
+                            ${savedNoteHtml}
+                        </div>
+                        <div class="flex justify-between items-center gap-2 pt-2 border-t border-[var(--border-color)]">
+                            <button onclick="speakMedicalText(\`${q.a.replace(/`/g, "'")}\`)" class="pill-btn px-3 py-1.5 rounded-xl text-xs font-extrabold flex items-center gap-1 text-[var(--gold-bright)]">
+                                <span>🔊</span>
+                                <span>نطق المصطلح</span>
+                            </button>
+                            <button onclick="openStationFromAtlas(${q.id})" class="gold-btn px-3.5 py-1.5 rounded-xl text-xs font-black">
+                                تدرّب على السؤال ⬅️
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        };
+
+        // 5. تسريع قائمة المتصدرين (Score Board) لتفتح فوراً في 0ms بدون تعليق أو انتظار الشبكة
+        let lastScoreboardFetchTime = 0;
+        let isFetchingScores = false;
+
+        function buildScoreboardHTML() {
+            const username = localStorage.getItem('med26_username') || 'طالب MED26';
+            const sbUserEl = document.getElementById('sb-current-user');
+            if (sbUserEl) sbUserEl.innerText = username;
+
+            const container = document.getElementById('scoreboard-four-lists');
+            if (!container) return;
+
+            const mySolved = typeof getTotalSolvedCount === 'function' ? getTotalSolvedCount() : masteredIds.length;
+            const myBestTime = parseInt(localStorage.getItem('med26_best_sim_time') || '0', 10);
+            const myBestStreak = Math.max(parseInt(localStorage.getItem('med26_best_streak') || '0', 10), currentStreak);
+            const myWins = parseInt(localStorage.getItem('med26_challenge_wins') || '0', 10);
+
+            const boards = [
+                { title: "🏆 أكثر 10 طلاب حلّوا أسئلة", unit: "محطة", sortDesc: true, field: "solved", myVal: mySolved },
+                { title: "⚡ أسرع 10 حلّوا اختبار محاكي عشوائي", unit: "ثانية", sortDesc: false, field: "bestTime", myVal: myBestTime > 0 ? myBestTime : null },
+                { title: "🔥 أكثر 10 حصلوا على أعلى Streak", unit: "متتالية", sortDesc: true, field: "bestStreak", myVal: myBestStreak },
+                { title: "⚔️ أكثر 10 فازوا في تحديات ضد أصحابهم", unit: "فوز", sortDesc: true, field: "wins", myVal: myWins }
+            ];
+
+            container.innerHTML = boards.map(b => {
+                let list = (Array.isArray(globalLivePlayers) ? globalLivePlayers : [])
+                    .filter(p => p && p[b.field] && p[b.field] > 0)
+                    .map(p => ({
+                        name: p.name,
+                        val: p[b.field],
+                        isMe: (p.name || '').toLowerCase() === username.toLowerCase()
+                    }));
+
+                if (b.myVal !== null && b.myVal > 0 && !list.some(item => item.isMe)) {
+                    list.push({ name: username, val: b.myVal, isMe: true });
+                }
+
+                list.sort((a, z) => b.sortDesc ? z.val - a.val : a.val - z.val);
+                list = list.slice(0, 10);
+
+                const rowsHtml = list.length === 0
+                    ? `<div class="text-center py-6 px-3 rounded-xl bg-[var(--bg-card)] border border-dashed border-[var(--border-color)] text-xs text-[var(--text-muted)] font-bold">لا توجد نتائج مسجلة بعد — كن أول المتصدرين في الدفعة! 🚀</div>`
+                    : list.map((item, idx) => {
+                        const rankBadge = idx === 0 ? '👑 🥇' : (idx === 1 ? '⚡ 🥈' : (idx === 2 ? '🔥 🥉' : `#${idx + 1}`));
+                        let rowStyle = item.isMe ? 'bg-amber-500/25 border-amber-400 text-amber-200' : 'bg-[var(--bg-card)] border-[var(--border-color)]';
+                        if (idx === 0) rowStyle = 'rank-1-fx border-2 border-purple-400';
+                        else if (idx === 1) rowStyle = 'rank-2-fx border-2';
+                        else if (idx === 2) rowStyle = 'rank-3-fx border-2';
+
+                        return `
+                            <div class="flex justify-between items-center px-3.5 py-2.5 rounded-xl border ${rowStyle} text-xs sm:text-sm font-bold">
+                                <div class="flex items-center gap-2">
+                                    <span class="min-w-[36px] text-center font-black">${rankBadge}</span>
+                                    <span class="font-extrabold">${item.name} ${item.isMe ? '<span class="text-amber-300 font-black">(أنت ⭐)</span>' : ''}</span>
+                                </div>
+                                <span class="kw-highlight text-xs">${item.val} ${b.unit}</span>
+                            </div>
+                        `;
+                    }).join('');
+
+                return `
+                    <div class="bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-2xl p-4 sm:p-5 space-y-3">
+                        <h3 class="text-sm sm:text-base font-black text-[var(--gold-bright)] border-b border-[var(--border-color)] pb-2.5">${b.title}</h3>
+                        <div class="space-y-1.5">${rowsHtml}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        window.renderScoreboardLists = async function() {
+            // عرض فوري بدون انتظار الشبكة
+            buildScoreboardHTML();
+
+            // تحديث هادئ في الخلفية إذا مر أكثر من 15 ثانية على آخر تحديث
+            const now = Date.now();
+            if (!isFetchingScores && (now - lastScoreboardFetchTime > 15000 || !globalLivePlayers.length)) {
+                isFetchingScores = true;
+                lastScoreboardFetchTime = now;
+                try {
+                    await syncLiveScoreboard(false);
+                    buildScoreboardHTML();
+                } catch (e) {}
+                isFetchingScores = false;
+            }
+        };
+
+        // 6. إصلاح أزرار الجوال والأيقونات
+        if (!document.querySelector('link[rel="icon"]')) {
+            const icon = document.createElement('link');
+            icon.rel = 'icon';
+            icon.type = 'image/png';
+            icon.href = 'logo.png';
+            document.head.appendChild(icon);
+        }
+        if (document.documentElement.classList.contains('session-agreed')) {
+            sessionStorage.setItem('med26_session_agreed', '1');
+        }
+
+        window.ensureMobileScoreboardVisible = function() {
+            const navSb = document.getElementById('nav-scoreboard');
+            if (navSb) navSb.style.display = 'inline-flex';
+            const heroRankCard = document.querySelector('#bento-hero-upgraded [onclick*="scoreboard"]');
+            if (heroRankCard) heroRankCard.style.display = 'block';
+            const sbGrid = document.getElementById('scoreboard-four-lists');
+            if (sbGrid) sbGrid.className = 'grid grid-cols-1 md:grid-cols-2 gap-4 w-full';
+        };
+
+        function setupMobileNavButtons() {
+            const mobBar = document.getElementById('mobile-bottom-bar');
+            if (mobBar && !document.getElementById('mob-scoreboard')) {
+                const sbMobBtn = document.createElement('button');
+                sbMobBtn.id = 'mob-scoreboard';
+                sbMobBtn.onclick = () => switchView('scoreboard');
+                const isSbActive = (document.body.dataset.defaultView === 'scoreboard');
+                sbMobBtn.className = `pill-btn ${isSbActive ? 'active' : ''} py-1.5 rounded-xl flex flex-col items-center justify-center text-[10px] font-bold text-orange-300`;
+                sbMobBtn.innerHTML = '<span class="text-sm">🔥</span><span>المتصدرين</span>';
+                mobBar.appendChild(sbMobBtn);
+            }
+
+            const mobTopActions = document.querySelector('#main-header .md\\:hidden');
+            if (mobTopActions && !document.getElementById('mob-top-checklist-btn')) {
+                const clMobBtn = document.createElement('button');
+                clMobBtn.id = 'mob-top-checklist-btn';
+                clMobBtn.onclick = () => { if (typeof openLabChecklistModal === 'function') openLabChecklistModal(); };
+                clMobBtn.className = 'pill-btn px-2 py-1.5 rounded-xl text-[11px] font-extrabold text-emerald-300';
+                clMobBtn.innerHTML = '✅ الختم';
+                mobTopActions.insertBefore(clMobBtn, mobTopActions.firstChild);
+            }
+        }
+
+        function runImmediateFixes() {
+            window.triggerBidirectionalCascade();
+            window.ensureMobileScoreboardVisible();
+            setupMobileNavButtons();
+            if (document.body.dataset.defaultView === 'atlas') window.renderAtlasGrid();
+            if (document.body.dataset.defaultView === 'scoreboard') window.renderScoreboardLists();
+        }
+
+        window.addEventListener('DOMContentLoaded', runImmediateFixes);
+        setTimeout(runImmediateFixes, 250);
+    })();
+</script>
 </body>
 </html>
