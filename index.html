@@ -5638,6 +5638,184 @@ window.shareCurrentChallengeLink = function() {
         });
     })();
 </script>
+<!-- ================= إصلاح شامل لواجهة الجوال والآيباد (Mobile & iPad Complete Fix) ================= -->
+<style>
+    /* 1. منع التمدد الأفقي وتصغير الشاشة (حل مشكلة الشاشة السوداء والزوم البعيد) */
+    html, body {
+        max-width: 100vw !important;
+        width: 100% !important;
+        overflow-x: hidden !important;
+        position: relative;
+        -webkit-text-size-adjust: 100%;
+    }
+    header, main, footer, section, .app-card {
+        max-width: 100% !important;
+        min-width: 0 !important;
+    }
+    .footer-marquee-wrap {
+        max-width: 100vw !important;
+        width: 100% !important;
+        overflow: hidden !important;
+        contain: layout paint;
+    }
+    #cinematic-fog-stage, #bg-Stage, #stardust-canvas {
+        max-width: 100vw !important;
+        overflow: hidden !important;
+    }
 
+    /* 2. حل مشكلة اختفاء البطاقات الطويلة (الأطلس والتخصيص والمتصدرين) في الجوال والآيباد */
+    .cascade-reveal,
+    .cascade-reveal.out-top,
+    .cascade-reveal.out-bottom {
+        opacity: 1 !important;
+        filter: none !important;
+        transform: none !important;
+    }
+
+    /* 3. إلغاء إمالة 3D عند اللمس في الجوال والآيباد لمنع التقطيع وتعليق البطاقات */
+    @media (hover: none), (pointer: coarse), (max-width: 1024px) {
+        .app-card:hover, .gamemode-card:hover {
+            transform: none !important;
+        }
+        .app-card::before {
+            display: none !important;
+        }
+    }
+
+    /* 4. ضبط الهيدر والأزرار العائمة وشريط الجوال السفلي */
+    @media (max-width: 1023px) {
+        #top-dhikr-pill {
+            display: none !important;
+        }
+    }
+    @media (max-width: 767px) {
+        body {
+            padding-bottom: 128px !important;
+        }
+        #top-user-badge {
+            padding: 4px 8px !important;
+            font-size: 11px !important;
+        }
+        #top-user-badge span:last-child {
+            display: none !important;
+        }
+        /* رفع مؤقت البومودورو وزر المناضل فوق شريط الجوال السفلي */
+        #med26-pomo-widget {
+            bottom: 74px !important;
+            right: 10px !important;
+            z-index: 45 !important;
+        }
+        #pomo-collapsed {
+            padding: 5px 10px !important;
+            font-size: 11px !important;
+        }
+        #ai-floating-btn {
+            bottom: 74px !important;
+            left: 10px !important;
+            padding: 8px 12px !important;
+            font-size: 11px !important;
+            z-index: 45 !important;
+        }
+        /* جعل مواد التدريب المخصص عموداً واحداً في الجوال لعدم انضغاط اللابات الفرعية */
+        #custom-subjects {
+            grid-template-columns: 1fr !important;
+        }
+        /* ضبط شريط الجوال السفلي ليتسع لـ 6 أزرار مع المتصدرين */
+        #mobile-bottom-bar {
+            grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+            padding: 6px 4px !important;
+            gap: 3px !important;
+        }
+        /* تحسين جدول الـ Checklist في الجوال ليدعم السحب الأفقي السلس */
+        #f2-checklist-modal table {
+            min-width: 680px !important;
+        }
+    }
+</style>
+
+<script>
+    (function applyMobileAndIpadFixes() {
+        // 1. إضافة أيقونة شعار الدفعة في التبويب إذا لم تكن موجودة في الصفحات الفرعية
+        if (!document.querySelector('link[rel="icon"]')) {
+            const icon1 = document.createElement('link');
+            icon1.rel = 'icon';
+            icon1.type = 'image/png';
+            icon1.href = 'logo.png';
+            document.head.appendChild(icon1);
+
+            const icon2 = document.createElement('link');
+            icon2.rel = 'apple-touch-icon';
+            icon2.href = 'logo.png';
+            document.head.appendChild(icon2);
+        }
+
+        // 2. توحيد حالة الموافقة على الإقرار عند التنقل من الصفحات الفرعية إلى الرئيسية
+        if (document.documentElement.classList.contains('session-agreed')) {
+            sessionStorage.setItem('med26_session_agreed', '1');
+        }
+
+        // 3. إيقاف مراقب الإخفاء الذي كان يخفي بطاقة الأطلس الطويلة في الجوال والآيباد
+        window.triggerBidirectionalCascade = function() {
+            if (typeof bidirectionalObserver !== 'undefined' && bidirectionalObserver) {
+                bidirectionalObserver.disconnect();
+            }
+            document.querySelectorAll('.cascade-reveal').forEach(el => {
+                el.classList.add('is-visible');
+                el.classList.remove('out-top', 'out-bottom');
+            });
+        };
+
+        // 4. إصلاح دالة ensureMobileScoreboardVisible حتى لا تكسر بطاقة الترتيب في الصفحة الرئيسية
+        window.ensureMobileScoreboardVisible = function() {
+            const navSb = document.getElementById('nav-scoreboard');
+            if (navSb) navSb.style.display = 'inline-flex';
+            const heroRankCard = document.querySelector('#bento-hero-upgraded [onclick*="scoreboard"]');
+            if (heroRankCard) heroRankCard.style.display = 'block';
+            const sbGrid = document.getElementById('scoreboard-four-lists');
+            if (sbGrid) sbGrid.className = 'grid grid-cols-1 md:grid-cols-2 gap-4 w-full';
+        };
+
+        // 5. إضافة زر المتصدرين (Score Board) في شريط الجوال السفلي وزر Checklist في هيدر الجوال
+        function enhanceMobileNavigation() {
+            const mobBar = document.getElementById('mobile-bottom-bar');
+            if (mobBar && !document.getElementById('mob-scoreboard')) {
+                const sbMobBtn = document.createElement('button');
+                sbMobBtn.id = 'mob-scoreboard';
+                sbMobBtn.onclick = () => switchView('scoreboard');
+                const isSbActive = (document.body.dataset.defaultView === 'scoreboard');
+                sbMobBtn.className = `pill-btn ${isSbActive ? 'active' : ''} py-1.5 rounded-xl flex flex-col items-center justify-center text-[10px] font-bold text-orange-300`;
+                sbMobBtn.innerHTML = '<span class="text-sm">🔥</span><span>المتصدرين</span>';
+                mobBar.appendChild(sbMobBtn);
+            }
+
+            // إضافة زر Checklist صغير في شريط الجوال العلوي بجانب زر 60ث
+            const mobTopActions = document.querySelector('#main-header .md\\:hidden');
+            if (mobTopActions && !document.getElementById('mob-top-checklist-btn')) {
+                const clMobBtn = document.createElement('button');
+                clMobBtn.id = 'mob-top-checklist-btn';
+                clMobBtn.onclick = () => { if (typeof openLabChecklistModal === 'function') openLabChecklistModal(); };
+                clMobBtn.className = 'pill-btn px-2 py-1.5 rounded-xl text-[11px] font-extrabold text-emerald-300';
+                clMobBtn.innerHTML = '✅ الختم';
+                mobTopActions.insertBefore(clMobBtn, mobTopActions.firstChild);
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            window.triggerBidirectionalCascade();
+            window.ensureMobileScoreboardVisible();
+            enhanceMobileNavigation();
+        });
+        setTimeout(() => {
+            window.triggerBidirectionalCascade();
+            window.ensureMobileScoreboardVisible();
+            enhanceMobileNavigation();
+        }, 400);
+        setTimeout(() => {
+            window.triggerBidirectionalCascade();
+            window.ensureMobileScoreboardVisible();
+            enhanceMobileNavigation();
+        }, 900);
+    })();
+</script>
 </body>
 </html>
